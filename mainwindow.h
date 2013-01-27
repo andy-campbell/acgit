@@ -15,6 +15,7 @@ public:
     explicit MainWindow(QWidget *parent = 0);
     ~MainWindow();
     
+    void revWalk();
 private:
     Ui::MainWindow *ui;
 };
