@@ -3,15 +3,19 @@
 
 #include "../libqgit2/qgit2.h"
 
+#include "acrepo.h"
+
+
 #include <QString>
+#include <QFileDialog>
+#include <QMessageBox>
+#include <QDebug>
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
-
-    revWalk();
 }
 
 MainWindow::~MainWindow()
@@ -25,22 +29,25 @@ MainWindow::~MainWindow()
  */
 void MainWindow::revWalk ()
 {
-    LibQGit2::QGitRepository repo;
+    if (repo == NULL)
+    {
+        QMessageBox msgBox;
+        msgBox.setText("No git repository selected");
+        msgBox.setInformativeText("Please open one!");
+        int ret = msgBox.exec();
 
-    repo.open("/home/andrew/build/libgit2");
-
+        return;
+    }
     // set walk commit to head
-    LibQGit2::QGitCommit walkCommit = repo.lookupCommit(repo.head().oid());
-    LibQGit2::QGitRevWalk walker(repo);
+    LibQGit2::QGitCommit walkCommit = repo->getRepo().lookupCommit(repo->getRepo().head().oid());
+    LibQGit2::QGitRevWalk walker(repo->getRepo());
 
     walker.setSorting(LibQGit2::QGitRevWalk::Topological);
 
     walker.push(walkCommit);
 
-    LibQGit2::QGitSignature sig;
-
     int count = 0;
-
+    qDebug() << "got to here";
     while (walker.next(walkCommit) == true)
     {
         ui->revListTable->insertRow(count);
@@ -63,4 +70,52 @@ void MainWindow::revWalk ()
         count ++;
     }
 
+}
+
+void MainWindow::loadRepo()
+{
+    qDebug() << "loadRepo called";
+    revWalk();
+}
+
+void MainWindow::findAllBranches()
+{
+    QStringList branches = repo->getRepo().showAllBranches();
+
+    foreach (QString branch, branches)
+    {
+        ui->diffView->append(branch + "\n");
+    }
+
+//    if (head)
+//    {
+//        repo->getRepo().
+//    }
+
+}
+
+
+void MainWindow::on_actionOpen_triggered()
+{
+    QString folderName = QFileDialog::getExistingDirectory(this, tr("Open Directory"),
+                                                     QDir::home().path());
+    repo = new acRepo(folderName + "/.git");
+
+    qDebug() << folderName + "/.git";
+
+    connect (repo, SIGNAL(repoOpened()),this, SLOT(loadRepo()));
+    revWalk();
+    findAllBranches();
+
+}
+
+/**
+ * @brief MainWindow::on_revListTable_cellClicked - A Cell has been clicked so
+ * highlight the row it is on
+ * @param row - row to highlight
+ * @param column - column which has be click we doing use
+ */
+void MainWindow::on_revListTable_cellClicked(int row, int column)
+{
+    ui->revListTable->selectRow(row);
 }

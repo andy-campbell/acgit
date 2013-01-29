@@ -3,6 +3,8 @@
 
 #include <QMainWindow>
 
+#include "acrepo.h"
+
 namespace Ui {
 class MainWindow;
 }
@@ -16,8 +18,18 @@ public:
     ~MainWindow();
     
     void revWalk();
+    void findAllBranches();
+private slots:
+    void on_actionOpen_triggered();
+    void loadRepo();
+
+    void on_revListTable_cellClicked(int row, int column);
+
 private:
     Ui::MainWindow *ui;
+
+    // TODO remove from here
+    acRepo *repo;
 };
 
 #endif // MAINWINDOW_H
