@@ -10,12 +10,19 @@
 #include <QFileDialog>
 #include <QMessageBox>
 #include <QDebug>
+#include <QTreeWidgetItem>
+#include <QHeaderView>
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
+
+    //set column count to 4
+    // TODO make change back to 4
+    ui->revList->setColumnCount(5);
+
 }
 
 MainWindow::~MainWindow()
@@ -34,7 +41,7 @@ void MainWindow::revWalk ()
         QMessageBox msgBox;
         msgBox.setText("No git repository selected");
         msgBox.setInformativeText("Please open one!");
-        int ret = msgBox.exec();
+        msgBox.exec();
 
         return;
     }
@@ -46,52 +53,49 @@ void MainWindow::revWalk ()
 
     walker.push(walkCommit);
 
-    int count = 0;
-    qDebug() << "got to here";
     while (walker.next(walkCommit) == true)
     {
-        ui->revListTable->insertRow(count);
+        QTreeWidgetItem *commit = new QTreeWidgetItem(ui->revList);
+
         // set short message
-        QTableWidgetItem* shortMessage = new QTableWidgetItem(walkCommit.shortMessage());
+        commit->setText(1, walkCommit.shortMessage());
 
-        ui->revListTable->setItem(count, 1, shortMessage);
         // set author
-        QTableWidgetItem* author = new QTableWidgetItem(walkCommit.author().name());
-
-        ui->revListTable->setItem(count, 2, author);
+        commit->setText(2, walkCommit.author().name());
 
         //set author date
-        QTableWidgetItem* date = new QTableWidgetItem(walkCommit.author().when().toString());
+        commit->setText(3, walkCommit.author().when().toString());
 
-        ui->revListTable->setItem(count, 3, date);
-        //ui->textEdit->append (walkCommit.author().name() + "->" + walkCommit.message());
+        //TODO remove me - sets branch name
+//        LibQGit2::QGitRef *ref = new LibQGit2::QGitRef ();
 
-        // increase row count
-        count ++;
+//        try
+//        {
+//            ref->setOId(walkCommit.oid());
+//        }
+//        catch (...)
+//        {
+//            qDebug() << "An expection occured";
+//        }
+
+//        commit->setText(4, ref->name());
     }
 
 }
 
 void MainWindow::loadRepo()
 {
-    qDebug() << "loadRepo called";
     revWalk();
 }
 
 void MainWindow::findAllBranches()
 {
-    QStringList branches = repo->getRepo().showAllBranches();
+    QStringList branches = repo->getRepo().listReferences();
 
     foreach (QString branch, branches)
     {
         ui->diffView->append(branch + "\n");
     }
-
-//    if (head)
-//    {
-//        repo->getRepo().
-//    }
-
 }
 
 
@@ -101,12 +105,9 @@ void MainWindow::on_actionOpen_triggered()
                                                      QDir::home().path());
     repo = new acRepo(folderName + "/.git");
 
-    qDebug() << folderName + "/.git";
-
     connect (repo, SIGNAL(repoOpened()),this, SLOT(loadRepo()));
     revWalk();
     findAllBranches();
-
 }
 
 /**
@@ -117,5 +118,5 @@ void MainWindow::on_actionOpen_triggered()
  */
 void MainWindow::on_revListTable_cellClicked(int row, int column)
 {
-    ui->revListTable->selectRow(row);
+   // ui->revListTable->selectRow(row);
 }
