@@ -28,7 +28,11 @@
         <item>
          <layout class="QVBoxLayout" name="verticalLayout_2">
           <item>
-           <widget class="QTreeWidget" name="revList">
+           <widget class="QTreeView" name="revList">
+            <property name="styleSheet">
+             <string notr="true">QTreeView {show-decoration-selected: 1;}
+</string>
+            </property>
             <property name="alternatingRowColors">
              <bool>true</bool>
             </property>
@@ -38,11 +42,24 @@
             <property name="selectionBehavior">
              <enum>QAbstractItemView::SelectRows</enum>
             </property>
-            <column>
-             <property name="text">
-              <string notr="true">1</string>
-             </property>
-            </column>
+            <property name="indentation">
+             <number>10</number>
+            </property>
+            <property name="rootIsDecorated">
+             <bool>true</bool>
+            </property>
+            <property name="uniformRowHeights">
+             <bool>true</bool>
+            </property>
+            <property name="itemsExpandable">
+             <bool>true</bool>
+            </property>
+            <property name="animated">
+             <bool>false</bool>
+            </property>
+            <property name="allColumnsShowFocus">
+             <bool>true</bool>
+            </property>
            </widget>
           </item>
           <item>

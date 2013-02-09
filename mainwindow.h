@@ -2,6 +2,8 @@
 #define MAINWINDOW_H
 
 #include <QMainWindow>
+#include <QTreeView>
+#include <QAbstractItemView>
 
 #include "acrepo.h"
 
