@@ -26,11 +26,31 @@ MainWindow::MainWindow(QWidget *parent) :
     ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
+
+    setup();
+
 }
 
 MainWindow::~MainWindow()
 {
     delete ui;
+}
+
+void MainWindow::setup()
+{
+    // Add header to file List
+    QStandardItemModel *model = new QStandardItemModel(this);
+    model->setColumnCount(1);
+
+    // setup header info for files changed and update treeview
+    QStandardItem *header = new QStandardItem();
+    header->setData("Files Changed", Qt::DisplayRole);
+    model->setHorizontalHeaderItem(0, header);
+    ui->fileChangesView->setModel(model);
+
+
+    // Make diff read only
+    ui->diffView->setReadOnly(true);
 }
 
 /**
@@ -116,13 +136,49 @@ void MainWindow::on_actionOpen_triggered()
     findAllBranches();
 }
 
-/**
- * @brief MainWindow::on_revListTable_cellClicked - A Cell has been clicked so
- * highlight the row it is on
- * @param row - row to highlight
- * @param column - column which has be click we doing use
- */
-void MainWindow::on_revListTable_cellClicked(int row, int column)
+void MainWindow::on_revList_clicked(const QModelIndex &index)
 {
-   // ui->revListTable->selectRow(row);
+    // Handle file list
+    Commit *commitFrom = repo->getAllCommits().at(index.row() + 1);
+    Commit *commitTo = repo->getAllCommits().at(index.row());
+
+    LibQGit2::QGitDiff *diff = new LibQGit2::QGitDiff (repo->getRepo(), commitFrom->getCommit(), commitTo->getCommit());
+
+    QStringList fileList = diff->getFileChangedList();
+
+    QStandardItemModel *model = new QStandardItemModel(this);
+    model->setColumnCount(1);
+
+    // setup header info for files changed and update treeview
+    QStandardItem *header = new QStandardItem();
+    header->setData("Files Changed", Qt::DisplayRole);
+    model->setHorizontalHeaderItem(0, header);
+
+    int row = 0;
+    foreach (QString file, fileList)
+    {
+        QStandardItem *index0 = new QStandardItem();
+        index0->setData(file, Qt::DisplayRole);
+        model->setItem(row, 0, index0);
+        qDebug() << row;
+        row++;
+
+
+
+    }
+
+    QString delta = diff->getDeltasForFile(fileList.first());
+    ui->diffView->clear();
+    ui->diffView->append(delta);
+
+    // TODO sort this out this is duplicate code and is bad practice
+    ui->fileChangesView->setModel(model);
+
+
+    // Handle Long message
+    ui->fullLogText->clear();
+    ui->fullLogText->append(commitTo->getCommit().message());
+
+
+
 }

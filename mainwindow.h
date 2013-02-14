@@ -25,11 +25,12 @@ private slots:
     void on_actionOpen_triggered();
     void loadRepo();
 
-    void on_revListTable_cellClicked(int row, int column);
+    void on_revList_clicked(const QModelIndex &index);
 
 private:
     Ui::MainWindow *ui;
 
+    void setup();
     // TODO remove from here
     acRepo *repo;
 };
