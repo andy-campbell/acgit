@@ -136,6 +136,90 @@ void MainWindow::on_actionOpen_triggered()
     findAllBranches();
 }
 
+void MainWindow::gitTreeSelectedRow(const QModelIndex& index)
+{
+    QString path = index.data(Qt::DisplayRole).toString();
+    QModelIndex parent = index.parent();
+
+    while (parent.isValid())
+    {
+        path = parent.data().toString() + "/" + path;
+        parent = parent.parent();
+    }
+
+    // get comming we are working with
+    Commit *commit = repo->getAllCommits().at(ui->revList->currentIndex().row());
+
+    LibQGit2::QGitTree tree = commit->getCommit().tree().toTree();
+    LibQGit2::QGitTreeEntry entry = tree.entryByName(path);
+    LibQGit2::QGitObject object = entry.toObject(repo->getRepo());
+
+    LibQGit2::QGitBlob blob = object.toBlob();
+
+    // clear output and then appent file text
+    ui->fileText->clear();
+    ui->fileText->append(QString((char*)blob.rawContent()));
+
+}
+
+void MainWindow::buildTreeForCommit(Commit *commit)
+{
+    // Handle Tree
+    QStringList fileListTree = commit->getCommit().tree().getAllEntries();
+    QStandardItemModel *model = new QStandardItemModel(this);
+    model->setColumnCount(1);
+
+    QMap <int, QString> tree;
+    QList<QStandardItem*> parentList;
+    int row = 0;
+
+    foreach (QString filename, fileListTree)
+    {
+        QStringList parsedPath = filename.split("/");
+        bool newBranch = false;
+
+        for (int i = 0; i < parsedPath.length(); i++)
+        {
+            newBranch = parsedPath.at(i).compare(tree[i]);
+            if (newBranch != 0)
+            {
+                tree.insert(i, parsedPath.at(i));
+                QStandardItem *index0 = new QStandardItem();
+                index0->setData(parsedPath.at(i), Qt::DisplayRole);
+
+                if (i == 0)
+                {
+                    model->setItem(row, 0, index0);
+                    row++;
+
+                    if (parentList.empty() == false)
+                        parentList.replace(i, index0);
+                    else
+                        parentList.push_back(index0);
+                }
+                else
+                {
+
+                    parentList.at(i -1)->appendRow(index0);
+
+
+                    if (i < parentList.length())
+                        parentList.replace(i, index0);
+                    else
+                        parentList.insert(i, index0);
+                }
+
+            }
+        }
+    }
+    connect(ui->gitTree,SIGNAL(clicked(const QModelIndex& ) ),
+            this,SLOT( gitTreeSelectedRow(const QModelIndex& ) ) );
+
+    ui->gitTree->setModel(model);
+    ui->gitTree->header()->close();
+
+}
+
 void MainWindow::on_revList_clicked(const QModelIndex &index)
 {
     // Handle file list
@@ -179,6 +263,6 @@ void MainWindow::on_revList_clicked(const QModelIndex &index)
     ui->fullLogText->clear();
     ui->fullLogText->append(commitTo->getCommit().message());
 
-
+    buildTreeForCommit(commitTo);
 
 }
