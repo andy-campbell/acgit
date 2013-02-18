@@ -6,6 +6,7 @@
 #include <QAbstractItemView>
 
 #include "acrepo.h"
+#include "currentcommit.h"
 
 namespace Ui {
 class MainWindow;
@@ -28,6 +29,8 @@ private slots:
 
     void on_revList_clicked(const QModelIndex &index);
 
+    void on_fileChangesView_clicked(const QModelIndex &index);
+
 private:
 
     Ui::MainWindow *ui;
@@ -35,8 +38,9 @@ private:
     void setup();
     // TODO remove from here
     acRepo *repo;
+    currentCommit *shownCommit;
 
-    void buildTreeForCommit(Commit *commit);
+    void buildTreeForCommit(const Commit *commit);
 };
 
 #endif // MAINWINDOW_H

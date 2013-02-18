@@ -21,7 +21,7 @@ public:
 
     virtual ~acRepo();
 
-    LibQGit2::QGitRepository getRepo();
+    LibQGit2::QGitRepository getRepo() const;
 
     void setRepo(const LibQGit2::QGitRepository &value);
 

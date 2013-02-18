@@ -37,7 +37,7 @@ acRepo::~acRepo()
 {
 }
 
-LibQGit2::QGitRepository acRepo::getRepo()
+LibQGit2::QGitRepository acRepo::getRepo() const
 {
     return repo;
 }
@@ -60,13 +60,7 @@ QVector<Commit*> acRepo::getAllCommits()
 
 Commit* acRepo::populateCommit(LibQGit2::QGitCommit &commit, QList<LibQGit2::QGitOId> &nextCommits)
 {
-//    QString repoLine = "";
-
     enum Commit::CommitType type = Commit::NORMAL_COMMIT;
-
-
-    //qDebug() << "commit count = " << commits.size();
-
     int count = 0;
     bool mergeCommit = false;
 
@@ -80,7 +74,6 @@ Commit* acRepo::populateCommit(LibQGit2::QGitCommit &commit, QList<LibQGit2::QGi
         }
     }
 
-    //
     if (count > 1)
     {
         // remove current commits that match commit

@@ -26,7 +26,7 @@ int Commit::getRow()
     return _row;
 }
 
-LibQGit2::QGitCommit Commit::getCommit()
+LibQGit2::QGitCommit Commit::getCommit() const
 {
     return _commit;
 }

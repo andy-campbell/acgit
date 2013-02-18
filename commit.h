@@ -24,10 +24,9 @@ public:
 
     int getRow();
 
-    LibQGit2::QGitCommit getCommit();
+    LibQGit2::QGitCommit getCommit() const;
 
     enum CommitType getCommitType();
-
 
 private:
     LibQGit2::QGitCommit _commit;

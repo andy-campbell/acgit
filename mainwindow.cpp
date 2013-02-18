@@ -4,6 +4,7 @@
 #include "../libqgit2/qgit2.h"
 
 #include "acrepo.h"
+#include "currentcommit.h"
 
 
 #include <QString>
@@ -27,6 +28,11 @@ MainWindow::MainWindow(QWidget *parent) :
 {
     ui->setupUi(this);
 
+    // null variables
+    shownCommit = nullptr;
+    repo = nullptr;
+
+    // extra ui setup
     setup();
 
 }
@@ -162,7 +168,7 @@ void MainWindow::gitTreeSelectedRow(const QModelIndex& index)
 
 }
 
-void MainWindow::buildTreeForCommit(Commit *commit)
+void MainWindow::buildTreeForCommit(const Commit *commit)
 {
     // Handle Tree
     QStringList fileListTree = commit->getCommit().tree().getAllEntries();
@@ -223,12 +229,12 @@ void MainWindow::buildTreeForCommit(Commit *commit)
 void MainWindow::on_revList_clicked(const QModelIndex &index)
 {
     // Handle file list
-    Commit *commitFrom = repo->getAllCommits().at(index.row() + 1);
-    Commit *commitTo = repo->getAllCommits().at(index.row());
+    if (shownCommit)
+    {
+        delete shownCommit;
+    }
 
-    LibQGit2::QGitDiff *diff = new LibQGit2::QGitDiff (repo->getRepo(), commitFrom->getCommit(), commitTo->getCommit());
-
-    QStringList fileList = diff->getFileChangedList();
+    shownCommit = new currentCommit (repo, repo->getAllCommits().at(index.row() + 1), repo->getAllCommits().at(index.row()));
 
     QStandardItemModel *model = new QStandardItemModel(this);
     model->setColumnCount(1);
@@ -239,30 +245,37 @@ void MainWindow::on_revList_clicked(const QModelIndex &index)
     model->setHorizontalHeaderItem(0, header);
 
     int row = 0;
-    foreach (QString file, fileList)
+    foreach (QString file, shownCommit->getFileList())
     {
-        QStandardItem *index0 = new QStandardItem();
-        index0->setData(file, Qt::DisplayRole);
-        model->setItem(row, 0, index0);
-        qDebug() << row;
+        //create items and then add it to the model
+        QStandardItem *index = new QStandardItem();
+        index->setData(file, Qt::DisplayRole);
+        model->setItem(row, 0, index);
+
         row++;
-
-
-
     }
 
-    QString delta = diff->getDeltasForFile(fileList.first());
+    // set diffview to show the delta of the first file
     ui->diffView->clear();
-    ui->diffView->append(delta);
+    ui->diffView->append(shownCommit->getDetaForFile(shownCommit->getFileList().first()));
 
     // TODO sort this out this is duplicate code and is bad practice
     ui->fileChangesView->setModel(model);
-
+    QModelIndex firstItem = model->index(0,0);
+    ui->fileChangesView->setCurrentIndex(firstItem);
 
     // Handle Long message
     ui->fullLogText->clear();
-    ui->fullLogText->append(commitTo->getCommit().message());
+    ui->fullLogText->append(shownCommit->getCurrentSelectedCommit()->getCommit().message());
 
-    buildTreeForCommit(commitTo);
+    buildTreeForCommit(shownCommit->getCurrentSelectedCommit());
 
+}
+
+void MainWindow::on_fileChangesView_clicked(const QModelIndex &index)
+{
+    QString file = index.data(Qt::DisplayRole).toString();
+
+    ui->diffView->clear();
+    ui->diffView->append(shownCommit->getDetaForFile(file));
 }
