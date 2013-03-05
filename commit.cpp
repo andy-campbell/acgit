@@ -2,8 +2,8 @@
 
 
 
-Commit::Commit(LibQGit2::QGitCommit commit, Commit::CommitType type, int row)
-    : _commit(commit), _type (type), _row(row)
+Commit::Commit(LibQGit2::QGitCommit commit, Commit::CommitType type, int row, int branchRow, int maxRows)
+    : _commit(commit), _type (type), _row(row), _branchRow(branchRow), maxRow(maxRows)
 {
 }
 
@@ -34,6 +34,16 @@ LibQGit2::QGitCommit Commit::getCommit() const
 Commit::CommitType Commit::getCommitType()
 {
     return _type;
+}
+
+int Commit::getMaxRow()
+{
+    return maxRow;
+}
+
+int Commit::getBranchRow()
+{
+    return _branchRow;
 }
 
 

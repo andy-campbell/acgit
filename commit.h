@@ -8,13 +8,14 @@ class Commit
 public:
     enum CommitType
     {
+        NO_COMMIT,
         NORMAL_COMMIT,
         BRANCH_COMMIT,
         MERGE_COMMIT,
         BRANCH_MERGE_COMMIT
     };
 
-    Commit(LibQGit2::QGitCommit commit, enum CommitType type, int row );
+    Commit(LibQGit2::QGitCommit commit, enum CommitType type, int row , int branchRow, int maxRows);
 
     virtual ~Commit();
 
@@ -28,11 +29,15 @@ public:
 
     enum CommitType getCommitType();
 
+    int getMaxRow();
+
 private:
     LibQGit2::QGitCommit _commit;
     int _row;
+    int _branchRow;
     enum CommitType _type;
     int _numParents;
+    int maxRow;
 
 
 };
