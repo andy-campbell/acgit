@@ -54,6 +54,11 @@ void MainWindow::setup()
     model->setHorizontalHeaderItem(0, header);
     ui->fileChangesView->setModel(model);
 
+    // update diff splitter.
+    QList<int> sizes;
+    sizes.append(ui->filesChanged->size().width() / 5);
+    sizes.append(ui->filesChanged->size().width() - (ui->filesChanged->size().width() / 5));
+    ui->diffSplitter->setSizes(sizes);
 
     // Make diff read only
     ui->diffView->setReadOnly(true);
