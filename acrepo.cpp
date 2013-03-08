@@ -13,8 +13,9 @@ acRepo::acRepo(QString directory)
     LibQGit2::QGitRevWalk walker(repo);
 
     QVector<LibQGit2::QGitOId> nextCommits;
+    nextCommits.reserve(25);
 
-    nextCommits.append(walkCommit.oid());
+    nextCommits.insert(0, repo.head().oid());
     Commit* newCommit = populateCommit(walkCommit, nextCommits, 1);
     commits.append (newCommit);
     walker.setSorting(LibQGit2::QGitRevWalk::Topological);
@@ -58,11 +59,13 @@ QVector<Commit*> acRepo::getAllCommits()
     //return Lanes;
 }
 
-Commit* acRepo::populateCommit(LibQGit2::QGitCommit &commit, QList<LibQGit2::QGitOId> &nextCommits, int prevMaxRow)
+Commit* acRepo::populateCommit(LibQGit2::QGitCommit &commit, QVector<LibQGit2::QGitOId> &nextCommits, int prevMaxRow)
 {
     enum Commit::CommitType type = Commit::NORMAL_COMMIT;
     int count = 0;
     bool mergeCommit = false;
+    int activeLane = 0;
+    int branchFromLane = -1;
 
     // count the next commits that have the same oid as the commit
     for (int nextCommitIndex = 0; nextCommitIndex < nextCommits.size(); nextCommitIndex++)
@@ -71,14 +74,43 @@ Commit* acRepo::populateCommit(LibQGit2::QGitCommit &commit, QList<LibQGit2::QGi
         if (nextCommit == commit.oid())
         {
             // increament count of children with this commit
+            if (count == 0)
+            {
+                activeLane = nextCommitIndex;
+            }
+            else
+            {
+                branchFromLane = nextCommitIndex;
+            }
             count++;
+            //reset commit to zero
+            LibQGit2::QGitOId zero;
+            nextCommits[nextCommitIndex] = zero;
         }
     }
 
     // Loops over parents of this commit and add to nextCommits List.
     for (uint i = 0; i < commit.parentCount() && commit.parentCount() > 1; i++)
     {
-        nextCommits.append(commit.parent(i).oid());
+        bool added = false;
+        for (int k = activeLane; k < nextCommits.size(); k++)
+        {
+            //default value of gitoid is 0
+            LibQGit2::QGitOId zero;
+            if (nextCommits[k] == zero)
+            {
+                nextCommits[k] = commit.parent(i).oid();
+                added = true;
+                prevMaxRow = k;
+                break;
+            }
+        }
+        if (added == false)
+        {
+            nextCommits.append(commit.parent(i).oid());
+            prevMaxRow = nextCommits.size();
+        }
+
         // more than one parent commit so must be a merge of some sort.
         mergeCommit = true;
     }
@@ -105,7 +137,25 @@ Commit* acRepo::populateCommit(LibQGit2::QGitCommit &commit, QList<LibQGit2::QGi
 
         //make sure this isn't the last commit
         if (commit.parentCount() != 0)
-            nextCommits.append(commit.parent(0).oid());
+        {
+            for (int k = activeLane; k < nextCommits.size(); k++)
+            {
+                LibQGit2::QGitOId zero;
+                if (nextCommits[k] == zero)
+                {
+                    if (k < nextCommits.size())
+                    {
+                        nextCommits[k] = commit.parent(0).oid();;
+                    }
+                    else
+                    {
+                        nextCommits.insert(k, commit.parent(0).oid());
+                    }
+                    break;
+                }
+            }
+
+        }
     }
 
     if (count == 1)
@@ -113,14 +163,7 @@ Commit* acRepo::populateCommit(LibQGit2::QGitCommit &commit, QList<LibQGit2::QGi
         type = Commit::NORMAL_COMMIT;
         if (commit.parentCount() != 0)
         {
-            for (int i = 0; i < nextCommits.size(); i++ )
-            {
-                if (nextCommits[i] == 0)
-                {
-                    nextCommits = commit.parent(0).oid();
-                }
-            }
-            nextCommits.append(commit.parent(0).oid());
+             nextCommits[activeLane] = commit.parent(0).oid();
         }
 
         goto create;
@@ -142,24 +185,19 @@ Commit* acRepo::populateCommit(LibQGit2::QGitCommit &commit, QList<LibQGit2::QGi
     }
 
  create:
-    if (type == Commit::BRANCH_COMMIT)
-    {
-        prevMaxRow--;
-    }
-    else if (type == Commit::MERGE_COMMIT)
-    {
-        prevMaxRow++;
-    }
-    Commit* newCommit = new Commit (commit, type, nextCommits.indexOf(commit.oid()),nextCommits.lastIndexOf(commit.oid()), prevMaxRow);
 
-    // zero old commits
-    for (int i = 0; i < nextCommits.size(); i++)
+    //find last Row
+    for (int i = nextCommits.size() - 1; i >= 0; i--)
     {
-        if (nextCommits[i] == commit.oid())
+        LibQGit2::QGitOId zero;
+        if (nextCommits[i] != zero)
         {
-            nextCommits[i] = 0;
+            prevMaxRow = i + 1;
+            break;
         }
     }
+
+    Commit* newCommit = new Commit (commit, type, activeLane,branchFromLane, prevMaxRow);
 
     return newCommit;
 }

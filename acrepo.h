@@ -33,7 +33,7 @@ signals:
     void repoOpened();
 
 private:
-    Commit *populateCommit(LibQGit2::QGitCommit &commit, QList<LibQGit2::QGitOId> &nextCommits, int prevMaxRow);
+    Commit *populateCommit(LibQGit2::QGitCommit &commit, QVector<LibQGit2::QGitOId> &nextCommits, int prevMaxRow);
     LibQGit2::QGitRepository repo;
     QVector<Commit*> commits;
 };

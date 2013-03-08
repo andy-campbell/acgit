@@ -31,6 +31,8 @@ public:
 
     int getMaxRow();
 
+    int getBranchRow();
+
 private:
     LibQGit2::QGitCommit _commit;
     int _row;
