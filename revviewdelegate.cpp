@@ -168,7 +168,7 @@ void revViewDelegate::paintGraphLane(QPainter* p, int type, int x1, int x2,
         break;
     case Commit::MERGE_COMMIT:
     case Commit::BRANCH_COMMIT:
-    case Commit::BRANCH_MERGE_COMMIT_BOTH:
+    case Commit::BRANCH_MERGE_COMMIT:
         p->drawLine(P_CENTER, P_0);
     default:
         break;

@@ -336,6 +336,23 @@ Commit* acRepo::populateCommit(LibQGit2::QGitCommit &commit, QVector<LibQGit2::Q
             continue;
         }
 
+        if (lane.type == Commit::NORMAL_COMMIT)
+        {
+            if (i > lane.activeRow)
+            {
+                LibQGit2::QGitOId zero;
+                if (nextCommits[i] == zero)
+                {
+                    currentRowState->append(Commit::EMPTY_LANE);
+                }
+                else
+                {
+                    currentRowState->append(Commit::NO_COMMIT);
+                }
+            }
+
+        }
+
     }
 
     lane.currentRowState = currentRowState;
