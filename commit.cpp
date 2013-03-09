@@ -2,8 +2,8 @@
 
 
 
-Commit::Commit(LibQGit2::QGitCommit commit, Commit::CommitType type, int row, int branchRow, int maxRows)
-    : _commit(commit), _type (type), _row(row), _branchRow(branchRow), maxRow(maxRows)
+Commit::Commit(LibQGit2::QGitCommit commit, struct Lane laneinfo)
+    : _commit(commit), _laneInfo (laneinfo)
 {
 }
 
@@ -23,7 +23,7 @@ void Commit::setNumParents(int parentsCount)
 
 int Commit::getRow()
 {
-    return _row;
+    return _laneInfo.activeRow;
 }
 
 LibQGit2::QGitCommit Commit::getCommit() const
@@ -33,17 +33,32 @@ LibQGit2::QGitCommit Commit::getCommit() const
 
 Commit::CommitType Commit::getCommitType()
 {
-    return _type;
+    return _laneInfo.type;
 }
 
 int Commit::getMaxRow()
 {
-    return maxRow;
+    return _laneInfo.maxRows;
 }
 
 int Commit::getBranchRow()
 {
-    return _branchRow;
+    return _laneInfo.branchedToRow;
+}
+
+int Commit::getMergedFromRow()
+{
+    return _laneInfo.mergeFromRow;
+}
+
+QVector<LibQGit2::QGitOId> Commit::getState()
+{
+    return _laneInfo.currentState;
+}
+
+QVector<Commit::CommitType> *Commit::getCurrentRowState()
+{
+    return _laneInfo.currentRowState;
 }
 
 

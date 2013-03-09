@@ -56,7 +56,7 @@ const QColor DARK_GREEN   = QColor(0, 205, 0);
 
 
 void revViewDelegate::paintGraphLane(QPainter* p, int type, int x1, int x2,
-                                      const QColor& col, const QColor& activeCol, const QBrush& back, bool active, bool last, bool branched) const {
+                                      const QColor& col, const QColor& activeCol, const QBrush& back) const {
 
     int h = 26 / 2;
     int m = (x1 + x2) / 2;
@@ -85,67 +85,51 @@ void revViewDelegate::paintGraphLane(QPainter* p, int type, int x1, int x2,
     // TODO this needs to be sorted out atm I only
     // know this is a merge commit and not if which way the merge is heading eg. merge master to branch 1
     // or branch1 back to master
-    case Commit::MERGE_COMMIT:
+    case Commit::MERGE_COMMIT_DOWN:
+    case Commit::BRANCH_MERGE_COMMIT_DOWN:
     {
-        if (last)
-        {
-            QConicalGradient gradient(CENTER_DR);
-            gradient.setColorAt(0.375, activeCol);
-            gradient.setColorAt(0.625, col);
-            myPen.setBrush(gradient);
-            p->setPen(myPen);
-            p->drawArc(P_CENTER, DELTA_UR);
-        }
-        break;
-
-    }
-    case Commit::BRANCH_COMMIT:
-    {
-        if (branched)
-        {
-            qDebug() << "branched row = true row = " << (x1 / 10);
-            QConicalGradient gradient(CENTER_UL);
-            gradient.setColorAt(0.375, activeCol);
-            gradient.setColorAt(0.625, col);
-            myPen.setBrush(gradient);
-            p->setPen(myPen);
-            p->drawArc(P_CENTER, DELTA_DR);
-        }
+        // arc down
+        QConicalGradient gradient(CENTER_DR);
+        gradient.setColorAt(0.375, activeCol);
+        gradient.setColorAt(0.625, col);
+        myPen.setBrush(gradient);
+        p->setPen(myPen);
+        p->drawArc(P_CENTER, DELTA_UR);
         break;
     }
-    case Commit::BRANCH_MERGE_COMMIT:
+    case Commit::BRANCH_COMMIT_UP:
+    case Commit::BRANCH_MERGE_COMMIT_UP:
     {
-        if (branched)
-        {
-            qDebug() << "branched row = true row = " << (x1 / 10);
-            QConicalGradient gradient(CENTER_UL);
-            gradient.setColorAt(0.375, activeCol);
-            gradient.setColorAt(0.625, col);
-            myPen.setBrush(gradient);
-            p->setPen(myPen);
-            p->drawArc(P_CENTER, DELTA_DR);
-        }
-
-        if (last)
-        {
-            QConicalGradient gradient(CENTER_DR);
-            gradient.setColorAt(0.375, activeCol);
-            gradient.setColorAt(0.625, col);
-            myPen.setBrush(gradient);
-            p->setPen(myPen);
-            p->drawArc(P_CENTER, DELTA_UR);
-        }
-
+        qDebug() << "branched row = true row = " << (x1 / 10);
+        // arc up
+        QConicalGradient gradient(CENTER_UL);
+        gradient.setColorAt(0.375, activeCol);
+        gradient.setColorAt(0.625, col);
+        myPen.setBrush(gradient);
+        p->setPen(myPen);
+        p->drawArc(P_CENTER, DELTA_DR);
+        break;
     }
+    case Commit::BRANCH_MERGE_COMMIT_BOTH:
+    {
+        qDebug() << "branched row = true row = " << (x1 / 10);
+        // arc up
+        QConicalGradient gradientUp(CENTER_UL);
+        gradientUp.setColorAt(0.375, activeCol);
+        gradientUp.setColorAt(0.625, col);
+        myPen.setBrush(gradientUp);
+        p->setPen(myPen);
+        p->drawArc(P_CENTER, DELTA_DR);
 
-//        QConicalGradient gradient(CENTER_DR);
-//        gradient.setColorAt(0.375, activeCol);
-//        gradient.setColorAt(0.625, col);
-//        myPen.setBrush(gradient);
-//        p->setPen(myPen);
-//        p->drawArc(P_CENTER, DELTA_DR);
-//        break;
-//    }
+        // arc down
+        QConicalGradient gradientDown(CENTER_DR);
+        gradientDown.setColorAt(0.375, activeCol);
+        gradientDown.setColorAt(0.625, col);
+        myPen.setBrush(gradientDown);
+        p->setPen(myPen);
+        p->drawArc(P_CENTER, DELTA_UR);
+        break;
+    }
     default:
         break;
     }
@@ -155,23 +139,14 @@ void revViewDelegate::paintGraphLane(QPainter* p, int type, int x1, int x2,
 
     // vertical line
     switch (type) {
-    case Commit::NO_COMMIT:
     case Commit::NORMAL_COMMIT:
+    case Commit::BRANCH_COMMIT:
+    case Commit::MERGE_COMMIT:
+    case Commit::BRANCH_MERGE_COMMIT:
+    case Commit::NO_COMMIT:
+    case Commit::NO_COMMIT_H:
         p->drawLine(P_90, P_270);
         break;
-    case Commit::BRANCH_COMMIT:
-        p->drawLine(P_CENTER, P_270);
-        break;
-    case Commit::MERGE_COMMIT:
-        if (!last)
-            p->drawLine(P_90, P_270);
-        break;
-    case Commit::BRANCH_MERGE_COMMIT:
-        p->drawLine(P_CENTER, P_270);
-        if (!last)
-            p->drawLine(P_90, P_270);
-        break;
-
     default:
         break;
     }
@@ -181,50 +156,37 @@ void revViewDelegate::paintGraphLane(QPainter* p, int type, int x1, int x2,
 
     // horizontal line
     switch (type) {
+    case Commit::MERGE_COMMIT_H:
+    case Commit::BRANCH_MERGE_COMMIT_BOTH_H:
+    case Commit::BRANCH_MERGE_COMMIT_DOWN_H:
+    case Commit::BRANCH_MERGE_COMMIT_UP_H:
+    case Commit::BRANCH_COMMIT_H:
+    case Commit::NO_COMMIT_H:
+    case Commit::EMPTY_LANE_H:
+        p->drawLine(P_180, P_0);
+        //p->drawLine(P_CENTER, P_0);
+        break;
     case Commit::MERGE_COMMIT:
-
-        if (!active && !last)
-            p->drawLine(P_180, P_0);
-
-        if (!last)
-            p->drawLine(P_CENTER, P_0);
-        break;
-    case Commit::BRANCH_MERGE_COMMIT:
-        if (!active && !last)
-        {
-            p->drawLine(P_180, P_0);
-            p->drawLine(P_180, P_CENTER);
-        }
-        break;
     case Commit::BRANCH_COMMIT:
-        if (!active)
-            p->drawLine(P_180, P_CENTER);
-        break;
-    case Commit::NORMAL_COMMIT:
-        break;
+    case Commit::BRANCH_MERGE_COMMIT_BOTH:
+        p->drawLine(P_CENTER, P_0);
     default:
         break;
     }
 
-    qDebug() << type << " is active ? " << active;
+    qDebug() << "type = " << type;
     // center symbol, e.g. rect or ellipse
     switch (type) {
     case Commit::MERGE_COMMIT:
     case Commit::BRANCH_COMMIT:
     case Commit::BRANCH_MERGE_COMMIT:
-        if (active)
-        {
-            p->setPen(Qt::NoPen);
-            p->setBrush(col);
-            p->drawRect(R_CENTER);
-        }
+        p->setPen(Qt::NoPen);
+        p->setBrush(col);
+        p->drawRect(R_CENTER);
         break;
     case Commit::NORMAL_COMMIT:
-        if (active)
-        {
-            p->setBrush(back);
-            p->drawEllipse(R_CENTER);
-        }
+        p->setBrush(back);
+        p->drawEllipse(R_CENTER);
         break;
     default:
         break;
@@ -287,7 +249,7 @@ void revViewDelegate::paintGraph(QPainter* p, const QStyleOptionViewItem& opt,
     if (opt.state & QStyle::State_Selected)
         activeColor = blend(activeColor, opt.palette.highlightedText().color(), 208);
 
-    qDebug() << "index " << i.row() << " commit row " << commit->getRow() << " maxRow " << commit->getMaxRow() << " branchedRow " << commit->getBranchRow() << " message " << commit->getCommit().shortMessage();
+    qDebug() << "index " << i.row() << " commit row " << commit->getRow() << " maxRow " << commit->getMaxRow() << " branchedRow " << commit->getBranchRow() << " type " << commit->getCommitType() << " message " << commit->getCommit().shortMessage();
     for (int i = 0; i < commit->getMaxRow(); i++)
     {
         x1 = lw * (i);
@@ -297,7 +259,8 @@ void revViewDelegate::paintGraph(QPainter* p, const QStyleOptionViewItem& opt,
 
 
         QColor color = active ? activeColor : colors[i % 8];
-        paintGraphLane(p, commit->getCommitType(), x1, x2, color, activeColor, back, active, i == commit->getMaxRow() -1, i == commit->getBranchRow());
+
+        paintGraphLane(p, commit->getCurrentRowState()->at(i), x1, x2, color, activeColor, back);
     }
     p->restore();
 }
