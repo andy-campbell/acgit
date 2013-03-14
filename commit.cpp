@@ -41,12 +41,12 @@ int Commit::getMaxRow()
     return _laneInfo.maxRows;
 }
 
-int Commit::getBranchRow()
+QVector<int> Commit::getBranchRow()
 {
     return _laneInfo.branchedToRow;
 }
 
-int Commit::getMergedFromRow()
+QVector<int> Commit::getMergedFromRow()
 {
     return _laneInfo.mergeFromRow;
 }

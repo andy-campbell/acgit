@@ -23,6 +23,7 @@ public:
         MERGE_COMMIT,
         MERGE_COMMIT_H,
         MERGE_COMMIT_DOWN,
+        MERGE_COMMIT_DOWN_H,
         BRANCH_MERGE_COMMIT,
         BRANCH_MERGE_COMMIT_DOWN,
         BRANCH_MERGE_COMMIT_DOWN_H,
@@ -39,8 +40,8 @@ public:
         //QVector<LibQGit2::QGitOId> parents;
         //QVector<LibQGit2::QGitOId> children;
         enum CommitType type;
-        int branchedToRow;
-        int mergeFromRow;
+        QVector<int> branchedToRow;
+        QVector<int> mergeFromRow;
         int maxRows;
         QVector<LibQGit2::QGitOId> currentState;
         QVector<enum CommitType> *currentRowState;
@@ -63,9 +64,9 @@ public:
 
     int getMaxRow();
 
-    int getBranchRow();
+    QVector<int> getBranchRow();
 
-    int getMergedFromRow();
+    QVector<int> getMergedFromRow();
 
     QVector<LibQGit2::QGitOId> getState();
 

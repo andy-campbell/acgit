@@ -59,6 +59,7 @@ QVector<Commit*> acRepo::getAllCommits()
     //return Lanes;
 }
 
+// TODO refactor this function it is far too long!!
 Commit* acRepo::populateCommit(LibQGit2::QGitCommit &commit, QVector<LibQGit2::QGitOId> &nextCommits, int prevMaxRow)
 {
     enum Commit::CommitType type = Commit::NORMAL_COMMIT;
@@ -67,14 +68,9 @@ Commit* acRepo::populateCommit(LibQGit2::QGitCommit &commit, QVector<LibQGit2::Q
 
     Commit::Lane lane;
 
-    lane.mergeFromRow = -1;
-    lane.branchedToRow = -1;
     lane.activeRow = -1;
     lane.maxRows = prevMaxRow;
     lane.type = Commit::NO_COMMIT;
-
-
-
 
     // count the next commits that have the same oid as the commit
     for (int nextCommitIndex = 0; nextCommitIndex < nextCommits.size(); nextCommitIndex++)
@@ -89,7 +85,7 @@ Commit* acRepo::populateCommit(LibQGit2::QGitCommit &commit, QVector<LibQGit2::Q
             }
             else
             {
-                lane.branchedToRow = nextCommitIndex;
+                lane.branchedToRow.append(nextCommitIndex);
             }
             count++;
             //reset commit to zero
@@ -110,7 +106,7 @@ Commit* acRepo::populateCommit(LibQGit2::QGitCommit &commit, QVector<LibQGit2::Q
             {
                 nextCommits[k] = commit.parent(i).oid();
                 added = true;
-                lane.mergeFromRow = k;
+                lane.mergeFromRow.append(k);
                 //prevMaxRow = k;
                 break;
             }
@@ -118,7 +114,7 @@ Commit* acRepo::populateCommit(LibQGit2::QGitCommit &commit, QVector<LibQGit2::Q
         if (added == false)
         {
             nextCommits.append(commit.parent(i).oid());
-            lane.mergeFromRow = nextCommits.size() - 1;
+            lane.mergeFromRow.append(nextCommits.size() - 1);
             //prevMaxRow = nextCommits.size();
         }
 
@@ -137,7 +133,6 @@ Commit* acRepo::populateCommit(LibQGit2::QGitCommit &commit, QVector<LibQGit2::Q
     if (mergeCommit && count > 1)
     {
         lane.type = Commit::BRANCH_MERGE_COMMIT;
-
         goto create;
     }
 
@@ -165,7 +160,6 @@ Commit* acRepo::populateCommit(LibQGit2::QGitCommit &commit, QVector<LibQGit2::Q
                     break;
                 }
             }
-
         }
     }
 
@@ -196,6 +190,7 @@ Commit* acRepo::populateCommit(LibQGit2::QGitCommit &commit, QVector<LibQGit2::Q
     }
 
  create:
+
     //find last Row
     for (int i = nextCommits.size() - 1; i >= 0; i--)
     {
@@ -210,6 +205,9 @@ Commit* acRepo::populateCommit(LibQGit2::QGitCommit &commit, QVector<LibQGit2::Q
     QVector<enum Commit::CommitType> *currentRowState = new QVector<enum Commit::CommitType>;
     bool handledLastMerge = false;
     bool handledLastBranch = false;
+    int handledMerges = 0;
+    int handledBranched = 0;
+
     for (int i = 0; i < prevMaxRow; i++)
     {
         // anything before active row is an empty lane or non commit lane
@@ -238,10 +236,19 @@ Commit* acRepo::populateCommit(LibQGit2::QGitCommit &commit, QVector<LibQGit2::Q
         // handle the case of a branch commit
         if (lane.type == Commit::BRANCH_COMMIT)
         {
-            if (i == lane.branchedToRow)
+            if (lane.branchedToRow.contains(i))
             {
-                currentRowState->append(Commit::BRANCH_COMMIT_UP);
-                handledLastBranch = true;
+                handledBranched++;
+                if (handledBranched == lane.branchedToRow.size())
+                {
+                    currentRowState->append(Commit::BRANCH_COMMIT_UP);
+                    handledLastBranch = true;
+                }
+                else
+                {
+                    currentRowState->append(Commit::BRANCH_COMMIT_UP_H);
+                }
+
             }
             else
             {
@@ -259,6 +266,7 @@ Commit* acRepo::populateCommit(LibQGit2::QGitCommit &commit, QVector<LibQGit2::Q
                         currentRowState->append(Commit::NO_COMMIT);
                     else
                         currentRowState->append(Commit::NO_COMMIT_H);
+
                 }
             }
             continue;
@@ -268,10 +276,19 @@ Commit* acRepo::populateCommit(LibQGit2::QGitCommit &commit, QVector<LibQGit2::Q
         if (lane.type == Commit::MERGE_COMMIT)
         {
             // if last lane then type is merge down
-            if (i == lane.mergeFromRow)
+            if (lane.mergeFromRow.contains(i))
             {
-                currentRowState->append(Commit::MERGE_COMMIT_DOWN);
-                handledLastMerge = true;
+                handledMerges++;
+                // -1 for the active row
+                if (handledMerges == lane.mergeFromRow.size() - 1)
+                {
+                    currentRowState->append(Commit::MERGE_COMMIT_DOWN);
+                    handledLastMerge = true;
+                }
+                else
+                {
+                    currentRowState->append(Commit::MERGE_COMMIT_DOWN_H);
+                }
             }
             else
             {
@@ -297,23 +314,49 @@ Commit* acRepo::populateCommit(LibQGit2::QGitCommit &commit, QVector<LibQGit2::Q
         // TODO handle multiple of both types
         if (lane.type == Commit::BRANCH_MERGE_COMMIT)
         {
-            if (i == lane.mergeFromRow && i == lane.branchedToRow)
+            if (lane.mergeFromRow.contains(i) && lane.branchedToRow.contains(i))
             {
-                currentRowState->append(Commit::BRANCH_MERGE_COMMIT_BOTH);
-                handledLastMerge = true;
-                handledLastBranch = true;
+                handledMerges++;
+                handledBranched++;
+
+                if (handledMerges == lane.mergeFromRow.size() -1)
+                    handledLastMerge = true;
+
+                if (handledBranched == lane.branchedToRow.size())
+                    handledLastBranch = true;
+
+                if (handledBranched && handledLastBranch)
+                    currentRowState->append(Commit::BRANCH_MERGE_COMMIT_BOTH);
+                else
+                    currentRowState->append(Commit::BRANCH_MERGE_COMMIT_BOTH_H);
 
             }
-            else if (i == lane.mergeFromRow)
+            else if (lane.mergeFromRow.contains(i))
             {
-                currentRowState->append(Commit::BRANCH_MERGE_COMMIT_DOWN);
-                handledLastMerge = true;
+                handledMerges++;
+                if (handledLastBranch && handledMerges == lane.mergeFromRow.size() -1)
+                {
+                    currentRowState->append(Commit::BRANCH_MERGE_COMMIT_DOWN);
+                    handledLastMerge = true;
+                }
+                else
+                {
+                    currentRowState->append(Commit::BRANCH_MERGE_COMMIT_DOWN_H);
+                }
 
             }
-            else if (i == lane.branchedToRow)
+            else if (lane.branchedToRow.contains(i))
             {
-                currentRowState->append(Commit::BRANCH_MERGE_COMMIT_UP);
-                handledLastBranch = true;
+                handledBranched++;
+                if (handledLastMerge && handledBranched == lane.branchedToRow.size())
+                {
+                    currentRowState->append(Commit::BRANCH_MERGE_COMMIT_UP);
+                    handledLastBranch = true;
+                }
+                else
+                {
+                    currentRowState->append(Commit::BRANCH_MERGE_COMMIT_UP_H);
+                }
             }
             else
             {
@@ -331,6 +374,11 @@ Commit* acRepo::populateCommit(LibQGit2::QGitCommit &commit, QVector<LibQGit2::Q
                         currentRowState->append(Commit::NO_COMMIT);
                     else
                         currentRowState->append(Commit::NO_COMMIT_H);
+
+                    if (i == prevMaxRow -1 && i == lane.branchedToRow.last() -1)
+                    {
+                        currentRowState->append(Commit::BRANCH_MERGE_COMMIT_UP);
+                    }
                 }
             }
             continue;
@@ -354,6 +402,53 @@ Commit* acRepo::populateCommit(LibQGit2::QGitCommit &commit, QVector<LibQGit2::Q
         }
 
     }
+
+    // there a case on the branch or merge/branch where there is more items to
+    // be added to currentRowState eg. mergeUp if last or lines in between.
+    if (lane.maxRows > currentRowState->size())
+    {
+        int diff = lane.maxRows - currentRowState->size();
+        int numRows = currentRowState->size();
+
+        for (int i = 0; i < diff; i++)
+        {
+            if (lane.branchedToRow.contains(numRows + i))
+            {
+                handledBranched++;
+                if (lane.type == Commit::BRANCH_MERGE_COMMIT)
+                {
+                    if (handledBranched == lane.branchedToRow.size())
+                    {
+                        currentRowState->append(Commit::BRANCH_MERGE_COMMIT_UP);
+                        handledLastBranch = true;
+                    }
+                    else
+                    {
+                        currentRowState->append(Commit::BRANCH_MERGE_COMMIT_UP_H);
+                    }
+                }
+                else if (lane.type == Commit::BRANCH_COMMIT)
+                {
+                    if (handledBranched == lane.branchedToRow.size())
+                    {
+                        currentRowState->append(Commit::BRANCH_COMMIT_UP);
+                        handledLastBranch = true;
+                    }
+                    else
+                    {
+                        currentRowState->append(Commit::BRANCH_COMMIT_UP_H);
+                    }
+                }
+
+            }
+            else
+            {
+                currentRowState->append(Commit::EMPTY_LANE_H);
+            }
+        }
+    }
+
+    qDebug() << "MaxRows =" << lane.maxRows;
 
     lane.currentRowState = currentRowState;
     lane.currentState = nextCommits;

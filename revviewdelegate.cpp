@@ -86,7 +86,9 @@ void revViewDelegate::paintGraphLane(QPainter* p, int type, int x1, int x2,
     // know this is a merge commit and not if which way the merge is heading eg. merge master to branch 1
     // or branch1 back to master
     case Commit::MERGE_COMMIT_DOWN:
+    case Commit::MERGE_COMMIT_DOWN_H:
     case Commit::BRANCH_MERGE_COMMIT_DOWN:
+    case Commit::BRANCH_MERGE_COMMIT_DOWN_H:
     {
         // arc down
         QConicalGradient gradient(CENTER_DR);
@@ -98,7 +100,9 @@ void revViewDelegate::paintGraphLane(QPainter* p, int type, int x1, int x2,
         break;
     }
     case Commit::BRANCH_COMMIT_UP:
+    case Commit::BRANCH_COMMIT_UP_H:
     case Commit::BRANCH_MERGE_COMMIT_UP:
+    case Commit::BRANCH_MERGE_COMMIT_UP_H:
     {
         qDebug() << "branched row = true row = " << (x1 / 10);
         // arc up
@@ -111,6 +115,7 @@ void revViewDelegate::paintGraphLane(QPainter* p, int type, int x1, int x2,
         break;
     }
     case Commit::BRANCH_MERGE_COMMIT_BOTH:
+    case Commit::BRANCH_MERGE_COMMIT_BOTH_H:
     {
         qDebug() << "branched row = true row = " << (x1 / 10);
         // arc up
@@ -157,10 +162,12 @@ void revViewDelegate::paintGraphLane(QPainter* p, int type, int x1, int x2,
     // horizontal line
     switch (type) {
     case Commit::MERGE_COMMIT_H:
+    case Commit::MERGE_COMMIT_DOWN_H:
     case Commit::BRANCH_MERGE_COMMIT_BOTH_H:
     case Commit::BRANCH_MERGE_COMMIT_DOWN_H:
     case Commit::BRANCH_MERGE_COMMIT_UP_H:
     case Commit::BRANCH_COMMIT_H:
+    case Commit::BRANCH_COMMIT_UP_H:
     case Commit::NO_COMMIT_H:
     case Commit::EMPTY_LANE_H:
         p->drawLine(P_180, P_0);
@@ -250,7 +257,7 @@ void revViewDelegate::paintGraph(QPainter* p, const QStyleOptionViewItem& opt,
         activeColor = blend(activeColor, opt.palette.highlightedText().color(), 208);
 
     qDebug() << "index " << i.row() << " commit row " << commit->getRow() << " maxRow " << commit->getMaxRow() << " branchedRow " << commit->getBranchRow() << " type " << commit->getCommitType() << " message " << commit->getCommit().shortMessage();
-    for (int i = 0; i < commit->getMaxRow(); i++)
+    for (int i = 0; i < commit->getCurrentRowState()->size(); i++)
     {
         x1 = lw * (i);
         x2 = lw * (i + 1);
