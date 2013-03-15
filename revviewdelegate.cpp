@@ -32,28 +32,6 @@ QSize revViewDelegate::sizeHint(const QStyleOptionViewItem&, const QModelIndex&)
     return QSize(80, 26);
 }
 
-//void revViewDelegate::diffTargetChanged(int row) {
-
-//    if (diffTargetRow != row) {
-//        diffTargetRow = row;
-//        emit updateView();
-//    }
-//}
-
-//const Rev* revViewDelegate::revLookup(int row, FileHistory** fhPtr) const {
-
-//    ListView* lv = static_cast<ListView*>(parent());
-//    FileHistory* fh = static_cast<FileHistory*>(lv->model());
-
-//    if (lp->sourceModel())
-//        fh = static_cast<FileHistory*>(lp->sourceModel());
-
-//    if (fhPtr)
-//        *fhPtr = fh;
-
-//    return git->revLookup(lv->sha(row), fh);
-//}
-
 static QColor blend(const QColor& col1, const QColor& col2, int amount = 128) {
 
     // Returns ((256 - amount)*col1 + amount*col2) / 256;
