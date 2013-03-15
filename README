@@ -1,0 +1,27 @@
+This is an application which is to be used to browse git history.
+
+It currently is built using Qt5 libraries, libqgit2 and the latest libgit2.
+It assumes libqgit2 is in a similar level directroy as acgit.
+
+eg.
+
+~/build/acgit/
+~/build/libqgit2/
+
+Build steps:
+
+qmake
+make
+
+
+TODOS:
+
+Short term:
+- Ability to create commits
+- Add git blame in tree mode
+- Address TODOS in the code
+
+Long term:
+- Ability to clone from git servers
+- Build in a review tool
+
