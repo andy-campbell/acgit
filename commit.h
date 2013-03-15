@@ -36,19 +36,11 @@ public:
     struct Lane
     {
         int activeRow;
-        //TODO add these for more info
-        //QVector<LibQGit2::QGitOId> parents;
-        //QVector<LibQGit2::QGitOId> children;
         enum CommitType type;
-        QVector<int> branchedToRow;
-        QVector<int> mergeFromRow;
-        int maxRows;
-        QVector<LibQGit2::QGitOId> currentState;
-        QVector<enum CommitType> *currentRowState;
-
+        QVector<enum CommitType> *lanes;
     };
 
-    Commit(LibQGit2::QGitCommit commit, struct Lane laneinfo);
+    Commit(LibQGit2::QGitCommit commit, struct Lane laneinfo, int prevMaxRows);
 
     virtual ~Commit();
 
@@ -62,21 +54,15 @@ public:
 
     enum CommitType getCommitType();
 
-    int getMaxRow();
-
-    QVector<int> getBranchRow();
-
-    QVector<int> getMergedFromRow();
-
-    QVector<LibQGit2::QGitOId> getState();
-
     QVector<enum CommitType>* getCurrentRowState();
 
+    int getMaxRows();
 private:
     LibQGit2::QGitCommit _commit;
     enum CommitType _type;
     int _numParents;
     struct Lane _laneInfo;
+    int _prevMaxRows;
 
 
 };

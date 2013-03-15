@@ -256,14 +256,11 @@ void revViewDelegate::paintGraph(QPainter* p, const QStyleOptionViewItem& opt,
     if (opt.state & QStyle::State_Selected)
         activeColor = blend(activeColor, opt.palette.highlightedText().color(), 208);
 
-    qDebug() << "index " << i.row() << " commit row " << commit->getRow() << " maxRow " << commit->getMaxRow() << " branchedRow " << commit->getBranchRow() << " type " << commit->getCommitType() << " message " << commit->getCommit().shortMessage();
     for (int i = 0; i < commit->getCurrentRowState()->size(); i++)
     {
         x1 = lw * (i);
         x2 = lw * (i + 1);
         bool active = commit->getRow() == i;
-        qDebug() << "i = " << i << " active row = " << commit->getRow();
-
 
         QColor color = active ? activeColor : colors[i % 8];
 
