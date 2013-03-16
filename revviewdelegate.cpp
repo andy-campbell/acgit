@@ -49,9 +49,9 @@ const QColor LIGHT_BLUE   = QColor(85, 255, 255);
 const QColor PURPLE       = QColor(221, 221, 255);
 const QColor DARK_GREEN   = QColor(0, 205, 0);
 
-
 void revViewDelegate::paintGraphLane(QPainter* p, int type, int x1, int x2,
-                                      const QColor& col, const QColor& activeCol, const QBrush& back) const {
+                                      const QColor& col, const QColor& activeCol, const QBrush& back) const
+{
 
     int h = 26 / 2;
     int m = (x1 + x2) / 2;
@@ -77,9 +77,6 @@ void revViewDelegate::paintGraphLane(QPainter* p, int type, int x1, int x2,
 
     // arc
     switch (type) {
-    // TODO this needs to be sorted out atm I only
-    // know this is a merge commit and not if which way the merge is heading eg. merge master to branch 1
-    // or branch1 back to master
     case Commit::MERGE_COMMIT_DOWN:
     case Commit::MERGE_COMMIT_DOWN_H:
     case Commit::BRANCH_MERGE_COMMIT_DOWN:
@@ -99,7 +96,6 @@ void revViewDelegate::paintGraphLane(QPainter* p, int type, int x1, int x2,
     case Commit::BRANCH_MERGE_COMMIT_UP:
     case Commit::BRANCH_MERGE_COMMIT_UP_H:
     {
-        qDebug() << "branched row = true row = " << (x1 / 10);
         // arc up
         QConicalGradient gradient(CENTER_UL);
         gradient.setColorAt(0.375, activeCol);
@@ -112,7 +108,6 @@ void revViewDelegate::paintGraphLane(QPainter* p, int type, int x1, int x2,
     case Commit::BRANCH_MERGE_COMMIT_BOTH:
     case Commit::BRANCH_MERGE_COMMIT_BOTH_H:
     {
-        qDebug() << "branched row = true row = " << (x1 / 10);
         // arc up
         QConicalGradient gradientUp(CENTER_UL);
         gradientUp.setColorAt(0.375, activeCol);
@@ -176,7 +171,6 @@ void revViewDelegate::paintGraphLane(QPainter* p, int type, int x1, int x2,
         break;
     }
 
-    qDebug() << "type = " << type;
     // center symbol, e.g. rect or ellipse
     switch (type) {
     case Commit::MERGE_COMMIT:
@@ -227,7 +221,6 @@ void revViewDelegate::paintGraph(QPainter* p, const QStyleOptionViewItem& opt,
 
     if (!commit)
     {
-        qDebug() << "exit early";
         return;
     }
 
@@ -235,18 +228,12 @@ void revViewDelegate::paintGraph(QPainter* p, const QStyleOptionViewItem& opt,
     p->setClipRect(opt.rect, Qt::IntersectClip);
     p->translate(opt.rect.topLeft());
 
-    // calculate lanes
-//    if (commit->se== 0)
-//        git->setLane(r->sha(), fh);
-
     QBrush back = opt.palette.base();
-//    const QVector<int>& lanes(commit);
-//    uint laneNum = lanes.count();
     uint activeLane = commit->getRow();
 
     int x1 = 0, x2 = 0;
 
-    int lw = 10; //laneWidth();
+    int lw = 10;
     QColor activeColor = colors[activeLane % 8];
     if (opt.state & QStyle::State_Selected)
         activeColor = blend(activeColor, opt.palette.highlightedText().color(), 208);
@@ -273,9 +260,6 @@ void revViewDelegate::paint(QPainter *p, const QStyleOptionViewItem &opt, const 
 
     if (index.column() == 0)
         return paintGraph(p, opt, index);
-
-//    if (index.column() == LOG_COL)
-//        return paintLog(p, opt, index);
 
     return QItemDelegate::paint(p, opt, index);
 }
