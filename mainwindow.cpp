@@ -140,6 +140,10 @@ void MainWindow::revWalk ()
     // resize short comment column so more text can be seen
     ui->revList->setColumnWidth(1, 350);
     ui->revList->show();
+
+    // Connect item changes to callback
+    connect(ui->revList->selectionModel(), SIGNAL(selectionChanged(QItemSelection,QItemSelection)),
+            this, SLOT(revListSelectionChanged(QItemSelection,QItemSelection)));
 }
 
 void MainWindow::loadRepo()
@@ -254,7 +258,7 @@ void MainWindow::buildTreeForCommit(const Commit *commit)
 
 }
 
-void MainWindow::on_revList_clicked(const QModelIndex &index)
+void MainWindow::revListSelectionChanged(QItemSelection selected,QItemSelection deSelected)
 {
     // Handle file list
     if (shownCommit)
@@ -262,6 +266,7 @@ void MainWindow::on_revList_clicked(const QModelIndex &index)
         delete shownCommit;
     }
 
+    QModelIndex index = ui->revList->currentIndex();
     shownCommit = new currentCommit (repo, repo->getAllCommits().at(index.row() + 1), repo->getAllCommits().at(index.row()));
 
     QStandardItemModel *model = new QStandardItemModel(this);

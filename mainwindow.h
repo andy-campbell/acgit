@@ -45,7 +45,7 @@ private slots:
     void loadRepo();
     void gitTreeSelectedRow(const QModelIndex &index);
 
-    void on_revList_clicked(const QModelIndex &index);
+    void revListSelectionChanged(QItemSelection selected,QItemSelection deSelected);
 
     void on_fileChangesView_clicked(const QModelIndex &index);
 
