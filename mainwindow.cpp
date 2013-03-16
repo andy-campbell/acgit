@@ -169,13 +169,19 @@ void MainWindow::gitTreeSelectedRow(const QModelIndex& index)
     QString path = index.data(Qt::DisplayRole).toString();
     QModelIndex parent = index.parent();
 
+    // if it has children then it is a directory
+    if (ui->gitTree->model()->hasChildren(index))
+    {
+        return;
+    }
+
     while (parent.isValid())
     {
         path = parent.data().toString() + "/" + path;
         parent = parent.parent();
     }
 
-    // get comming we are working with
+    // get commit we are working with
     Commit *commit = repo->getAllCommits().at(ui->revList->currentIndex().row());
 
     LibQGit2::QGitTree tree = commit->getCommit().tree().toTree();
@@ -184,7 +190,7 @@ void MainWindow::gitTreeSelectedRow(const QModelIndex& index)
 
     LibQGit2::QGitBlob blob = object.toBlob();
 
-    // clear output and then appent file text
+    // clear output and then append file text
     ui->fileText->clear();
     ui->fileText->append(QString((char*)blob.rawContent()));
 
