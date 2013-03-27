@@ -20,7 +20,16 @@
 currentCommit::currentCommit(const acRepo *repo, const Commit *from, const Commit *to)
     : _selectedCommit(to)
 {
-    diff = new LibQGit2::QGitDiff (repo->getRepo(), from->getCommit(), to->getCommit());
+    diff = new LibQGit2::QGitDiff (repo->getRepo());
+
+    if (to->getCommitType() == Commit::NO_COMMIT_WORKING_DIR)
+    {
+        diff->diffWorkingDir();
+    }
+    else
+    {
+        diff->diffCommits(from->getCommit(), to->getCommit());
+    }
 }
 
 currentCommit::~currentCommit()
@@ -43,7 +52,7 @@ QString currentCommit::getDetaForFile(QString &filename)
     return delta;
 }
 
-const Commit *currentCommit::getCurrentSelectedCommit()
+const Commit *currentCommit::getCurrentSelectedCommit() const
 {
     return _selectedCommit;
 }

@@ -29,6 +29,7 @@ public:
     {
         NO_COMMIT,
         NO_COMMIT_H,
+        NO_COMMIT_WORKING_DIR,
         EMPTY_LANE,
         EMPTY_LANE_H,
         NORMAL_COMMIT,
@@ -69,7 +70,7 @@ public:
 
     LibQGit2::QGitCommit getCommit() const;
 
-    enum CommitType getCommitType();
+    enum CommitType getCommitType() const;
 
     QVector<enum CommitType>* getCurrentRowState();
 

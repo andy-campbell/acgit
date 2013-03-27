@@ -118,17 +118,27 @@ void MainWindow::revWalk ()
         index0->setData("", Qt::DisplayRole);
         model->setItem(row, 0, index0);
 
-        QStandardItem *index1 = new QStandardItem();
-        index1->setData(commit->getCommit().shortMessage(), Qt::DisplayRole);
-        model->setItem(row, 1, index1);
+        if (commit->getCommitType() == Commit::NO_COMMIT_WORKING_DIR)
+        {
+            QStandardItem *index1 = new QStandardItem();
+            index1->setData("Working Directory", Qt::DisplayRole);
+            model->setItem(row, 1, index1);
+        }
+        else
+        {
 
-        QStandardItem *index2 = new QStandardItem();
-        index2->setData(commit->getCommit().author().name(), Qt::DisplayRole);
-        model->setItem(row, 2, index2);
+            QStandardItem *index1 = new QStandardItem();
+            index1->setData(commit->getCommit().shortMessage(), Qt::DisplayRole);
+            model->setItem(row, 1, index1);
 
-        QStandardItem *index3 = new QStandardItem();
-        index3->setData(commit->getCommit().author().when().toString(), Qt::DisplayRole);
-        model->setItem(row, 3, index3);
+            QStandardItem *index2 = new QStandardItem();
+            index2->setData(commit->getCommit().author().name(), Qt::DisplayRole);
+            model->setItem(row, 2, index2);
+
+            QStandardItem *index3 = new QStandardItem();
+            index3->setData(commit->getCommit().author().when().toString(), Qt::DisplayRole);
+            model->setItem(row, 3, index3);
+        }
 
         row++;
     }
@@ -188,15 +198,23 @@ void MainWindow::gitTreeSelectedRow(const QModelIndex& index)
     // get commit we are working with
     Commit *commit = repo->getAllCommits().at(ui->revList->currentIndex().row());
 
-    LibQGit2::QGitTree tree = commit->getCommit().tree().toTree();
-    LibQGit2::QGitTreeEntry entry = tree.entryByName(path);
-    LibQGit2::QGitObject object = entry.toObject(repo->getRepo());
+    // check if the commit is the dummy commit for working dir
+    if (commit->getCurrentRowState()->at(0) == Commit::NO_COMMIT_WORKING_DIR)
+    {
 
-    LibQGit2::QGitBlob blob = object.toBlob();
+    }
+    else
+    {
+        LibQGit2::QGitTree tree = commit->getCommit().tree().toTree();
+        LibQGit2::QGitTreeEntry entry = tree.entryByName(path);
+        LibQGit2::QGitObject object = entry.toObject(repo->getRepo());
 
-    // clear output and then append file text
-    ui->fileText->clear();
-    ui->fileText->append(QString((char*)blob.rawContent()));
+        LibQGit2::QGitBlob blob = object.toBlob();
+
+        // clear output and then append file text
+        ui->fileText->clear();
+        ui->fileText->append(QString((char*)blob.rawContent()));
+    }
 
 }
 
@@ -267,6 +285,7 @@ void MainWindow::revListSelectionChanged(QItemSelection selected,QItemSelection 
     }
 
     QModelIndex index = ui->revList->currentIndex();
+
     shownCommit = new currentCommit (repo, repo->getAllCommits().at(index.row() + 1), repo->getAllCommits().at(index.row()));
 
     QStandardItemModel *model = new QStandardItemModel(this);
@@ -299,9 +318,16 @@ void MainWindow::revListSelectionChanged(QItemSelection selected,QItemSelection 
 
     // Handle Long message
     ui->fullLogText->clear();
-    ui->fullLogText->append(shownCommit->getCurrentSelectedCommit()->getCommit().message());
+    if (shownCommit->getCurrentSelectedCommit()->getCommitType() == Commit::NO_COMMIT_WORKING_DIR)
+    {
+        ui->fullLogText->append ("Changes in working directory");
+    }
+    else
+    {
+        ui->fullLogText->append(shownCommit->getCurrentSelectedCommit()->getCommit().message());
+        buildTreeForCommit(shownCommit->getCurrentSelectedCommit());
+    }
 
-    buildTreeForCommit(shownCommit->getCurrentSelectedCommit());
 
 }
 

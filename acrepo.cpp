@@ -25,6 +25,26 @@ acRepo::acRepo(QString directory)
 {
     repo.open(directory);
 
+    // check if there is any changes to the working directory
+    LibQGit2::QGitDiff *workingDirChanges = new LibQGit2::QGitDiff (repo);
+
+    // if there are changes to working dir create a dummy commit
+    if (workingDirChanges->diffWorkingDir())
+    {
+        QVector<enum Commit::CommitType> *currentRowState = new QVector<enum Commit::CommitType>;
+        currentRowState->append(Commit::NO_COMMIT_WORKING_DIR);
+        struct Commit::Lane lane;
+
+        lane.activeRow = -1;
+        lane.lanes = currentRowState;
+        lane.type = Commit::NO_COMMIT_WORKING_DIR;
+
+        // empty commit with type being lane having no_commit_working_dir
+        Commit* workDir = new Commit(LibQGit2::QGitCommit(), lane, 1);
+
+        commits.append(workDir);
+    }
+
     // set walk commit to head
     LibQGit2::QGitCommit walkCommit = repo.lookupCommit(repo.head().oid());
     LibQGit2::QGitRevWalk walker(repo);

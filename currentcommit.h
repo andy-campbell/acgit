@@ -54,7 +54,7 @@ public:
      * @brief getCurrentSelectedCommit this function returns the "to" commit
      * @return return the "to" commit which is the current selected commit
      */
-    const Commit *getCurrentSelectedCommit();
+    const Commit *getCurrentSelectedCommit() const;
 
 private:
     const Commit *_selectedCommit;

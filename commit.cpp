@@ -47,7 +47,7 @@ LibQGit2::QGitCommit Commit::getCommit() const
     return _commit;
 }
 
-Commit::CommitType Commit::getCommitType()
+Commit::CommitType Commit::getCommitType() const
 {
     return _laneInfo.type;
 }
