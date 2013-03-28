@@ -29,6 +29,9 @@
          <layout class="QVBoxLayout" name="verticalLayout_2">
           <item>
            <widget class="QTreeView" name="revList">
+            <property name="contextMenuPolicy">
+             <enum>Qt::CustomContextMenu</enum>
+            </property>
             <property name="styleSheet">
              <string notr="true">QTreeView {show-decoration-selected: 1;}
 </string>

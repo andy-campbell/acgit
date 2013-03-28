@@ -161,12 +161,6 @@ void MainWindow::loadRepo()
     revWalk();
 }
 
-void MainWindow::findAllBranches()
-{
-
-}
-
-
 void MainWindow::on_actionOpen_triggered()
 {
     QString folderName = QFileDialog::getExistingDirectory(this, tr("Open Directory"),
@@ -175,7 +169,6 @@ void MainWindow::on_actionOpen_triggered()
 
     connect (repo, SIGNAL(repoOpened()),this, SLOT(loadRepo()));
     revWalk();
-    findAllBranches();
 }
 
 void MainWindow::gitTreeSelectedRow(const QModelIndex& index)
@@ -271,6 +264,8 @@ void MainWindow::buildTreeForCommit(const Commit *commit)
     connect(ui->gitTree,SIGNAL(clicked(const QModelIndex& ) ),
             this,SLOT( gitTreeSelectedRow(const QModelIndex& ) ) );
 
+    connect(ui->gitTree,SIGNAL(customContextMenuRequested(QPoint)) ,
+            this,SLOT( on_revList_customContextMenuRequested(QPoint) ) );
     ui->gitTree->setModel(model);
     ui->gitTree->header()->close();
 
@@ -337,4 +332,27 @@ void MainWindow::on_fileChangesView_clicked(const QModelIndex &index)
 
     ui->diffView->clear();
     ui->diffView->append(shownCommit->getDetaForFile(file));
+}
+
+void MainWindow::on_revList_customContextMenuRequested(const QPoint &pos)
+{
+   QModelIndex index = ui->revList->indexAt(pos);
+   QPoint globalPos = ui->revList->mapToGlobal(pos);
+
+   qDebug() << index.row();
+   QMenu menu(this);
+   menu.addAction("Save Patch");
+
+   QAction* selectedItem = menu.exec(globalPos);
+   if (selectedItem)
+   {
+       Commit *commitToSave = repo->getAllCommits().at(index.row());
+       QString exampleName = QDir::currentPath() + "/" + commitToSave->getCommit().shortMessage().replace(" ", "_")
+               + ".patch";
+       QString patchName = QFileDialog::getSaveFileName (this, tr("Save Patch"),
+                                                         exampleName ,tr("Patches (*.patch)") );
+
+       qDebug () << patchName;
+       shownCommit->savePatch(patchName);
+   }
 }

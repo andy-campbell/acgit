@@ -15,6 +15,9 @@
  * along with Foobar.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include <QTextStream>
+#include <QFile>
+
 #include "currentcommit.h"
 
 currentCommit::currentCommit(const acRepo *repo, const Commit *from, const Commit *to)
@@ -55,4 +58,15 @@ QString currentCommit::getDetaForFile(QString &filename)
 const Commit *currentCommit::getCurrentSelectedCommit() const
 {
     return _selectedCommit;
+}
+
+void currentCommit::savePatch(const QString path)
+{
+    QFile file(path);
+
+    file.open(QIODevice::WriteOnly | QIODevice::Text);
+    QTextStream out(&file);
+
+    out << diff->print();
+    file.close();
 }

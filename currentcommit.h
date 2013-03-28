@@ -56,6 +56,11 @@ public:
      */
     const Commit *getCurrentSelectedCommit() const;
 
+    /**
+     * @brief savePatch writes the current commits patch to a file.
+     * @param path the location that the file should be saved to.
+     */
+    void savePatch(const QString path);
 private:
     const Commit *_selectedCommit;
     LibQGit2::QGitDiff *diff;

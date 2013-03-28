@@ -49,6 +49,8 @@ private slots:
 
     void on_fileChangesView_clicked(const QModelIndex &index);
 
+    void on_revList_customContextMenuRequested(const QPoint &pos);
+
 private:
 
     Ui::MainWindow *ui;
