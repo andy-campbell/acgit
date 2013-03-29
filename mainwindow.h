@@ -51,6 +51,8 @@ private slots:
 
     void on_revList_customContextMenuRequested(const QPoint &pos);
 
+    void on_actionQuit_triggered();
+
 private:
 
     Ui::MainWindow *ui;
