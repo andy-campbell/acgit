@@ -13,6 +13,10 @@
   <property name="windowTitle">
    <string>AcGit</string>
   </property>
+  <property name="windowIcon">
+   <iconset resource="acGitResource.qrc">
+    <normaloff>:/icons/icons/acGit.png</normaloff>:/icons/icons/acGit.png</iconset>
+  </property>
   <widget class="QWidget" name="centralwidget">
    <layout class="QVBoxLayout" name="verticalLayout">
     <item>
@@ -189,6 +193,8 @@
    <header>difftextedit.h</header>
   </customwidget>
  </customwidgets>
- <resources/>
+ <resources>
+  <include location="acGitResource.qrc"/>
+ </resources>
  <connections/>
 </ui>
