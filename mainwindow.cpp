@@ -165,7 +165,19 @@ void MainWindow::on_actionOpen_triggered()
 {
     QString folderName = QFileDialog::getExistingDirectory(this, tr("Open Directory"),
                                                      QDir::home().path());
-    repo = new acRepo(folderName + "/.git");
+    try
+    {
+        repo = new acRepo(folderName + "/.git");
+    }
+    catch (LibQGit2::QGitException e)
+    {
+        // most likely we don't have a valid repo to open
+        QMessageBox::information(this, "Cannot open repository",
+                                 "There are no git repositories in this directory"
+                                 "or any subdirectory.",QMessageBox::Ok);
+        return;
+    }
+
 
     connect (repo, SIGNAL(repoOpened()),this, SLOT(loadRepo()));
     revWalk();
@@ -355,4 +367,9 @@ void MainWindow::on_revList_customContextMenuRequested(const QPoint &pos)
        qDebug () << patchName;
        shownCommit->savePatch(patchName);
    }
+}
+
+void MainWindow::on_actionQuit_triggered()
+{
+    QCoreApplication::exit();
 }
