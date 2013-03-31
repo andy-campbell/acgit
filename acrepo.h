@@ -46,6 +46,21 @@ public:
 
     QVector<Commit*> getAllCommits();
 
+    QStringList getTags();
+
+    QStringList getBranches();
+
+    /**
+     * @brief lookupTag This function does a lookup of a tag which it
+     * then uses the oid to lookup the commit and returns the index of
+     * it in the commits vector.
+     * @param tagName The name of the tag to lookup
+     *
+     * @return
+     */
+    int lookupTag (QString tagName);
+
+    int lookupBranch(QString branchName);
 signals:
     void repoOpened();
 
@@ -53,6 +68,10 @@ private:
     Commit *populateCommit(LibQGit2::QGitCommit &commit, QVector<LibQGit2::QGitOId> &nextCommits, int prevMaxRow);
     LibQGit2::QGitRepository repo;
     QVector<Commit*> commits;
+    // key is oid and value is item in commits. Another potential way todo this is implement a multi key map
+    QMap<QByteArray, int> commitLookup;
+    // key is the tags name and the value is the oid of the tag so it can be used for lookup
+    QMap<QString, QByteArray> tagList;
 };
 
 #endif // ACREPO_H

@@ -53,11 +53,17 @@ private slots:
 
     void on_actionQuit_triggered();
 
+    void on_tagsView_clicked(const QModelIndex &index);
+
+    void on_branchView_clicked(const QModelIndex &index);
+
 private:
 
     Ui::MainWindow *ui;
 
     void setup();
+    void updateTags();
+    void updateBranches();
     // TODO remove from here
     acRepo *repo;
     currentCommit *shownCommit;

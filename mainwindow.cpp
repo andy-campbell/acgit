@@ -79,6 +79,26 @@ void MainWindow::setup()
 
     // Make diff read only
     ui->diffView->setReadOnly(true);
+
+    // Create header for the tags
+    QStandardItemModel *tagsModel = new QStandardItemModel (this);
+    tagsModel->setColumnCount(1);
+
+    QStandardItem *tagsHeader = new QStandardItem();
+    tagsHeader->setData("Tags", Qt::DisplayRole);
+    tagsModel->setHorizontalHeaderItem(0, tagsHeader);
+    ui->tagsView->setModel(tagsModel);
+
+    // Create header for the branches
+    QStandardItemModel *branchesModel = new QStandardItemModel (this);
+    tagsModel->setColumnCount(1);
+
+    QStandardItem *branchHeader = new QStandardItem();
+    branchHeader->setData("Branches", Qt::DisplayRole);
+    branchesModel->setHorizontalHeaderItem(0, branchHeader);
+
+    ui->branchView->setModel(branchesModel);
+    ui->branchView->header()->setSectionResizeMode(QHeaderView::Stretch);
 }
 
 /**
@@ -156,6 +176,50 @@ void MainWindow::revWalk ()
             this, SLOT(revListSelectionChanged(QItemSelection,QItemSelection)));
 }
 
+void MainWindow::updateTags()
+{
+    QStandardItemModel *model = new QStandardItemModel(this);
+    model->setColumnCount(1);
+
+    QStandardItem *header = new QStandardItem();
+    header->setData("Tags", Qt::DisplayRole);
+    model->setHorizontalHeaderItem(0, header);
+
+    int row = 0;
+    foreach(QString tag, repo->getTags())
+    {
+        QStandardItem *index0 = new QStandardItem();
+        index0->setData(tag, Qt::DisplayRole);
+        model->setItem(row++, 0, index0);
+
+    }
+    ui->tagsView->setModel(model);
+
+}
+
+void MainWindow::updateBranches()
+{
+    QStandardItemModel *model = new QStandardItemModel(this);
+    model->setColumnCount(1);
+
+    QStandardItem *header = new QStandardItem();
+    header->setData("Branches", Qt::DisplayRole);
+    model->setHorizontalHeaderItem(0, header);
+
+
+    int row = 0;
+    foreach(QString branches, repo->getBranches())
+    {
+        QStandardItem *index0 = new QStandardItem();
+        index0->setData(branches, Qt::DisplayRole);
+        model->setItem(row++, 0, index0);
+    }
+
+    ui->branchView->setModel(model);
+    ui->branchView->resizeColumnToContents(0);
+}
+
+
 void MainWindow::loadRepo()
 {
     revWalk();
@@ -181,6 +245,9 @@ void MainWindow::on_actionOpen_triggered()
 
     connect (repo, SIGNAL(repoOpened()),this, SLOT(loadRepo()));
     revWalk();
+    updateTags();
+    updateBranches();
+
 }
 
 void MainWindow::gitTreeSelectedRow(const QModelIndex& index)
@@ -331,6 +398,7 @@ void MainWindow::revListSelectionChanged(QItemSelection selected,QItemSelection 
     }
     else
     {
+        ui->fullLogText->append(shownCommit->getCurrentSelectedCommit()->getCommit().oid().format() + "\n");
         ui->fullLogText->append(shownCommit->getCurrentSelectedCommit()->getCommit().message());
         buildTreeForCommit(shownCommit->getCurrentSelectedCommit());
     }
@@ -372,4 +440,35 @@ void MainWindow::on_revList_customContextMenuRequested(const QPoint &pos)
 void MainWindow::on_actionQuit_triggered()
 {
     QCoreApplication::exit();
+}
+
+void MainWindow::on_tagsView_clicked(const QModelIndex &index)
+{
+    // look up commit index refers to
+    QString tag = index.data().toString();
+
+    int lookupIndex = repo->lookupTag(tag);
+
+    // if value is -1 then an error has occured in lookup so don't change index
+    if (lookupIndex != -1)
+    {
+        QModelIndex modIndex = ui->revList->model()->index(lookupIndex, 0);
+        ui->revList->setCurrentIndex(modIndex);
+    }
+
+}
+
+void MainWindow::on_branchView_clicked(const QModelIndex &index)
+{
+    // look up commit index refers to
+    QString branch = index.data().toString();
+
+    int lookupIndex = repo->lookupBranch(branch);
+
+    // if value is -1 then an error has occured in lookup so don't change index
+    if (lookupIndex != -1)
+    {
+        QModelIndex modIndex = ui->revList->model()->index(lookupIndex, 0);
+        ui->revList->setCurrentIndex(modIndex);
+    }
 }

@@ -43,6 +43,7 @@ acRepo::acRepo(QString directory)
         Commit* workDir = new Commit(LibQGit2::QGitCommit(), lane, 1);
 
         commits.append(workDir);
+        commitLookup.insert(0, commits.size() - 1);
     }
 
     // set walk commit to head
@@ -50,11 +51,14 @@ acRepo::acRepo(QString directory)
     LibQGit2::QGitRevWalk walker(repo);
 
     QVector<LibQGit2::QGitOId> nextCommits;
-    nextCommits.reserve(25);
+    nextCommits.reserve(400);
 
     nextCommits.insert(0, repo.head().oid());
     Commit* newCommit = populateCommit(walkCommit, nextCommits, 1);
+
     commits.append (newCommit);
+    commitLookup.insert(newCommit->getCommit().oid().format(), commits.size() - 1);
+
     walker.setSorting(LibQGit2::QGitRevWalk::Topological);
 
     walker.push(walkCommit);
@@ -64,8 +68,9 @@ acRepo::acRepo(QString directory)
     {
         newCommit = populateCommit(walkCommit, nextCommits, newCommit->getMaxRows());
         commits.append(newCommit);
+        commitLookup.insert(newCommit->getCommit().oid().format(), commits.size() - 1);
     }
-//    Lanes = constructLanes();
+
     // emit that the repo has been opened.
     emit repoOpened ();
 
@@ -94,6 +99,114 @@ QVector<Commit*> acRepo::getAllCommits()
 {
     return commits;
     //return Lanes;
+}
+
+QStringList acRepo::getBranches()
+{
+    QStringList allBranches;
+    allBranches = repo.showAllBranches (LibQGit2::QGitRepository::QGIT_LOCAL);
+    allBranches.append(repo.showAllBranches (LibQGit2::QGitRepository::QGIT_REMOTE));
+
+    return allBranches;
+}
+
+/**
+ * @brief acRepo::lookupTag Takes a tag name and returns the index in the
+ * commit vector or -1 if the tag name was not found
+ * @param tagName - Tag to lookup
+ * @return return index of tagged commit in vector or -1
+ */
+int acRepo::lookupTag(QString tagName)
+{
+    int commitIndex = 0;
+    try
+    {
+            LibQGit2::QGitRef ref = repo.lookupRef("refs/tags/" + tagName);
+
+            // search known commits first
+            QMap<QByteArray, int>::Iterator itor = commitLookup.find(ref.oid().format());
+
+            if (itor == commitLookup.end())
+            {
+                // no luck finding it so far so do a tag lookup
+                // incase the tag has its own oid seperate to the commit oid
+                LibQGit2::QGitTag tag = repo.lookupTag(ref.oid());
+
+                LibQGit2::QGitObject obj = tag.target();
+
+                itor = commitLookup.find(obj.oid().format());
+            }
+
+            // check if itor has found it.
+            if (itor == commitLookup.end())
+            {
+                // just not our day for finding this tag so return -1
+                return -1;
+            }
+
+            return itor.value();
+    }
+    catch (LibQGit2::QGitException e)
+    {
+        qDebug() << "no commit with that commit is found with tagName";
+        qDebug() << e.message();
+    }
+
+    return commitIndex;
+}
+
+int acRepo::lookupBranch(QString branchName)
+{
+    int commitIndex = -1;
+    try
+    {
+            LibQGit2::QGitRef ref = repo.lookupRef("refs/remotes/" + branchName);
+
+            // search known commits first
+            QMap<QByteArray, int>::Iterator itor = commitLookup.find(ref.oid().format());
+
+            // check if itor has found it.
+            if (itor == commitLookup.end())
+            {
+                // just not our day for finding this tag so return -1
+                return -1;
+            }
+
+            return itor.value();
+    }
+    catch (LibQGit2::QGitException e)
+    {
+        // most likely we are here because reference could not be found
+        try
+        {
+            LibQGit2::QGitRef ref = repo.lookupRef("refs/heads/" + branchName);
+
+            // search known commits first
+            QMap<QByteArray, int>::Iterator itor = commitLookup.find(ref.oid().format());
+
+            if (itor == commitLookup.end())
+            {
+                // just not our day for finding this tag so return -1
+                return -1;
+            }
+
+            return itor.value();
+
+        }
+        catch (LibQGit2::QGitException e2)
+        {
+            qDebug() << "no commit with that commit is found with branchName";
+            qDebug() << e2.message();
+        }
+
+    }
+
+    return commitIndex;
+}
+
+QStringList acRepo::getTags()
+{
+    return repo.listTags();
 }
 
 
