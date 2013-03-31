@@ -52,6 +52,20 @@ MainWindow::MainWindow(QWidget *parent) :
     // extra ui setup
     setup();
 
+    // try open a git repo in the current directory
+    try
+    {
+        repo = new acRepo(QDir::currentPath() + "/.git");
+        revWalk();
+        updateTags();
+        updateBranches();
+    }
+    catch (LibQGit2::QGitException e)
+    {
+        // there is no repo in this directory or sub directories
+        // which can be handled gracefully by ignoring this issue.
+    }
+
 }
 
 MainWindow::~MainWindow()
