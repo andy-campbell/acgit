@@ -80,25 +80,6 @@ void MainWindow::setup()
     // Make diff read only
     ui->diffView->setReadOnly(true);
 
-    // Create header for the tags
-    QStandardItemModel *tagsModel = new QStandardItemModel (this);
-    tagsModel->setColumnCount(1);
-
-    QStandardItem *tagsHeader = new QStandardItem();
-    tagsHeader->setData("Tags", Qt::DisplayRole);
-    tagsModel->setHorizontalHeaderItem(0, tagsHeader);
-    ui->tagsView->setModel(tagsModel);
-
-    // Create header for the branches
-    QStandardItemModel *branchesModel = new QStandardItemModel (this);
-    tagsModel->setColumnCount(1);
-
-    QStandardItem *branchHeader = new QStandardItem();
-    branchHeader->setData("Branches", Qt::DisplayRole);
-    branchesModel->setHorizontalHeaderItem(0, branchHeader);
-
-    ui->branchView->setModel(branchesModel);
-    ui->branchView->header()->setSectionResizeMode(QHeaderView::Stretch);
 }
 
 /**
@@ -178,45 +159,18 @@ void MainWindow::revWalk ()
 
 void MainWindow::updateTags()
 {
-    QStandardItemModel *model = new QStandardItemModel(this);
-    model->setColumnCount(1);
+    // clear tags out if there is any
+    ui->tagsCombo->clear();
 
-    QStandardItem *header = new QStandardItem();
-    header->setData("Tags", Qt::DisplayRole);
-    model->setHorizontalHeaderItem(0, header);
-
-    int row = 0;
-    foreach(QString tag, repo->getTags())
-    {
-        QStandardItem *index0 = new QStandardItem();
-        index0->setData(tag, Qt::DisplayRole);
-        model->setItem(row++, 0, index0);
-
-    }
-    ui->tagsView->setModel(model);
-
+    // add the new tags
+    ui->tagsCombo->insertItems(0, repo->getTags());
 }
 
 void MainWindow::updateBranches()
 {
-    QStandardItemModel *model = new QStandardItemModel(this);
-    model->setColumnCount(1);
+    ui->branchesCombo->clear();
 
-    QStandardItem *header = new QStandardItem();
-    header->setData("Branches", Qt::DisplayRole);
-    model->setHorizontalHeaderItem(0, header);
-
-
-    int row = 0;
-    foreach(QString branches, repo->getBranches())
-    {
-        QStandardItem *index0 = new QStandardItem();
-        index0->setData(branches, Qt::DisplayRole);
-        model->setItem(row++, 0, index0);
-    }
-
-    ui->branchView->setModel(model);
-    ui->branchView->resizeColumnToContents(0);
+    ui->branchesCombo->insertItems(0, repo->getBranches());
 }
 
 
@@ -442,12 +396,9 @@ void MainWindow::on_actionQuit_triggered()
     QCoreApplication::exit();
 }
 
-void MainWindow::on_tagsView_clicked(const QModelIndex &index)
+void MainWindow::on_branchesCombo_activated(const QString &arg1)
 {
-    // look up commit index refers to
-    QString tag = index.data().toString();
-
-    int lookupIndex = repo->lookupTag(tag);
+    int lookupIndex = repo->lookupBranch(arg1);
 
     // if value is -1 then an error has occured in lookup so don't change index
     if (lookupIndex != -1)
@@ -458,12 +409,9 @@ void MainWindow::on_tagsView_clicked(const QModelIndex &index)
 
 }
 
-void MainWindow::on_branchView_clicked(const QModelIndex &index)
+void MainWindow::on_tagsCombo_activated(const QString &arg1)
 {
-    // look up commit index refers to
-    QString branch = index.data().toString();
-
-    int lookupIndex = repo->lookupBranch(branch);
+    int lookupIndex = repo->lookupTag(arg1);
 
     // if value is -1 then an error has occured in lookup so don't change index
     if (lookupIndex != -1)

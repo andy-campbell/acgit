@@ -53,9 +53,9 @@ private slots:
 
     void on_actionQuit_triggered();
 
-    void on_tagsView_clicked(const QModelIndex &index);
+    void on_branchesCombo_activated(const QString &arg1);
 
-    void on_branchView_clicked(const QModelIndex &index);
+    void on_tagsCombo_activated(const QString &arg1);
 
 private:
 
