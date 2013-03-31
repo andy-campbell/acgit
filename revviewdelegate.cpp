@@ -50,7 +50,7 @@ const QColor PURPLE       = QColor(221, 221, 255);
 const QColor DARK_GREEN   = QColor(0, 205, 0);
 
 void revViewDelegate::paintGraphLane(QPainter* p, int type, int x1, int x2,
-                                      const QColor& col, const QColor& activeCol, const QBrush& back) const
+                                      const QColor& col, const QColor& activeCol, const QBrush& back, bool firstCommit) const
 {
 
     int h = 26 / 2;
@@ -140,7 +140,10 @@ void revViewDelegate::paintGraphLane(QPainter* p, int type, int x1, int x2,
     case Commit::BRANCH_MERGE_COMMIT:
     case Commit::NO_COMMIT:
     case Commit::NO_COMMIT_H:
-        p->drawLine(P_90, P_270);
+        if (firstCommit)
+            p->drawLine(P_CENTER, P_270);
+        else
+            p->drawLine(P_90, P_270);
         break;
     default:
         break;
@@ -238,6 +241,13 @@ void revViewDelegate::paintGraph(QPainter* p, const QStyleOptionViewItem& opt,
     if (opt.state & QStyle::State_Selected)
         activeColor = blend(activeColor, opt.palette.highlightedText().color(), 208);
 
+    bool firstCommit = i.row() == 0;
+
+    if (i.row() == 1 && _repo->getAllCommits().at(0)->getCommitType() == Commit::NO_COMMIT_WORKING_DIR)
+    {
+        firstCommit = true;
+    }
+
     for (int i = 0; i < commit->getCurrentRowState()->size(); i++)
     {
         x1 = lw * (i);
@@ -246,7 +256,7 @@ void revViewDelegate::paintGraph(QPainter* p, const QStyleOptionViewItem& opt,
 
         QColor color = active ? activeColor : colors[i % 8];
 
-        paintGraphLane(p, commit->getCurrentRowState()->at(i), x1, x2, color, activeColor, back);
+        paintGraphLane(p, commit->getCurrentRowState()->at(i), x1, x2, color, activeColor, back, firstCommit);
     }
     p->restore();
 }

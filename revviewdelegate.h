@@ -47,7 +47,7 @@ public slots:
     
 private:
     void paintGraph(QPainter *p, const QStyleOptionViewItem &opt, const QModelIndex &i) const;
-    void paintGraphLane(QPainter *p, int type, int x1, int x2, const QColor &col, const QColor &activeCol, const QBrush &back) const;
+    void paintGraphLane(QPainter *p, int type, int x1, int x2, const QColor &col, const QColor &activeCol, const QBrush &back, bool firstCommit) const;
 
     acRepo *_repo;
 };
