@@ -106,6 +106,7 @@ QStringList acRepo::getBranches()
     QStringList allBranches;
     allBranches = repo.showAllBranches (LibQGit2::QGitRepository::QGIT_LOCAL);
     allBranches.append(repo.showAllBranches (LibQGit2::QGitRepository::QGIT_REMOTE));
+    allBranches.removeDuplicates();
 
     return allBranches;
 }
