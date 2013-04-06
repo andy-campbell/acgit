@@ -70,3 +70,8 @@ void currentCommit::savePatch(const QString path)
     out << diff->print();
     file.close();
 }
+
+QString currentCommit::getPatchStats()
+{
+    return diff->diffStats();
+}

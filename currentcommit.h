@@ -61,6 +61,14 @@ public:
      * @param path the location that the file should be saved to.
      */
     void savePatch(const QString path);
+
+    /**
+     * @brief getPatchStats gets the diff stats and returns them to the user
+     * in QString format.
+     * @return A QString containing the diff stats
+     */
+    QString getPatchStats();
+
 private:
     const Commit *_selectedCommit;
     LibQGit2::QGitDiff *diff;

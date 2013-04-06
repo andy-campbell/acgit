@@ -366,8 +366,9 @@ void MainWindow::revListSelectionChanged(QItemSelection selected,QItemSelection 
     }
     else
     {
-        ui->fullLogText->append(shownCommit->getCurrentSelectedCommit()->getCommit().oid().format() + "\n");
         ui->fullLogText->append(shownCommit->getCurrentSelectedCommit()->getCommit().message());
+        ui->fullLogText->append("\n\n\n");
+        ui->fullLogText->append(shownCommit->getPatchStats());
         buildTreeForCommit(shownCommit->getCurrentSelectedCommit());
     }
 
