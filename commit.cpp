@@ -62,3 +62,34 @@ int Commit::getMaxRows()
     return _prevMaxRows;
 }
 
+//void Commit::createTag (QString tagName)
+//{
+
+//}
+
+void Commit::addTag(QString tagName)
+{
+
+}
+
+//void Commit::createBranch (QString branchName)
+//{
+
+//}
+
+void Commit::addBranch(QString branchName)
+{
+    // append branchName onto branches
+    branches << branchName;
+}
+
+QStringList Commit::getBranches()
+{
+    return branches;
+}
+
+QStringList Commit::getTags()
+{
+    return tags;
+}
+

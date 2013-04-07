@@ -71,6 +71,21 @@ acRepo::acRepo(QString directory)
         commitLookup.insert(newCommit->getCommit().oid().format(), commits.size() - 1);
     }
 
+    // add branches to appropriate commits
+    foreach (QString branch, getBranches())
+    {
+        int index = lookupBranch(branch);
+        commits[index]->addBranch(branch);
+    }
+
+    // add tags to appropriate commits
+    foreach (QString tag, getTags())
+    {
+        int index = lookupTags(tag);
+        commits[index]->addTag(tag);
+    }
+
+
     // emit that the repo has been opened.
     emit repoOpened ();
 

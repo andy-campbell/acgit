@@ -17,7 +17,9 @@
 
 #include "revviewdelegate.h"
 
+#include <QPalette>
 #include <QDebug>
+#include <QGuiApplication>
 revViewDelegate::revViewDelegate( acRepo* repo,
 QObject *parent) :
     QItemDelegate(parent)
@@ -262,14 +264,99 @@ void revViewDelegate::paintGraph(QPainter* p, const QStyleOptionViewItem& opt,
 }
 
 
+void revViewDelegate::paintShort(QPainter* p, QStyleOptionViewItem opt,
+                                const QModelIndex& index) const
+{
 
+    int row = index.row();
+    Commit* commit = _repo->getAllCommits().at(row);
+
+    if (!commit)
+    {
+        return;
+    }
+
+    QPixmap* pm = getRefsPixmap(commit, opt);
+
+    if (!pm) {
+        QItemDelegate::paint(p, opt, index);
+        return;
+    }
+
+    QStyleOptionViewItem newOpt(opt); // we need a copy
+    p->drawPixmap(newOpt.rect.x(), newOpt.rect.y() + 6, *pm);
+    newOpt.rect.adjust(pm->width(), 0, 0, 0);
+    delete pm;
+
+    QItemDelegate::paint(p, newOpt, index);
+}
+
+QPixmap* revViewDelegate::getRefsPixmap(Commit *commit, QStyleOptionViewItem& opt) const
+{
+    if (commit->getBranches().size() == 0 && commit->getTags().size() == 0)
+    {
+        return NULL;
+    }
+
+    QPixmap* pm = new QPixmap(); // must be deleted by caller
+    foreach (QString branch, commit->getBranches())
+    {
+        opt.palette.setColor(QPalette::Window, QColor(Qt::green));
+
+        addTextPixmap(&pm, branch, opt);
+    }
+
+    foreach (QString tag, commit->getTags())
+    {
+        opt.palette.setColor(QPalette::Window, QColor(Qt::red));
+
+        addTextPixmap(&pm, tag, opt);
+    }
+
+    return pm;
+}
+
+
+void revViewDelegate::addTextPixmap(QPixmap** pp, QString data, const QStyleOptionViewItem& opt) const {
+
+    QPixmap* pm = *pp;
+    int ofs = pm->isNull() ? 0 : pm->width() + 2;
+    int spacing = 2;
+    QFontMetrics fm(opt.font);
+    int pw = fm.boundingRect(data).width() + 2 * (spacing + int(opt.font.bold()));
+    int ph = fm.height() - 1; // leave vertical space between two consecutive tags
+
+    QPixmap* newPm = new QPixmap(ofs + pw, ph);
+    QPainter p;
+    p.begin(newPm);
+    if (!pm->isNull()) {
+        newPm->fill(opt.palette.base().color());
+        p.drawPixmap(0, 0, *pm);
+    }
+    p.setPen(opt.palette.color(QPalette::WindowText));
+    p.setBrush(opt.palette.color(QPalette::Window));
+    p.setFont(opt.font);
+    p.drawRect(ofs, 0, pw - 1, ph - 1);
+    p.drawText(ofs + spacing, fm.ascent(), data);
+    p.end();
+
+    delete pm;
+    *pp = newPm;
+}
 void revViewDelegate::paint(QPainter *p, const QStyleOptionViewItem &opt, const QModelIndex &index) const
 {
 
     p->setRenderHints(QPainter::Antialiasing);
 
     if (index.column() == 0)
-        return paintGraph(p, opt, index);
+    {
+        return paintGraph (p, opt, index);
+    }
+
+    if (index.column() == 1)
+    {
+        return paintShort (p, opt, index);
+    }
 
     return QItemDelegate::paint(p, opt, index);
 }

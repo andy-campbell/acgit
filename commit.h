@@ -75,12 +75,43 @@ public:
     QVector<enum CommitType>* getCurrentRowState();
 
     int getMaxRows();
+
+    /**
+     * @brief addTag add a tag to the current commit. This is to be used only
+     * if the tag already exists. If it does not exist then call createTag
+     * @param tag The name of the tag to add.
+     */
+    void addTag(QString tagName);
+
+    /**
+     * @brief addBranch adds an existing branch to the current commit. This is
+     * to be used only if the branch already exists. If the branch does not exist
+     * use createBranch.
+     * @param branchName Name of the branch to add.
+     */
+    void addBranch(QString branchName);
+
+    /**
+     * @brief getBranches This returns the branches which are associated with this commit.
+     * If the commit has no branches then the commit QStringList will be empty.
+     * @return A QStringList containing the list of branches for this commit.
+     */
+    QStringList getBranches();
+
+    /**
+     * @brief getTags This returns the tags which are associated with this commit. If the
+     * commit has no tags then an empty QStringList will returned.
+     * @return A QStringList containg the list of tags for this commit.
+     */
+    QStringList getTags();
 private:
     LibQGit2::QGitCommit _commit;
     enum CommitType _type;
     int _numParents;
     struct Lane _laneInfo;
     int _prevMaxRows;
+    QStringList tags;
+    QStringList branches;
 
 
 };
