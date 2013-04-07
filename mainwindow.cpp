@@ -199,6 +199,12 @@ void MainWindow::on_actionOpen_triggered()
                                                      QDir::home().path());
     try
     {
+        if (repo)
+        {
+            // already have a repo so do some tidy up
+            delete repo;
+        }
+
         repo = new acRepo(folderName + "/.git");
     }
     catch (LibQGit2::QGitException e)
