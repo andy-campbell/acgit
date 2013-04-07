@@ -17,9 +17,9 @@
 
 #include "revviewdelegate.h"
 
-#include <QPalette>
+
 #include <QDebug>
-#include <QGuiApplication>
+
 revViewDelegate::revViewDelegate( acRepo* repo,
 QObject *parent) :
     QItemDelegate(parent)

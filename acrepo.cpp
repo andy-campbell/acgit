@@ -75,14 +75,20 @@ acRepo::acRepo(QString directory)
     foreach (QString branch, getBranches())
     {
         int index = lookupBranch(branch);
-        commits[index]->addBranch(branch);
+        if (index != -1)
+        {
+            commits[index]->addBranch(branch);
+        }
     }
 
     // add tags to appropriate commits
     foreach (QString tag, getTags())
     {
-        int index = lookupTags(tag);
-        commits[index]->addTag(tag);
+        int index = lookupTag(tag);
+        if (index != -1)
+        {
+            commits[index]->addTag(tag);
+        }
     }
 
 
@@ -134,7 +140,7 @@ QStringList acRepo::getBranches()
  */
 int acRepo::lookupTag(QString tagName)
 {
-    int commitIndex = 0;
+    int commitIndex = -1;
     try
     {
             LibQGit2::QGitRef ref = repo.lookupRef("refs/tags/" + tagName);

@@ -69,7 +69,7 @@ int Commit::getMaxRows()
 
 void Commit::addTag(QString tagName)
 {
-
+    tags << tagName;
 }
 
 //void Commit::createBranch (QString branchName)
