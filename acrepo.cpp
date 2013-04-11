@@ -233,7 +233,7 @@ QStringList acRepo::getTags()
 
 
 //TODO comment me
-QVector<enum Commit::CommitType> *buildUpLane(QVector<int> branchedToRow, QVector<int> mergeFromRow,
+QVector<enum Commit::CommitType> *buildUpLane(QSet<int> branchedToRow, QSet<int> mergeFromRow,
                                               QVector<LibQGit2::QGitOId> &nextCommits, int activeRow,
                                               enum Commit::CommitType activeRowType, int curMaxRows, int prevMaxRow)
 {
@@ -406,7 +406,7 @@ QVector<enum Commit::CommitType> *buildUpLane(QVector<int> branchedToRow, QVecto
                     else
                         currentRowState->append(Commit::NO_COMMIT_H);
 
-                    if (i == prevMaxRow -1 && i == branchedToRow.last() -1)
+                    if (i == prevMaxRow -1 && i == branchedToRow.size() -1)
                     {
                         currentRowState->append(Commit::BRANCH_MERGE_COMMIT_UP);
                     }
@@ -448,16 +448,16 @@ QVector<enum Commit::CommitType> *buildUpLane(QVector<int> branchedToRow, QVecto
                 handledBranched++;
                 if (activeRowType == Commit::BRANCH_MERGE_COMMIT)
                 {
-                    if (handledBranched == branchedToRow.size())
-                    {
-                        currentRowState->append(Commit::BRANCH_MERGE_COMMIT_UP);
+                if (handledBranched == branchedToRow.size())
+                {
+                    currentRowState->append(Commit::BRANCH_MERGE_COMMIT_UP);
                         handledLastBranch = true;
-                    }
-                    else
-                    {
-                        currentRowState->append(Commit::BRANCH_MERGE_COMMIT_UP_H);
-                    }
                 }
+                else
+                {
+                    currentRowState->append(Commit::BRANCH_MERGE_COMMIT_UP_H);
+                }
+            }
                 else if (activeRowType == Commit::BRANCH_COMMIT)
                 {
                     if (handledBranched == branchedToRow.size())
@@ -486,8 +486,8 @@ Commit* acRepo::populateCommit(LibQGit2::QGitCommit &commit, QVector<LibQGit2::Q
     enum Commit::CommitType type = Commit::NO_COMMIT;
     int count = 0;
     bool mergeCommit = false;
-    QVector<int> branchedToRow;
-    QVector<int> mergeFromRow;
+    QSet<int> branchedToRow;
+    QSet<int> mergeFromRow;
 
     int activeRow = -1;
     int curMaxRows = prevMaxRow;
@@ -505,12 +505,26 @@ Commit* acRepo::populateCommit(LibQGit2::QGitCommit &commit, QVector<LibQGit2::Q
             }
             else
             {
-                branchedToRow.append(nextCommitIndex);
+                branchedToRow.insert(nextCommitIndex);
             }
             count++;
             //reset commit to zero
             LibQGit2::QGitOId zero;
             nextCommits[nextCommitIndex] = zero;
+        }
+    }
+
+    for (int removeIndex = nextCommits.size() -1; removeIndex > activeRow + 1; removeIndex--)
+    {
+        LibQGit2::QGitOId zero;
+        if (nextCommits[removeIndex] == zero)
+        {
+            nextCommits.remove(removeIndex);
+        }
+        else
+        {
+            // break early if index isn't a empty index.
+            break;
         }
     }
 
@@ -520,20 +534,20 @@ Commit* acRepo::populateCommit(LibQGit2::QGitCommit &commit, QVector<LibQGit2::Q
         bool added = false;
         for (int k = activeRow; k < nextCommits.size(); k++)
         {
-            //default value of gitoid is 0
+            //default value of git oid is 0
             LibQGit2::QGitOId zero;
             if (nextCommits[k] == zero)
             {
                 nextCommits[k] = commit.parent(i).oid();
                 added = true;
-                mergeFromRow.append(k);
+                mergeFromRow.insert(k);
                 break;
             }
         }
         if (added == false)
         {
             nextCommits.append(commit.parent(i).oid());
-            mergeFromRow.append(nextCommits.size() - 1);
+            mergeFromRow.insert(nextCommits.size() - 1);
         }
 
         // more than one parent commit so must be a merge of some sort.
@@ -604,16 +618,7 @@ Commit* acRepo::populateCommit(LibQGit2::QGitCommit &commit, QVector<LibQGit2::Q
         return nullptr;
     }
 
-    // find last Row as size of vector is not accurate as it may have empty commits
-    for (int i = nextCommits.size() - 1; i >= 0; i--)
-    {
-        LibQGit2::QGitOId zero;
-        if (nextCommits[i] != zero)
-        {
-            prevMaxRow = i + 1;
-            break;
-        }
-    }
+    prevMaxRow = nextCommits.size();
 
     Commit::Lane lane;
     lane.activeRow = activeRow;
