@@ -27,7 +27,7 @@ class Commit
 public:
     enum CommitType
     {
-        NO_COMMIT,
+        NO_COMMIT = 0,
         NO_COMMIT_H,
         NO_COMMIT_WORKING_DIR,
         EMPTY_LANE,
@@ -35,11 +35,9 @@ public:
         NORMAL_COMMIT,
         NORMAL_COMMIT_H,
         BRANCH_COMMIT,
-        BRANCH_COMMIT_H,
         BRANCH_COMMIT_UP,
         BRANCH_COMMIT_UP_H,
         MERGE_COMMIT,
-        MERGE_COMMIT_H,
         MERGE_COMMIT_DOWN,
         MERGE_COMMIT_DOWN_H,
         BRANCH_MERGE_COMMIT,
@@ -66,7 +64,7 @@ public:
 
     void setNumParents(int parentsCount = 1);
 
-    int getRow();
+    int getActiveRowNumber();
 
     LibQGit2::QGitCommit getCommit() const;
 

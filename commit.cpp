@@ -37,7 +37,7 @@ void Commit::setNumParents(int parentsCount)
     _numParents = parentsCount;
 }
 
-int Commit::getRow()
+int Commit::getActiveRowNumber()
 {
     return _laneInfo.activeRow;
 }

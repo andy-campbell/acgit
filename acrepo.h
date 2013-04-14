@@ -65,7 +65,7 @@ signals:
     void repoOpened();
 
 private:
-    Commit *populateCommit(LibQGit2::QGitCommit &commit, QVector<LibQGit2::QGitOId> &nextCommits, int prevMaxRow);
+    Commit *populateCommit(LibQGit2::QGitCommit &commit, QVector<LibQGit2::QGitOId> &nextCommits, Commit *prevCommit);
     LibQGit2::QGitRepository repo;
     QVector<Commit*> commits;
     // key is oid and value is item in commits. Another potential way todo this is implement a multi key map

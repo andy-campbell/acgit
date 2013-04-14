@@ -156,12 +156,10 @@ void revViewDelegate::paintGraphLane(QPainter* p, int type, int x1, int x2,
 
     // horizontal line
     switch (type) {
-    case Commit::MERGE_COMMIT_H:
     case Commit::MERGE_COMMIT_DOWN_H:
     case Commit::BRANCH_MERGE_COMMIT_BOTH_H:
     case Commit::BRANCH_MERGE_COMMIT_DOWN_H:
     case Commit::BRANCH_MERGE_COMMIT_UP_H:
-    case Commit::BRANCH_COMMIT_H:
     case Commit::BRANCH_COMMIT_UP_H:
     case Commit::NO_COMMIT_H:
     case Commit::EMPTY_LANE_H:
@@ -234,7 +232,7 @@ void revViewDelegate::paintGraph(QPainter* p, const QStyleOptionViewItem& opt,
     p->translate(opt.rect.topLeft());
 
     QBrush back = opt.palette.base();
-    uint activeLane = commit->getRow();
+    uint activeLane = commit->getActiveRowNumber();
 
     int x1 = 0, x2 = 0;
 
@@ -254,7 +252,7 @@ void revViewDelegate::paintGraph(QPainter* p, const QStyleOptionViewItem& opt,
     {
         x1 = lw * (i);
         x2 = lw * (i + 1);
-        bool active = commit->getRow() == i;
+        bool active = commit->getActiveRowNumber() == i;
 
         QColor color = active ? activeColor : colors[i % 8];
 
