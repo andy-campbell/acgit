@@ -36,6 +36,8 @@
 #include <QStandardItemModel>
 #include <QTableView>
 
+#include <QInputDialog>
+
 #include "commit.h"
 #include "revviewdelegate.h"
 
@@ -394,22 +396,50 @@ void MainWindow::on_revList_customContextMenuRequested(const QPoint &pos)
    QModelIndex index = ui->revList->indexAt(pos);
    QPoint globalPos = ui->revList->mapToGlobal(pos);
 
-   qDebug() << index.row();
-   QMenu menu(this);
-   menu.addAction("Save Patch");
+    qDebug() << index.row();
+    QMenu menu(this);
+    menu.addAction(tr("Save Patch"));
+    menu.addAction(tr("Add Tag"));
+    menu.addAction(tr("Remove Tag"));
 
-   QAction* selectedItem = menu.exec(globalPos);
-   if (selectedItem)
-   {
-       Commit *commitToSave = repo->getAllCommits().at(index.row());
-       QString exampleName = QDir::currentPath() + "/" + commitToSave->getCommit().shortMessage().replace(" ", "_")
-               + ".patch";
-       QString patchName = QFileDialog::getSaveFileName (this, tr("Save Patch"),
-                                                         exampleName ,tr("Patches (*.patch)") );
+    QAction* selectedItem = menu.exec(globalPos);
+    if (selectedItem)
+    {
+        Commit *commit = repo->getAllCommits().at(index.row());
+        if (selectedItem->iconText().contains(tr("Add Tag")))
+        {
+            // Prompt user for tag name
+            QString tagName = QInputDialog::getText (this, tr("Please enter tag name"), tr("Tag name"));
 
-       qDebug () << patchName;
-       shownCommit->savePatch(patchName);
-   }
+            // Add Tag to commit
+            if (!tagName.isEmpty())
+                commit->createTag(repo, tagName);
+        }
+        else if (selectedItem->iconText().contains(tr("Remove Tag")))
+        {
+            QStringList tagsList = commit->getTags();
+
+            if (tagsList.size() == 1)
+            {
+                commit->removeTag(repo, tagsList.first());
+            }
+            else if (tagsList.size() > 1)
+            {
+                QString tag = QInputDialog::getItem(this, tr("Remove tag"), tr("Please select tag to remove"), tagsList);
+                commit->removeTag(repo, tag);
+            }
+
+        }
+        else if (selectedItem->iconText().contains(tr("Save Patch")))
+        {
+            QString exampleName = QDir::currentPath() + "/" + commit->getCommit().shortMessage().replace(" ", "_")
+                       + ".patch";
+               QString patchName = QFileDialog::getSaveFileName (this, tr("Save Patch"),
+                                                                 exampleName ,tr("Patches (*.patch)") );
+
+            shownCommit->savePatch(patchName);
+        }
+    }
 }
 
 void MainWindow::on_actionQuit_triggered()

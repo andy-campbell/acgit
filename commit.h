@@ -19,8 +19,11 @@
 #define COMMIT_H
 
 #include "../libqgit2/qgit2.h"
+#include "acrepo.h"
 
 #include <QVector>
+
+class acRepo;
 
 class Commit
 {
@@ -76,10 +79,26 @@ public:
 
     /**
      * @brief addTag add a tag to the current commit. This is to be used only
-     * if the tag already exists. If it does not exist then call createTag
+     * if the tag already exists. If it does not exist in the git repository
+     * then call createTag
      * @param tag The name of the tag to add.
      */
     void addTag(QString tagName);
+
+    /**
+     * @brief createTag adds a tag to the current commit. This adds the tag
+     * to this commit in the git repository .
+     * @param tagName The name of the tag to add.
+     */
+    void createTag (acRepo *repo, QString tagName);
+
+    /**
+     * @brief removeTag This call removes the tag with tagName from this commit.
+     * Warning: Don't Call this if trying to remove tag from only this Object as it
+     * will remove from the git repository.
+     * @param tagName
+     */
+    void removeTag(acRepo *repo,QString tagName);
 
     /**
      * @brief addBranch adds an existing branch to the current commit. This is

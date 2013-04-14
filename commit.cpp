@@ -62,10 +62,17 @@ int Commit::getMaxRows()
     return _prevMaxRows;
 }
 
-//void Commit::createTag (QString tagName)
-//{
+void Commit::createTag (acRepo *repo, QString tagName)
+{
+    repo->getRepo().createTag(tagName, _commit);
+    addTag(tagName);
+}
 
-//}
+void Commit::removeTag (acRepo *repo, QString tagName)
+{
+    repo->getRepo().deleteTag(tagName);
+    tags.removeOne(tagName);
+}
 
 void Commit::addTag(QString tagName)
 {

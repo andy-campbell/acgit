@@ -26,6 +26,7 @@
 
 #include "commit.h"
 
+class Commit;
 /**
  * This class handles the calls about the repo
  */
