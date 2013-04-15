@@ -23,10 +23,8 @@
 
 acRepo::acRepo(QString directory)
 {
-    QTime t;
-    t.start();
     repo.open(directory);
-    qDebug() << "time to open repo " << t.elapsed();
+
     // check if there is any changes to the working directory
     LibQGit2::QGitDiff *workingDirChanges = new LibQGit2::QGitDiff (repo);
 
@@ -92,8 +90,6 @@ acRepo::acRepo(QString directory)
             commits[index]->addTag(tag);
         }
     }
-
-    qDebug() << "time to load commits " << t.elapsed();
 
     // emit that the repo has been opened.
     emit repoOpened ();
