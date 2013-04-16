@@ -98,7 +98,21 @@ public:
      * will remove from the git repository.
      * @param tagName
      */
-    void removeTag(acRepo *repo,QString tagName);
+    void removeTag(acRepo *repo, QString tagName);
+
+    /**
+     * @brief createBranch Creates a git branch and adds it to this objects branch list.
+     * @param repo Repo that contains the commit.
+     * @param branchName Name of the new branch to create.
+     */
+    void createBranch (acRepo *repo, QString branchName);
+
+    /**
+     * @brief removeBranch deletes a branch from git
+     * @param repo Repo that contains the branch
+     * @param name Name of the branch to remove.
+     */
+    void removeBranch (acRepo *repo, QString name);
 
     /**
      * @brief addBranch adds an existing branch to the current commit. This is

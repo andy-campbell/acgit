@@ -79,10 +79,31 @@ void Commit::addTag(QString tagName)
     tags << tagName;
 }
 
-//void Commit::createBranch (QString branchName)
-//{
+void Commit::createBranch (acRepo *repo, QString branchName)
+{
+    try
+    {
+        repo->getRepo().createBranch(branchName, &_commit);
+        addBranch( branchName);
+    }
+    catch (LibQGit2::QGitException e)
+    {
+        // TODO handle excpetion
+    }
+}
 
-//}
+void Commit::removeBranch (acRepo *repo, QString name)
+{
+    try
+    {
+        repo->getRepo().deleteBranch("refs/heads/" + name);
+        branches.removeOne(name);
+    }
+    catch (LibQGit2::QGitException e)
+    {
+        // TODO handle excpetion
+    }
+}
 
 void Commit::addBranch(QString branchName)
 {

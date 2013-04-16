@@ -400,7 +400,12 @@ void MainWindow::on_revList_customContextMenuRequested(const QPoint &pos)
     QMenu menu(this);
     menu.addAction(tr("Save Patch"));
     menu.addAction(tr("Add Tag"));
-    menu.addAction(tr("Remove Tag"));
+    menu.addAction(tr("Delete Tag"));
+    menu.addSeparator();
+    menu.addAction(tr("Create Branch"));
+    menu.addAction(tr("Delete Branch"));
+    menu.addAction(tr("Checkout branch"));
+
 
     QAction* selectedItem = menu.exec(globalPos);
     if (selectedItem)
@@ -411,7 +416,7 @@ void MainWindow::on_revList_customContextMenuRequested(const QPoint &pos)
             // Prompt user for tag name
             QString tagName = QInputDialog::getText (this, tr("Please enter tag name"), tr("Tag name"));
 
-            // Add Tag to commit
+            // Add Tag
             if (!tagName.isEmpty())
                 commit->createTag(repo, tagName);
         }
@@ -438,6 +443,38 @@ void MainWindow::on_revList_customContextMenuRequested(const QPoint &pos)
                                                                  exampleName ,tr("Patches (*.patch)") );
 
             shownCommit->savePatch(patchName);
+        }
+        else if (selectedItem->iconText().contains(tr("Create Branch")))
+        {
+            // Prompt user for tag name
+            QString branchName = QInputDialog::getText (this, tr("Please enter branch name"), tr("Branch name"));
+
+            // Add Branch
+            if (!branchName.isNull())
+                commit->createBranch(repo, branchName);
+        }
+        else if (selectedItem->iconText().contains(tr("Delete Branch")))
+        {
+            QStringList branchList = commit->getBranches();
+
+
+            if (branchList.size() == 1)
+            {
+                int proceed = QMessageBox::question(this, tr("Are you sure"), tr("Are you sure you wish to delete %1").arg(branchList.first()),
+                                                     QMessageBox::Yes, QMessageBox::No);
+
+                if (proceed)
+                    commit->removeBranch(repo, branchList.first());
+            }
+            else if (branchList.size() > 1)
+            {
+                QString branch = QInputDialog::getItem(this, tr("Remove tag"), tr("Please select tag to remove"), branchList);
+
+                int proceed = QMessageBox::question(this, tr("Are you sure"), tr("Are you sure you wish to delete %1").arg(branchList.first()),
+                                                     QMessageBox::Yes, QMessageBox::No);
+                if (proceed)
+                    commit->removeBranch(repo, "refs/heads/" + branch);
+            }
         }
     }
 }
