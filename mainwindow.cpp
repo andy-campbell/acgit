@@ -204,6 +204,8 @@ void MainWindow::on_actionOpen_triggered()
         if (repo)
         {
             // already have a repo so do some tidy up
+            ui->revList->reset();
+            ui->revList->setItemDelegate(nullptr);
             delete repo;
         }
 

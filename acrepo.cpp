@@ -98,6 +98,10 @@ acRepo::acRepo(QString directory)
 
 acRepo::~acRepo()
 {
+    foreach (Commit *commit, commits)
+    {
+        delete commit;
+    }
 }
 
 LibQGit2::QGitRepository acRepo::getRepo() const
