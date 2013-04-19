@@ -25,27 +25,30 @@
 
 #include "acrepo.h"
 #include "currentcommit.h"
+#include "mainwindowrevview.h"
 
 namespace Ui {
 class MainWindow;
 }
+
+class MainWindowRevView;
 
 class MainWindow : public QMainWindow
 {
     Q_OBJECT
     
 public:
-    explicit MainWindow(QWidget *parent = 0);
+    MainWindow(QWidget *parent = 0);
     ~MainWindow();
     
     void revWalk();
 
+    void setShownCommit(int index);
+
 private slots:
     void on_actionOpen_triggered();
-    void loadRepo();
-    void gitTreeSelectedRow(const QModelIndex &index);
 
-    void revListSelectionChanged(QItemSelection selected,QItemSelection deSelected);
+    void gitTreeSelectedRow(const QModelIndex &index);
 
     void on_fileChangesView_clicked(const QModelIndex &index);
 
@@ -61,12 +64,15 @@ private:
 
     Ui::MainWindow *ui;
 
+    void removeOldShownCommit();
     void setup();
     void updateTags();
     void updateBranches();
     // TODO remove from here
     acRepo *repo;
     currentCommit *shownCommit;
+
+    MainWindowRevView *revView;
 
     void buildTreeForCommit(const Commit *commit);
 };

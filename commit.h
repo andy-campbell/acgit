@@ -135,9 +135,10 @@ public:
      * @return A QStringList containg the list of tags for this commit.
      */
     QStringList getTags();
+
+    bool isWorkingDirectory();
 private:
     LibQGit2::QGitCommit _commit;
-    enum CommitType _type;
     int _numParents;
     struct Lane _laneInfo;
     int _prevMaxRows;

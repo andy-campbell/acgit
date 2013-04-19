@@ -40,6 +40,7 @@
 
 #include "commit.h"
 #include "revviewdelegate.h"
+#include "mainwindowrevview.h"
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -47,9 +48,10 @@ MainWindow::MainWindow(QWidget *parent) :
 {
     ui->setupUi(this);
 
+    revView = new MainWindowRevView(this, ui->revList);
     // null variables
-    shownCommit = nullptr;
     repo = nullptr;
+    shownCommit = nullptr;
 
     // extra ui setup
     setup();
@@ -58,7 +60,8 @@ MainWindow::MainWindow(QWidget *parent) :
     try
     {
         repo = new acRepo(QDir::currentPath() + "/.git");
-        revWalk();
+        revView->addCommitsToView(repo);
+        revView->setupDelegate(repo);
         updateTags();
         updateBranches();
     }
@@ -103,74 +106,63 @@ void MainWindow::setup()
  */
 void MainWindow::revWalk ()
 {
-    QStandardItemModel *model = new QStandardItemModel(this);
-    model->setColumnCount(4);
+}
 
-    // setup header info
+void MainWindow::removeOldShownCommit()
+{
+    if (shownCommit)
+    {
+        delete shownCommit;
+    }
+}
+
+void MainWindow::setShownCommit(int index)
+{
+    removeOldShownCommit();
+    shownCommit = new currentCommit (repo, repo->getAllCommits().at(index + 1), repo->getAllCommits().at(index));
+
+    QStandardItemModel *model = new QStandardItemModel(this);
+    model->setColumnCount(1);
+
+    // setup header info for files changed and update treeview
     QStandardItem *header = new QStandardItem();
-    header->setData("Rev", Qt::DisplayRole);
+    header->setData("Files Changed", Qt::DisplayRole);
     model->setHorizontalHeaderItem(0, header);
 
-    // setup header info
-    header = new QStandardItem();
-    header->setData("Short Log", Qt::DisplayRole);
-    model->setHorizontalHeaderItem(1, header);
-
-    // setup author header info
-    header = new QStandardItem();
-    header->setData("Author", Qt::DisplayRole);
-    model->setHorizontalHeaderItem(2, header);
-
-    //setup when author made commit header
-    header = new QStandardItem();
-    header->setData("Date", Qt::DisplayRole);
-    model->setHorizontalHeaderItem(3, header);
-
-    // loop over all commits and set up all useful info in the
-    // rev tree view
     int row = 0;
-    foreach (Commit* commit, repo->getAllCommits())
+    foreach (QString file, shownCommit->getFileList())
     {
-        QStandardItem *index0 = new QStandardItem();
-        index0->setData("", Qt::DisplayRole);
-        model->setItem(row, 0, index0);
-
-        if (commit->getCommitType() == Commit::NO_COMMIT_WORKING_DIR)
-        {
-            QStandardItem *index1 = new QStandardItem();
-            index1->setData("Working Directory", Qt::DisplayRole);
-            model->setItem(row, 1, index1);
-        }
-        else
-        {
-
-            QStandardItem *index1 = new QStandardItem();
-            index1->setData(commit->getCommit().shortMessage(), Qt::DisplayRole);
-            model->setItem(row, 1, index1);
-
-            QStandardItem *index2 = new QStandardItem();
-            index2->setData(commit->getCommit().author().name(), Qt::DisplayRole);
-            model->setItem(row, 2, index2);
-
-            QStandardItem *index3 = new QStandardItem();
-            index3->setData(commit->getCommit().author().when().toString(), Qt::DisplayRole);
-            model->setItem(row, 3, index3);
-        }
+        //create items and then add it to the model
+        QStandardItem *index = new QStandardItem();
+        index->setData(file, Qt::DisplayRole);
+        model->setItem(row, 0, index);
 
         row++;
     }
-    ui->revList->setModel(model);
 
-    revViewDelegate *delegate = new revViewDelegate(repo, this);
-    ui->revList->setItemDelegate (delegate);
+    // set diffview to show the delta of the first file
+    ui->diffView->clear();
+    ui->diffView->append(shownCommit->getDetaForFile(shownCommit->getFileList().first()));
 
-    // resize short comment column so more text can be seen
-    ui->revList->setColumnWidth(1, 350);
-    ui->revList->show();
+    // TODO sort this out this is duplicate code and is bad practice
+    ui->fileChangesView->setModel(model);
+    QModelIndex firstItem = model->index(0,0);
+    ui->fileChangesView->setCurrentIndex(firstItem);
 
-    // Connect item changes to callback
-    connect(ui->revList->selectionModel(), SIGNAL(selectionChanged(QItemSelection,QItemSelection)),
-            this, SLOT(revListSelectionChanged(QItemSelection,QItemSelection)));
+    // Handle Long message
+    ui->fullLogText->clear();
+    if (shownCommit->getCurrentSelectedCommit()->getCommitType() == Commit::NO_COMMIT_WORKING_DIR)
+    {
+        ui->fullLogText->append ("Changes in working directory");
+    }
+    else
+    {
+        ui->fullLogText->append(shownCommit->getCurrentSelectedCommit()->getCommit().message());
+        ui->fullLogText->append("\n\n\n");
+        ui->fullLogText->append(shownCommit->getPatchStats());
+        buildTreeForCommit(shownCommit->getCurrentSelectedCommit());
+    }
+
 }
 
 void MainWindow::updateTags()
@@ -189,12 +181,6 @@ void MainWindow::updateBranches()
     ui->branchesCombo->insertItems(0, repo->getBranches());
 }
 
-
-void MainWindow::loadRepo()
-{
-    revWalk();
-}
-
 void MainWindow::on_actionOpen_triggered()
 {
     QString folderName = QFileDialog::getExistingDirectory(this, tr("Open Directory"),
@@ -204,8 +190,7 @@ void MainWindow::on_actionOpen_triggered()
         if (repo)
         {
             // already have a repo so do some tidy up
-            ui->revList->reset();
-            ui->revList->setItemDelegate(nullptr);
+            revView->setupDelegate(nullptr);
             delete repo;
         }
 
@@ -221,8 +206,8 @@ void MainWindow::on_actionOpen_triggered()
     }
 
 
-    connect (repo, SIGNAL(repoOpened()),this, SLOT(loadRepo()));
-    revWalk();
+    revView->addCommitsToView(repo);
+    revView->setupDelegate(repo);
     updateTags();
     updateBranches();
 
@@ -328,62 +313,6 @@ void MainWindow::buildTreeForCommit(const Commit *commit)
 
 }
 
-void MainWindow::revListSelectionChanged(QItemSelection selected,QItemSelection deSelected)
-{
-    // Handle file list
-    if (shownCommit)
-    {
-        delete shownCommit;
-    }
-
-    QModelIndex index = ui->revList->currentIndex();
-
-    shownCommit = new currentCommit (repo, repo->getAllCommits().at(index.row() + 1), repo->getAllCommits().at(index.row()));
-
-    QStandardItemModel *model = new QStandardItemModel(this);
-    model->setColumnCount(1);
-
-    // setup header info for files changed and update treeview
-    QStandardItem *header = new QStandardItem();
-    header->setData("Files Changed", Qt::DisplayRole);
-    model->setHorizontalHeaderItem(0, header);
-
-    int row = 0;
-    foreach (QString file, shownCommit->getFileList())
-    {
-        //create items and then add it to the model
-        QStandardItem *index = new QStandardItem();
-        index->setData(file, Qt::DisplayRole);
-        model->setItem(row, 0, index);
-
-        row++;
-    }
-
-    // set diffview to show the delta of the first file
-    ui->diffView->clear();
-    ui->diffView->append(shownCommit->getDetaForFile(shownCommit->getFileList().first()));
-
-    // TODO sort this out this is duplicate code and is bad practice
-    ui->fileChangesView->setModel(model);
-    QModelIndex firstItem = model->index(0,0);
-    ui->fileChangesView->setCurrentIndex(firstItem);
-
-    // Handle Long message
-    ui->fullLogText->clear();
-    if (shownCommit->getCurrentSelectedCommit()->getCommitType() == Commit::NO_COMMIT_WORKING_DIR)
-    {
-        ui->fullLogText->append ("Changes in working directory");
-    }
-    else
-    {
-        ui->fullLogText->append(shownCommit->getCurrentSelectedCommit()->getCommit().message());
-        ui->fullLogText->append("\n\n\n");
-        ui->fullLogText->append(shownCommit->getPatchStats());
-        buildTreeForCommit(shownCommit->getCurrentSelectedCommit());
-    }
-
-
-}
 
 void MainWindow::on_fileChangesView_clicked(const QModelIndex &index)
 {

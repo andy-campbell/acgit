@@ -121,3 +121,9 @@ QStringList Commit::getTags()
     return tags;
 }
 
+bool Commit::isWorkingDirectory()
+{
+    return (_laneInfo.type == Commit::NO_COMMIT_WORKING_DIR);
+}
+
+
