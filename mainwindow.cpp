@@ -40,7 +40,6 @@
 
 #include "commit.h"
 #include "revviewdelegate.h"
-#include "mainwindowrevview.h"
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -49,6 +48,7 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->setupUi(this);
 
     revView = new MainWindowRevView(this, ui->revList);
+    commitChangesView = new filesChangesView(this, ui->diffView, ui->fileChangesView);
     // null variables
     repo = nullptr;
     shownCommit = nullptr;
@@ -101,13 +101,6 @@ void MainWindow::setup()
 
 }
 
-/**
- * @brief MainWindow::revWalk display all of the commits in the repo
- */
-void MainWindow::revWalk ()
-{
-}
-
 void MainWindow::removeOldShownCommit()
 {
     if (shownCommit)
@@ -121,33 +114,7 @@ void MainWindow::setShownCommit(int index)
     removeOldShownCommit();
     shownCommit = new currentCommit (repo, repo->getAllCommits().at(index + 1), repo->getAllCommits().at(index));
 
-    QStandardItemModel *model = new QStandardItemModel(this);
-    model->setColumnCount(1);
-
-    // setup header info for files changed and update treeview
-    QStandardItem *header = new QStandardItem();
-    header->setData("Files Changed", Qt::DisplayRole);
-    model->setHorizontalHeaderItem(0, header);
-
-    int row = 0;
-    foreach (QString file, shownCommit->getFileList())
-    {
-        //create items and then add it to the model
-        QStandardItem *index = new QStandardItem();
-        index->setData(file, Qt::DisplayRole);
-        model->setItem(row, 0, index);
-
-        row++;
-    }
-
-    // set diffview to show the delta of the first file
-    ui->diffView->clear();
-    ui->diffView->append(shownCommit->getDetaForFile(shownCommit->getFileList().first()));
-
-    // TODO sort this out this is duplicate code and is bad practice
-    ui->fileChangesView->setModel(model);
-    QModelIndex firstItem = model->index(0,0);
-    ui->fileChangesView->setCurrentIndex(firstItem);
+    commitChangesView->update(shownCommit);
 
     // Handle Long message
     ui->fullLogText->clear();
@@ -163,6 +130,11 @@ void MainWindow::setShownCommit(int index)
         buildTreeForCommit(shownCommit->getCurrentSelectedCommit());
     }
 
+}
+
+currentCommit *MainWindow::getShownCommit()
+{
+    return shownCommit;
 }
 
 void MainWindow::updateTags()
@@ -234,11 +206,7 @@ void MainWindow::gitTreeSelectedRow(const QModelIndex& index)
     Commit *commit = repo->getAllCommits().at(ui->revList->currentIndex().row());
 
     // check if the commit is the dummy commit for working dir
-    if (commit->getCurrentRowState()->at(0) == Commit::NO_COMMIT_WORKING_DIR)
-    {
-
-    }
-    else
+    if (commit->getCurrentRowState()->at(0) != Commit::NO_COMMIT_WORKING_DIR)
     {
         LibQGit2::QGitTree tree = commit->getCommit().tree().toTree();
         LibQGit2::QGitTreeEntry entry = tree.entryByName(path);
@@ -291,7 +259,7 @@ void MainWindow::buildTreeForCommit(const Commit *commit)
                 else
                 {
 
-                    parentList.at(i -1)->appendRow(index0);
+                    parentList.at(i - 1)->appendRow(index0);
 
 
                     if (i < parentList.length())
@@ -324,10 +292,9 @@ void MainWindow::on_fileChangesView_clicked(const QModelIndex &index)
 
 void MainWindow::on_revList_customContextMenuRequested(const QPoint &pos)
 {
-   QModelIndex index = ui->revList->indexAt(pos);
-   QPoint globalPos = ui->revList->mapToGlobal(pos);
+    QModelIndex index = ui->revList->indexAt(pos);
+    QPoint globalPos = ui->revList->mapToGlobal(pos);
 
-    qDebug() << index.row();
     QMenu menu(this);
     menu.addAction(tr("Save Patch"));
     menu.addAction(tr("Add Tag"));

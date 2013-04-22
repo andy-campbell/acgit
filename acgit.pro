@@ -57,3 +57,9 @@ SOURCES += \
 HEADERS += \
     mainwindowrevview.h
 
+HEADERS += \
+    fileschangesview.h
+
+SOURCES += \
+    fileschangesview.cpp
+

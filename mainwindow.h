@@ -26,12 +26,14 @@
 #include "acrepo.h"
 #include "currentcommit.h"
 #include "mainwindowrevview.h"
+#include "fileschangesview.h"
 
 namespace Ui {
 class MainWindow;
 }
 
 class MainWindowRevView;
+class filesChangesView;
 
 class MainWindow : public QMainWindow
 {
@@ -41,9 +43,8 @@ public:
     MainWindow(QWidget *parent = 0);
     ~MainWindow();
     
-    void revWalk();
-
     void setShownCommit(int index);
+    currentCommit *getShownCommit();
 
 private slots:
     void on_actionOpen_triggered();
@@ -73,6 +74,7 @@ private:
     currentCommit *shownCommit;
 
     MainWindowRevView *revView;
+    filesChangesView *commitChangesView;
 
     void buildTreeForCommit(const Commit *commit);
 };

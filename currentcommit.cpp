@@ -31,6 +31,7 @@ currentCommit::currentCommit(const acRepo *repo, const Commit *from, const Commi
     }
     else
     {
+        //TODO BUG HERE
         diff->diffCommits(from->getCommit(), to->getCommit());
     }
 }
