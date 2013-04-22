@@ -72,8 +72,48 @@
     </item>
     <item>
      <widget class="QTabWidget" name="tabWidget">
+      <property name="styleSheet">
+       <string notr="true">QTabBar::tab {
+	
+	color: rgb(255, 255, 255);
+	border-left-width: 2px;
+	border-left-color: rgb(0, 0, 0);
+	border-left-style: solid;
+
+	border-right-width: 2px;
+	border-right-color: transparent;
+	border-right-style: solid;
+
+	background-color: rgb(132, 132, 132);
+    border-top-left-radius: 0px;
+
+    border-top-right-radius: 12px;
+
+    min-width: 20ex;
+
+    padding: 2px;
+}
+
+QTabBar::tab:selected, QTabBar::tab:hover  {
+
+	border-bottom-width: 2px;
+	border-bottom-color: rgb(255, 0, 0);
+	border-bottom-style: inset;
+
+}
+
+ 
+
+QTabBar::tab:selected  {
+
+ 	border-bottom-width: 2px;
+	border-bottom-color: rgb(255, 0, 0);
+	border-bottom-style: ridge;
+
+}</string>
+      </property>
       <property name="tabShape">
-       <enum>QTabWidget::Triangular</enum>
+       <enum>QTabWidget::Rounded</enum>
       </property>
       <property name="currentIndex">
        <number>0</number>
@@ -92,6 +132,15 @@
             </property>
             <property name="styleSheet">
              <string notr="true">QTreeView {show-decoration-selected: 1;}
+
+QHeaderView {
+	background-color: rgb(132, 132, 132);
+	color: rgb(255, 255, 255);
+
+	border-right-style: solid;
+	border-right-color: transparent;
+	border-right-width: 2px
+}
 </string>
             </property>
             <property name="editTriggers">
