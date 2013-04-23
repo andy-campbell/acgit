@@ -19,6 +19,21 @@
   </property>
   <widget class="QWidget" name="centralwidget">
    <layout class="QVBoxLayout" name="verticalLayout">
+    <property name="spacing">
+     <number>4</number>
+    </property>
+    <property name="leftMargin">
+     <number>4</number>
+    </property>
+    <property name="topMargin">
+     <number>4</number>
+    </property>
+    <property name="rightMargin">
+     <number>4</number>
+    </property>
+    <property name="bottomMargin">
+     <number>4</number>
+    </property>
     <item>
      <layout class="QHBoxLayout" name="horizontalLayout_4">
       <item>
@@ -123,8 +138,23 @@ QTabBar::tab:selected  {
         <string>Rev</string>
        </attribute>
        <layout class="QVBoxLayout" name="verticalLayout_3">
+        <property name="leftMargin">
+         <number>0</number>
+        </property>
+        <property name="topMargin">
+         <number>2</number>
+        </property>
+        <property name="rightMargin">
+         <number>0</number>
+        </property>
+        <property name="bottomMargin">
+         <number>2</number>
+        </property>
         <item>
          <layout class="QVBoxLayout" name="verticalLayout_2">
+          <property name="spacing">
+           <number>2</number>
+          </property>
           <item>
            <widget class="QTreeView" name="revList">
             <property name="contextMenuPolicy">
@@ -181,13 +211,28 @@ QHeaderView {
              <enum>QTabWidget::Triangular</enum>
             </property>
             <property name="currentIndex">
-             <number>0</number>
+             <number>2</number>
             </property>
             <widget class="QWidget" name="commitLog">
              <attribute name="title">
               <string>Log</string>
              </attribute>
              <layout class="QVBoxLayout" name="verticalLayout_4">
+              <property name="spacing">
+               <number>0</number>
+              </property>
+              <property name="leftMargin">
+               <number>0</number>
+              </property>
+              <property name="topMargin">
+               <number>2</number>
+              </property>
+              <property name="rightMargin">
+               <number>0</number>
+              </property>
+              <property name="bottomMargin">
+               <number>2</number>
+              </property>
               <item>
                <layout class="QHBoxLayout" name="horizontalLayout">
                 <item>
@@ -206,6 +251,21 @@ QHeaderView {
               <string>Diff</string>
              </attribute>
              <layout class="QHBoxLayout" name="horizontalLayout_2">
+              <property name="spacing">
+               <number>2</number>
+              </property>
+              <property name="leftMargin">
+               <number>0</number>
+              </property>
+              <property name="topMargin">
+               <number>2</number>
+              </property>
+              <property name="rightMargin">
+               <number>0</number>
+              </property>
+              <property name="bottomMargin">
+               <number>2</number>
+              </property>
               <item>
                <widget class="QSplitter" name="diffSplitter">
                 <property name="orientation">
@@ -217,6 +277,16 @@ QHeaderView {
                    <width>0</width>
                    <height>0</height>
                   </size>
+                 </property>
+                 <property name="styleSheet">
+                  <string notr="true">QHeaderView {
+	background-color: rgb(132, 132, 132);
+	color: rgb(255, 255, 255);
+
+	border-right-style: solid;
+	border-right-color: transparent;
+	border-right-width: 2px
+}</string>
                  </property>
                  <property name="alternatingRowColors">
                   <bool>true</bool>
@@ -235,6 +305,21 @@ QHeaderView {
               <string>Tree</string>
              </attribute>
              <layout class="QHBoxLayout" name="horizontalLayout_3">
+              <property name="spacing">
+               <number>2</number>
+              </property>
+              <property name="leftMargin">
+               <number>0</number>
+              </property>
+              <property name="topMargin">
+               <number>2</number>
+              </property>
+              <property name="rightMargin">
+               <number>0</number>
+              </property>
+              <property name="bottomMargin">
+               <number>2</number>
+              </property>
               <item>
                <widget class="QSplitter" name="treeSplitter">
                 <property name="orientation">

@@ -42,6 +42,8 @@ private:
     void addWorkingDirectoryCommit(int row);
     void setupRevViewHeaders();
 
+    int columnSize = 550;
+    int columnCount = 4;
 
     MainWindow *mainWindow;
     QTreeView *revView;

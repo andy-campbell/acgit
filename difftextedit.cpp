@@ -37,12 +37,12 @@ void diffTextEdit::append(QString text)
         if (line.startsWith('+'))
         {
             //TODO colour is too green need to dull it abit
-            color = Qt::green;
+            color = QColor(169, 245, 96);
         }
         else if ( line.startsWith('-'))
         {
             //TODO colour is too red need to dull it abit
-            color = Qt::red;
+            color = QColor(245, 153, 154);
         }
         else
         {

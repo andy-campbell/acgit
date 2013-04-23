@@ -6,7 +6,7 @@ MainWindowRevView::MainWindowRevView(MainWindow *_mainWindow, QTreeView *_revVie
     : mainWindow(_mainWindow), revView(_revView)
 {
     model = new QStandardItemModel(this);
-    model->setColumnCount(4);
+    model->setColumnCount(columnCount);
 
     setupRevViewHeaders();
 
@@ -43,7 +43,7 @@ void MainWindowRevView::setRevViewModel ()
 
 void MainWindowRevView::setColumnWidth()
 {
-    revView->setColumnWidth(1, 350);
+    revView->setColumnWidth(1, columnSize);
 }
 
 void MainWindowRevView::setupRevViewHeaders()
