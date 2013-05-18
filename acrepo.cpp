@@ -229,6 +229,15 @@ int acRepo::lookupBranch(QString branchName)
     return commitIndex;
 }
 
+Commit *acRepo::getCommitAtIndex(int index)
+{
+    Commit *commitAtIndex = nullptr;
+    if (index < commits.size())
+        commitAtIndex = commits.at(index);
+
+    return commitAtIndex;
+}
+
 QStringList acRepo::getTags()
 {
     return repo.listTags();

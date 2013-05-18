@@ -62,6 +62,8 @@ public:
     int lookupTag (QString tagName);
 
     int lookupBranch(QString branchName);
+
+    Commit *getCommitAtIndex(int index);
 signals:
     void repoOpened();
 
