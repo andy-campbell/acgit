@@ -17,10 +17,10 @@ public:
     virtual ~MainWindowRevView();
 
 
-    void addCommitsToView(acRepo *repo);
+    void addCommitsToView(AcGit::Repository *repo);
     void clearCommits();
 
-    void setupDelegate(acRepo *repo);
+    void setupDelegate(AcGit::Repository *repo);
 private slots:
     void revViewSelectionChanged(QItemSelection selected,QItemSelection deSelected);
 private:
@@ -38,7 +38,7 @@ private:
     void setupSelectionChangedCallBack();
     void setRevViewModel();
     void setColumnWidth();
-    void addCommit(Commit *commit, int row);
+    void addCommit(AcGit::Commit *commit, int row);
     void addWorkingDirectoryCommit(int row);
     void setupRevViewHeaders();
 

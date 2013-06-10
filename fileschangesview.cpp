@@ -33,7 +33,7 @@ void filesChangesView::addNewChangedFileList(QStringList changedFileList)
 
 }
 
-void filesChangesView::updateFileDiff(currentCommit *shownCommit, QString fileName)
+void filesChangesView::updateFileDiff(currentDiff *shownCommit, QString fileName)
 {
     selectedCommitDiff->clear();
     selectedCommitDiff->append(shownCommit->getDetaForFile(fileName));
@@ -53,7 +53,7 @@ void filesChangesView::updateChangedFiles(QStringList changedFileList)
 
 }
 
-void filesChangesView::update(currentCommit *shownCommit)
+void filesChangesView::update(currentDiff *shownCommit)
 {
     QStringList changedFileList = shownCommit->getFileList();
     updateChangedFiles(changedFileList);

@@ -24,7 +24,7 @@
 #include <QAbstractItemView>
 
 #include "acrepo.h"
-#include "currentcommit.h"
+#include "currentdiff.h"
 #include "mainwindowrevview.h"
 #include "fileschangesview.h"
 
@@ -44,7 +44,7 @@ public:
     ~MainWindow();
     
     void setShownCommit(int index);
-    currentCommit *getShownCommit();
+    currentDiff *getShownCommit();
 
 private slots:
     void on_actionOpen_triggered();
@@ -65,18 +65,20 @@ private:
 
     Ui::MainWindow *ui;
 
+    QStringList populateBranchList(QList<AcGit::Branch *> branches);
     void removeOldShownCommit();
     void setup();
     void updateTags();
     void updateBranches();
     // TODO remove from here
-    acRepo *repo;
-    currentCommit *shownCommit;
+    //acRepo *repo;
+    AcGit::Repository *repo;
+    currentDiff *shownCommit;
 
     MainWindowRevView *revView;
     filesChangesView *commitChangesView;
 
-    void buildTreeForCommit(const Commit *commit);
+    void buildTreeForCommit(const AcGit::Commit *commit);
 };
 
 #endif // MAINWINDOW_H

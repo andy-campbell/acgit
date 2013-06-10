@@ -28,6 +28,7 @@
 #include <QPainter>
 #include <QModelIndex>
 
+#include "AcGitGlobal.h"
 #include "acrepo.h"
 #include "commit.h"
 
@@ -35,7 +36,7 @@ class revViewDelegate : public QItemDelegate
 {
     Q_OBJECT
 public:
-    explicit revViewDelegate(acRepo *repo, QObject *parent = 0);
+    explicit revViewDelegate(AcGit::Repository *repo, QObject *parent = 0);
 
     virtual void paint(QPainter* p, const QStyleOptionViewItem &o, const QModelIndex &i) const;
     virtual QSize sizeHint(const QStyleOptionViewItem& o, const QModelIndex &i) const;
@@ -47,12 +48,12 @@ public slots:
     
 private:
     void addTextPixmap(QPixmap **pp, QString data, const QStyleOptionViewItem &opt) const;
-    QPixmap *getRefsPixmap(Commit *commit, QStyleOptionViewItem &opt) const;
+    QPixmap *getRefsPixmap(AcGit::Commit *commit, QStyleOptionViewItem &opt) const;
     void paintShort(QPainter *p, QStyleOptionViewItem opt, const QModelIndex &index) const;
     void paintGraph(QPainter *p, const QStyleOptionViewItem &opt, const QModelIndex &i) const;
     void paintGraphLane(QPainter *p, int type, int x1, int x2, const QColor &col, const QColor &activeCol, const QBrush &back, bool firstCommit) const;
 
-    acRepo *_repo;
+    AcGit::Repository *repo;
 };
 
 #endif // REVVIEWDELEGATE_H

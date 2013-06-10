@@ -7,22 +7,28 @@ QT       += core gui
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
 TEMPLATE = app
-TARGET = acgit-run
+TARGET = acgit
 
 QMAKE_CXXFLAGS += -std=c++11 -ggdb3
 
-LIBS += ../libqgit2/liblibqgit2.a -lgit2
+INCLUDEPATH += $$PWD/../libAcGit/
+DEPENDPATH += $$PWD/../libAcGit/
 
+LIBS += -llibAcGit -L../libAcGit/
+
+QMAKE_RPATHDIR += $$PWD/../libAcGit/
 # Input
-HEADERS += mainwindow.h ../libqgit2/libqgit2_export.h \
+HEADERS += mainwindow.h  \
            acrepo.h \
-           commit.h
+           commit.h \
+    currentdiff.h
 
 FORMS += mainwindow.ui
 SOURCES += mainwindow.cpp \
            main.cpp \
            acrepo.cpp \
-           commit.cpp
+           commit.cpp \
+    currentdiff.cpp
 
 HEADERS += \
     revviewdelegate.h
@@ -30,11 +36,9 @@ HEADERS += \
 SOURCES += \
     revviewdelegate.cpp
 
-HEADERS += \
-    currentcommit.h
+HEADERS +=
 
-SOURCES += \
-    currentcommit.cpp
+SOURCES +=
 
 HEADERS += \
     difftextedit.h

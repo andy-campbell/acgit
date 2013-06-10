@@ -1,80 +1,81 @@
-/**
- * This file is part of AcGit.
- *
- * AcGit is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * AcGit is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with Foobar.  If not, see <http://www.gnu.org/licenses/>.
- */
+///**
+// * This file is part of AcGit.
+// *
+// * AcGit is free software: you can redistribute it and/or modify
+// * it under the terms of the GNU General Public License as published by
+// * the Free Software Foundation, either version 3 of the License, or
+// * (at your option) any later version.
+// *
+// * AcGit is distributed in the hope that it will be useful,
+// * but WITHOUT ANY WARRANTY; without even the implied warranty of
+// * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// * GNU General Public License for more details.
+// *
+// * You should have received a copy of the GNU General Public License
+// * along with Foobar.  If not, see <http://www.gnu.org/licenses/>.
+// */
 
-#ifndef ACREPO_H
-#define ACREPO_H
+//#ifndef ACREPO_H
+//#define ACREPO_H
 
-#include <QString>
-#include <QObject>
-#include <QVector>
+//#include <QString>
+//#include <QObject>
+//#include <QVector>
+//#include "../libAcGit/AcGitGlobal.h"
 
-#include "../libqgit2/qgit2.h"
 
-#include "commit.h"
 
-class Commit;
-/**
- * This class handles the calls about the repo
- */
-class acRepo : public QObject
-{
-    Q_OBJECT
+//#include "commit.h"
 
-public:
-    explicit acRepo(QString directory);
+//class Commit;
+///**
+// * This class handles the calls about the repo
+// */
+//class acRepo : public QObject
+//{
+//    Q_OBJECT
 
-    virtual ~acRepo();
+//public:
+//    explicit acRepo(QString directory);
 
-    LibQGit2::QGitRepository getRepo() const;
+//    virtual ~acRepo();
 
-    void setRepo(const LibQGit2::QGitRepository &value);
+//    AcGit::Repository *getRepo() const;
 
-    void addCommit (const LibQGit2::QGitCommit &commit);
+//    void setRepo(const AcGit::Repository &value);
 
-    QVector<Commit*> getAllCommits();
+//    void addCommit (const AcGit::Commit &commit);
 
-    QStringList getTags();
+//    QVector<Commit*> getAllCommits();
 
-    QStringList getBranches();
+//    QStringList getTags();
 
-    /**
-     * @brief lookupTag This function does a lookup of a tag which it
-     * then uses the oid to lookup the commit and returns the index of
-     * it in the commits vector.
-     * @param tagName The name of the tag to lookup
-     *
-     * @return
-     */
-    int lookupTag (QString tagName);
+//    QStringList getBranches();
 
-    int lookupBranch(QString branchName);
+//    /**
+//     * @brief lookupTag This function does a lookup of a tag which it
+//     * then uses the oid to lookup the commit and returns the index of
+//     * it in the commits vector.
+//     * @param tagName The name of the tag to lookup
+//     *
+//     * @return
+//     */
+//    int lookupTag (QString tagName);
 
-    Commit *getCommitAtIndex(int index);
-signals:
-    void repoOpened();
+//    int lookupBranch(QString branchName);
 
-private:
-    Commit *populateCommit(LibQGit2::QGitCommit &commit, QVector<LibQGit2::QGitOId> &nextCommits, Commit *prevCommit);
-    LibQGit2::QGitRepository repo;
-    QVector<Commit*> commits;
-    // key is oid and value is item in commits. Another potential way todo this is implement a multi key map
-    QMap<QByteArray, int> commitLookup;
-    // key is the tags name and the value is the oid of the tag so it can be used for lookup
-    QMap<QString, QByteArray> tagList;
-};
+//    AcGit::Commit *getCommitAtIndex(int index);
+//signals:
+//    void repoOpened();
 
-#endif // ACREPO_H
+//private:
+//    Commit *populateCommit(AcGit::Commit &commit, QVector<AcGit::Sha> &nextCommits, Commit *prevCommit);
+//    AcGit::Repository *repo;
+//    QVector<Commit*> commits;
+//    // key is oid and value is item in commits. Another potential way todo this is implement a multi key map
+//    QMap<QByteArray, int> commitLookup;
+//    // key is the tags name and the value is the oid of the tag so it can be used for lookup
+//    QMap<QString, QByteArray> tagList;
+//};
+
+//#endif // ACREPO_H

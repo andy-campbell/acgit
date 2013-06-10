@@ -2,6 +2,8 @@
 #include "mainwindowrevview.h"
 #include "revviewdelegate.h"
 
+#include <QDebug>
+
 MainWindowRevView::MainWindowRevView(MainWindow *_mainWindow, QTreeView *_revView)
     : mainWindow(_mainWindow), revView(_revView)
 {
@@ -30,7 +32,7 @@ void MainWindowRevView::setupSelectionChangedCallBack()
             this, SLOT(revViewSelectionChanged(QItemSelection,QItemSelection)));
 }
 
-void MainWindowRevView::setupDelegate(acRepo *repo)
+void MainWindowRevView::setupDelegate(AcGit::Repository *repo)
 {
     revViewDelegate *delegate = new revViewDelegate(repo, this);
     revView->setItemDelegate (delegate);
@@ -80,26 +82,27 @@ void MainWindowRevView::addWorkingDirectoryCommit(int row)
 {
     addColumnData (row, REV_INDEX, "");
 
-    addColumnData (row, SHORT_LOG_INDEX, "Working Directtory");
+    addColumnData (row, SHORT_LOG_INDEX, "Working Directory");
 }
 
-void MainWindowRevView::addCommit (Commit *commit, int row)
+void MainWindowRevView::addCommit (AcGit::Commit *commit, int row)
 {
     addColumnData (row, REV_INDEX, "");
+    qDebug() << "shortLog: " << commit->shortLog();
+    addColumnData (row, SHORT_LOG_INDEX, commit->shortLog());
 
-    addColumnData (row, SHORT_LOG_INDEX, commit->getCommit().shortMessage());
+    addColumnData (row, AUTHOR_INDEX, commit->author());
 
-    addColumnData (row, AUTHOR_INDEX, commit->getCommit().author().name());
-
-    addColumnData (row, DATE_INDEX, commit->getCommit().author().when().toString());
+    addColumnData (row, DATE_INDEX, commit->dateCreated().toString());
 }
 
-void MainWindowRevView::addCommitsToView(acRepo *repo)
+void MainWindowRevView::addCommitsToView(AcGit::Repository *repo)
 {
     int row = 0;
-    foreach (Commit* commit, repo->getAllCommits())
+    AcGit::ICommits *commitsAgent = repo->CommitsAgent();
+    foreach (AcGit::Commit* commit, *commitsAgent->getAllCommits())
     {
-        if (commit->isWorkingDirectory())
+        if (row == 0)
         {
             addWorkingDirectoryCommit(row);
         }

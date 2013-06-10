@@ -15,13 +15,6 @@
  * along with Foobar.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "mainwindow.h"
-#include "ui_mainwindow.h"
-
-#include "../libqgit2/qgit2.h"
-
-#include "acrepo.h"
-#include "currentcommit.h"
 
 
 #include <QString>
@@ -35,11 +28,17 @@
 #include <QItemSelectionModel>
 #include <QStandardItemModel>
 #include <QTableView>
-
+#include <QList>
 #include <QInputDialog>
 
+#include "ui_mainwindow.h"
+#include "mainwindow.h"
+
+#include "acrepo.h"
+#include "currentdiff.h"
 #include "commit.h"
 #include "revviewdelegate.h"
+#include "AcGitGlobal.h"
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -59,13 +58,14 @@ MainWindow::MainWindow(QWidget *parent) :
     // try open a git repo in the current directory
     try
     {
-        repo = new acRepo(QDir::currentPath() + "/.git");
+        repo = new AcGit::Repository(QDir::currentPath() + "/.git");
+
         revView->addCommitsToView(repo);
         revView->setupDelegate(repo);
         updateTags();
         updateBranches();
     }
-    catch (LibQGit2::QGitException e)
+    catch (AcGit::GitException e)
     {
         // there is no repo in this directory or sub directories
         // which can be handled gracefully by ignoring this issue.
@@ -112,19 +112,47 @@ void MainWindow::removeOldShownCommit()
 void MainWindow::setShownCommit(int index)
 {
     removeOldShownCommit();
-    shownCommit = new currentCommit (repo, repo->getAllCommits().at(index + 1), repo->getAllCommits().at(index));
+    if (index == 0)
+    {
+        // assumtion that commit at index 1 is the same as HEAD
+        shownCommit = new currentDiff (repo->HeadCommit());
+    }
+    else
+    {
+        AcGit::ICommits *commitsAgent = repo->CommitsAgent();
+        AcGit::Commit *to = commitsAgent->getAllCommits()->at(index);
+        AcGit::Commit *from;
+        if (index + 1 == commitsAgent->getAllCommits()->count())
+        {
+            from = nullptr;
+        }
+        else
+        {
+            from = commitsAgent->getAllCommits()->at(index + 1);
+        }
+
+        shownCommit = new currentDiff (from, to);
+    }
 
     commitChangesView->update(shownCommit);
 
     // Handle Long message
     ui->fullLogText->clear();
-    if (shownCommit->getCurrentSelectedCommit()->getCommitType() == Commit::NO_COMMIT_WORKING_DIR)
+    if (index == 0)
     {
-        ui->fullLogText->append ("Changes in working directory");
+        if (shownCommit->getFileList().size() == 0)
+        {
+            ui->fullLogText->append ("No current in working directory");
+        }
+        else
+        {
+            ui->fullLogText->append ("Changes in working directory");
+        }
     }
     else
     {
-        ui->fullLogText->append(shownCommit->getCurrentSelectedCommit()->getCommit().message());
+        const QString message = shownCommit->getCurrentSelectedCommit()->log();
+        ui->fullLogText->append(message);
         ui->fullLogText->append("\n\n\n");
         ui->fullLogText->append(shownCommit->getPatchStats());
         buildTreeForCommit(shownCommit->getCurrentSelectedCommit());
@@ -132,7 +160,7 @@ void MainWindow::setShownCommit(int index)
 
 }
 
-currentCommit *MainWindow::getShownCommit()
+currentDiff *MainWindow::getShownCommit()
 {
     return shownCommit;
 }
@@ -143,14 +171,16 @@ void MainWindow::updateTags()
     ui->tagsCombo->clear();
 
     // add the new tags
-    ui->tagsCombo->insertItems(0, repo->getTags());
+    AcGit::ITags *tagsAgent = repo->TagsAgent();
+    ui->tagsCombo->insertItems(0, tagsAgent->stringTagsList());
 }
 
 void MainWindow::updateBranches()
 {
     ui->branchesCombo->clear();
 
-    ui->branchesCombo->insertItems(0, repo->getBranches());
+    AcGit::IBranches *branchAgent = repo->BranchAgent();
+    ui->branchesCombo->insertItems(0, branchAgent->branchNamesList());
 }
 
 void MainWindow::on_actionOpen_triggered()
@@ -166,9 +196,9 @@ void MainWindow::on_actionOpen_triggered()
             delete repo;
         }
 
-        repo = new acRepo(folderName + "/.git");
+        repo = new AcGit::Repository(folderName + "/.git");
     }
-    catch (LibQGit2::QGitException e)
+    catch (AcGit::GitException e)
     {
         // most likely we don't have a valid repo to open
         QMessageBox::information(this, "Cannot open repository",
@@ -196,35 +226,35 @@ void MainWindow::gitTreeSelectedRow(const QModelIndex& index)
         return;
     }
 
-    while (parent.isValid())
-    {
-        path = parent.data().toString() + "/" + path;
-        parent = parent.parent();
-    }
+//    while (parent.isValid())
+//    {
+//        path = parent.data().toString() + "/" + path;
+//        parent = parent.parent();
+//    }
 
     // get commit we are working with
-    Commit *commit = repo->getAllCommits().at(ui->revList->currentIndex().row());
+//    AcGit::Commit *commit = repo->getAllCommits().at(ui->revList->currentIndex().row());
 
-    // check if the commit is the dummy commit for working dir
-    if (commit->getCurrentRowState()->at(0) != Commit::NO_COMMIT_WORKING_DIR)
-    {
-        LibQGit2::QGitTree tree = commit->getCommit().tree().toTree();
-        LibQGit2::QGitTreeEntry entry = tree.entryByName(path);
-        LibQGit2::QGitObject object = entry.toObject(repo->getRepo());
+//    // check if the commit is the dummy commit for working dir
+//    if (commit->getCurrentRowState()->at(0) != Commit::NO_COMMIT_WORKING_DIR)
+//    {
+//        AcGit::Tree tree = commit->tree();
+//        AcGit::QGitTreeEntry entry = tree.entryByName(path);
+//        AcGit::QGitObject object = entry.toObject(repo->getRepo());
 
-        LibQGit2::QGitBlob blob = object.toBlob();
+//        AcGit::QGitBlob blob = object.toBlob();
 
-        // clear output and then append file text
-        ui->fileText->clear();
-        ui->fileText->append(QString((char*)blob.rawContent()));
-    }
+//        // clear output and then append file text
+//        ui->fileText->clear();
+//        ui->fileText->append(QString((char*)blob.rawContent()));
+//    }
 
 }
 
-void MainWindow::buildTreeForCommit(const Commit *commit)
+void MainWindow::buildTreeForCommit(const AcGit::Commit *commit)
 {
     // Handle Tree
-    QStringList fileListTree = commit->getCommit().tree().getAllEntries();
+    QList<AcGit::TreeEntry*> entries = commit->tree()->getEntriesList();
     QStandardItemModel *model = new QStandardItemModel(this);
     model->setColumnCount(1);
 
@@ -232,9 +262,10 @@ void MainWindow::buildTreeForCommit(const Commit *commit)
     QList<QStandardItem*> parentList;
     int row = 0;
 
-    foreach (QString filename, fileListTree)
+    foreach (AcGit::TreeEntry *treeEntry, entries)
     {
-        QStringList parsedPath = filename.split("/");
+        QString path = treeEntry->fullPath();
+        QStringList parsedPath = path.split("/");
         bool newBranch = false;
 
         for (int i = 0; i < parsedPath.length(); i++)
@@ -290,6 +321,17 @@ void MainWindow::on_fileChangesView_clicked(const QModelIndex &index)
     ui->diffView->append(shownCommit->getDetaForFile(file));
 }
 
+QStringList MainWindow::populateBranchList(QList<AcGit::Branch *> branches)
+{
+    QStringList branchStringList;
+
+    foreach (AcGit::Branch *branch, branches)
+    {
+        branchStringList.append(branch->getBranchName());
+    }
+    return branchStringList;
+}
+
 void MainWindow::on_revList_customContextMenuRequested(const QPoint &pos)
 {
     QModelIndex index = ui->revList->indexAt(pos);
@@ -308,7 +350,8 @@ void MainWindow::on_revList_customContextMenuRequested(const QPoint &pos)
     QAction* selectedItem = menu.exec(globalPos);
     if (selectedItem)
     {
-        Commit *commit = repo->getAllCommits().at(index.row());
+        AcGit::ICommits *commitsAgent = repo->CommitsAgent();
+        AcGit::Commit *commit = commitsAgent->getAllCommits()->at(index.row());
         if (selectedItem->iconText().contains(tr("Add Tag")))
         {
             // Prompt user for tag name
@@ -316,62 +359,73 @@ void MainWindow::on_revList_customContextMenuRequested(const QPoint &pos)
 
             // Add Tag
             if (!tagName.isEmpty())
-                commit->createTag(repo, tagName);
+                repo->TagsAgent()->createTag(tagName, commit);
         }
         else if (selectedItem->iconText().contains(tr("Remove Tag")))
         {
-            QStringList tagsList = commit->getTags();
+//            QStringList tagsList = repo->getRepo()->getTags()->listTags();
 
-            if (tagsList.size() == 1)
-            {
-                commit->removeTag(repo, tagsList.first());
-            }
-            else if (tagsList.size() > 1)
-            {
-                QString tag = QInputDialog::getItem(this, tr("Remove tag"), tr("Please select tag to remove"), tagsList);
-                commit->removeTag(repo, tag);
-            }
+//            if (tagsList.size() == 1)
+//            {
+//                repo->getRepo()->getTags()->deleteTag(tagsList.first());
+//            }
+//            else if (tagsList.size() >= 1)
+//            {
+//                QString tag = QInputDialog::getItem(this, tr("Remove tag"), tr("Please select tag to remove"), tagsList);
+//                repo->getRepo()->getTags()->deleteTag(tag);
+//            }
 
         }
         else if (selectedItem->iconText().contains(tr("Save Patch")))
         {
-            QString exampleName = QDir::currentPath() + "/" + commit->getCommit().shortMessage().replace(" ", "_")
+            QString exampleName = QDir::currentPath() + "/" + commit->shortLog().replace(" ", "_")
                        + ".patch";
-               QString patchName = QFileDialog::getSaveFileName (this, tr("Save Patch"),
+            QString patchName = QFileDialog::getSaveFileName (this, tr("Save Patch"),
                                                                  exampleName ,tr("Patches (*.patch)") );
 
             shownCommit->savePatch(patchName);
         }
         else if (selectedItem->iconText().contains(tr("Create Branch")))
         {
-            // Prompt user for tag name
+            // Prompt user for branch name
             QString branchName = QInputDialog::getText (this, tr("Please enter branch name"), tr("Branch name"));
 
-            // Add Branch
             if (!branchName.isNull())
-                commit->createBranch(repo, branchName);
+            {
+                AcGit::IBranches *branchAgent = repo->BranchAgent();
+                branchAgent->createNewBranch(branchName, commit);
+            }
         }
         else if (selectedItem->iconText().contains(tr("Delete Branch")))
         {
-            QStringList branchList = commit->getBranches();
-
+            AcGit::IBranches *branchAgent = repo->BranchAgent();
+            QList<AcGit::Branch *> branchList = branchAgent->lookupBranch(commit);
 
             if (branchList.size() == 1)
             {
-                int proceed = QMessageBox::question(this, tr("Are you sure"), tr("Are you sure you wish to delete %1").arg(branchList.first()),
+                AcGit::Branch *branch = branchList.at(0);
+                int proceed = QMessageBox::question(this, tr("Are you sure"), tr("Are you sure you wish to delete %1").arg(branch->getBranchName()),
                                                      QMessageBox::Yes, QMessageBox::No);
 
                 if (proceed)
-                    commit->removeBranch(repo, branchList.first());
+                {
+                    branchAgent->deleteBranch(branch);
+                }
             }
             else if (branchList.size() > 1)
             {
-                QString branch = QInputDialog::getItem(this, tr("Remove tag"), tr("Please select tag to remove"), branchList);
+                QStringList branchStringList;
+                branchStringList = populateBranchList(branchList);
+                QString branchName = QInputDialog::getItem(this, tr("Remove branch"), tr("Please select branch to remove"), branchStringList);
 
-                int proceed = QMessageBox::question(this, tr("Are you sure"), tr("Are you sure you wish to delete %1").arg(branchList.first()),
+                int proceed = QMessageBox::question(this, tr("Are you sure"), tr("Are you sure you wish to delete %1").arg(branchName),
                                                      QMessageBox::Yes, QMessageBox::No);
+
                 if (proceed)
-                    commit->removeBranch(repo, "refs/heads/" + branch);
+                {
+                    AcGit::Branch *branch = branchAgent->lookupBranch(branchName);
+                    branchAgent->deleteBranch(branch);
+                }
             }
         }
     }
@@ -384,25 +438,27 @@ void MainWindow::on_actionQuit_triggered()
 
 void MainWindow::on_branchesCombo_activated(const QString &arg1)
 {
-    int lookupIndex = repo->lookupBranch(arg1);
+//    AcGit::IBranches *branchesAgent = repo->BranchAgent();
 
-    // if value is -1 then an error has occured in lookup so don't change index
-    if (lookupIndex != -1)
-    {
-        QModelIndex modIndex = ui->revList->model()->index(lookupIndex, 0);
-        ui->revList->setCurrentIndex(modIndex);
-    }
+//    int lookupIndex = repo->lookupBranch(arg1);
+
+//    // if value is -1 then an error has occured in lookup so don't change index
+//    if (lookupIndex != -1)
+//    {
+//        QModelIndex modIndex = ui->revList->model()->index(lookupIndex, 0);
+//        ui->revList->setCurrentIndex(modIndex);
+//    }
 
 }
 
 void MainWindow::on_tagsCombo_activated(const QString &arg1)
 {
-    int lookupIndex = repo->lookupTag(arg1);
+//    int lookupIndex = repo->lookupTag(arg1);
 
-    // if value is -1 then an error has occured in lookup so don't change index
-    if (lookupIndex != -1)
-    {
-        QModelIndex modIndex = ui->revList->model()->index(lookupIndex, 0);
-        ui->revList->setCurrentIndex(modIndex);
-    }
+//    // if value is -1 then an error has occured in lookup so don't change index
+//    if (lookupIndex != -1)
+//    {
+//        QModelIndex modIndex = ui->revList->model()->index(lookupIndex, 0);
+//        ui->revList->setCurrentIndex(modIndex);
+//    }
 }

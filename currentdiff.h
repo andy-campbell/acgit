@@ -1,5 +1,5 @@
-#ifndef CURRENTCOMMIT_H
-#define CURRENTCOMMIT_H
+#ifndef currentDiff_H
+#define currentDiff_H
 
 /**
  * This file is part of AcGit.
@@ -19,19 +19,21 @@
  */
 
 
-#include "../libqgit2/qgit2.h"
+
 
 #include <QStringList>
-
+#include "../libAcGit/AcGitGlobal.h"
 #include "commit.h"
 #include "acrepo.h"
 
-class currentCommit
+class currentDiff
 {
 public:
-    currentCommit(const acRepo *repo, const Commit *from, const Commit *to);
+    currentDiff(const AcGit::Commit *from, const AcGit::Commit *to);
 
-    virtual ~currentCommit();
+    currentDiff(const AcGit::Commit *headCommit);
+
+    virtual ~currentDiff();
 
     /**
      * @brief getFileList gets a list of files changed between
@@ -54,7 +56,7 @@ public:
      * @brief getCurrentSelectedCommit this function returns the "to" commit
      * @return return the "to" commit which is the current selected commit
      */
-    const Commit *getCurrentSelectedCommit() const;
+    const AcGit::Commit *getCurrentSelectedCommit() const;
 
     /**
      * @brief savePatch writes the current commits patch to a file.
@@ -70,8 +72,8 @@ public:
     QString getPatchStats();
 
 private:
-    const Commit *_selectedCommit;
-    LibQGit2::QGitDiff *diff;
+    const AcGit::Commit *selectedCommit;
+    AcGit::Diff *diff;
 };
 
-#endif // CURRENTCOMMIT_H
+#endif // currentDiff_H

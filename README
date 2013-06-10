@@ -1,12 +1,12 @@
 This is an application which is to be used to browse git history.
 
-It currently is built using Qt5 libraries, libqgit2 and the latest libgit2.
-It assumes libqgit2 is in a similar level directroy as acgit.
+It currently is built using Qt5 libraries, AcGit and the latest libgit2.
+It assumes AcGit is in a similar level directroy as acgit.
 
 eg.
 
 ~/build/acgit/
-~/build/libqgit2/
+~/build/AcGit/
 
 Build steps:
 

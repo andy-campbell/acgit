@@ -2,10 +2,11 @@
 #define FILESCHANGESVIEW_H
 
 #include <QObject>
+#include <QStandardItemModel>
 
+#include "../libAcGit/AcGitGlobal.h"
 #include "mainwindow.h"
 #include "difftextedit.h"
-#include <QStandardItemModel>
 
 class MainWindow;
 
@@ -16,11 +17,11 @@ public:
     filesChangesView(MainWindow *_mainWindow, diffTextEdit *_selectedCommitDiff, QTreeView *_fileChanged);
     
     void clearOldChangedFilesList();
-    void update(currentCommit *shownCommit);
+    void update(currentDiff *shownCommit);
 private:
     void setupHeader();
     void setupModel();
-    void updateFileDiff(currentCommit *shownCommit, QString fileName);
+    void updateFileDiff(currentDiff *shownCommit, QString fileName);
     void updateChangedFiles(QStringList changeFileList);
     void addNewChangedFileList(QStringList changedFileList);
 
