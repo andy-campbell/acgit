@@ -294,22 +294,23 @@ QPixmap* revViewDelegate::getRefsPixmap(AcGit::Commit *commit, QStyleOptionViewI
     QPixmap* pm = new QPixmap(); // must be deleted by caller
 
     AcGit::IBranches *branchAgent = repo->BranchAgent();
-    //AcGit::IBranches *tagAgent = repo->TagsAgent();
+    AcGit::ITags *tagAgent = repo->TagsAgent();
 
     QList<AcGit::Branch *> branches = branchAgent->lookupBranch(commit);
-    foreach (AcGit::Branch * branch, branches)
+    foreach (AcGit::Branch *branch, branches)
     {
         opt.palette.setColor(QPalette::Window, QColor(Qt::green));
 
         addTextPixmap(&pm, branch->getBranchName(), opt);
     }
 
-//    foreach (QString tag, commit->getTags())
-//    {
-//        opt.palette.setColor(QPalette::Window, QColor(Qt::red));
+    QList<AcGit::Tag *> tags = tagAgent->lookupTag(commit);
+    foreach (AcGit::Tag *tag, tags)
+    {
+        opt.palette.setColor(QPalette::Window, QColor(Qt::red));
 
-//        addTextPixmap(&pm, tag, opt);
-//    }
+        addTextPixmap(&pm, tag->name(), opt);
+    }
 
     return pm;
 }
