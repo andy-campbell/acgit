@@ -47,7 +47,8 @@ SOURCES += \
     difftextedit.cpp
 
 OTHER_FILES += \
-    README
+    README \
+    TODO.txt
 
 RESOURCES += \
     acGitResource.qrc

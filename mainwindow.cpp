@@ -30,6 +30,7 @@
 #include <QTableView>
 #include <QList>
 #include <QInputDialog>
+#include <QMessageBox>
 
 #include "ui_mainwindow.h"
 #include "mainwindow.h"
@@ -351,7 +352,7 @@ void MainWindow::on_revList_customContextMenuRequested(const QPoint &pos)
     if (selectedItem)
     {
         AcGit::ICommits *commitsAgent = repo->CommitsAgent();
-        AcGit::Commit *commit = commitsAgent->getAllCommits()->at(index.row());
+        AcGit::Commit *commit = commitsAgent->getAllCommits()->at(index.row() - 1);
         if (selectedItem->iconText().contains(tr("Add Tag")))
         {
             // Prompt user for tag name
@@ -359,22 +360,45 @@ void MainWindow::on_revList_customContextMenuRequested(const QPoint &pos)
 
             // Add Tag
             if (!tagName.isEmpty())
-                repo->TagsAgent()->createTag(tagName, commit);
+            {
+                AcGit::Configuration *config = repo->ConfigurationAgent();
+                QString name = config->userName();
+                QString email = config->userEmail();
+                AcGit::Tagger *tagger = new AcGit::Tagger(name, email);
+                QString message;
+
+                int ret = QMessageBox::question(this, tr("Tag message"), tr("Would you like to add a message?"),
+                                       QMessageBox::Yes|QMessageBox::Default, QMessageBox::No|QMessageBox::Escape);
+
+                if(ret == QMessageBox::Yes)
+                {
+                    message = QInputDialog::getText (this, tr("Please enter messsage"), tr("Tag message"));
+                }
+
+
+                repo->TagsAgent()->createTag(tagName, commit, tagger, message);
+            }
         }
-        else if (selectedItem->iconText().contains(tr("Remove Tag")))
+        else if (selectedItem->iconText().contains(tr("Delete Tag")))
         {
-//            QStringList tagsList = repo->getRepo()->getTags()->listTags();
+            AcGit::ITags *tagsAgent = repo->TagsAgent();
+            QList<AcGit::Tag *> tags = tagsAgent->lookupTag(commit);
 
-//            if (tagsList.size() == 1)
-//            {
-//                repo->getRepo()->getTags()->deleteTag(tagsList.first());
-//            }
-//            else if (tagsList.size() >= 1)
-//            {
-//                QString tag = QInputDialog::getItem(this, tr("Remove tag"), tr("Please select tag to remove"), tagsList);
-//                repo->getRepo()->getTags()->deleteTag(tag);
-//            }
+            QStringList tagNames;
+            foreach (AcGit::Tag *tag, tags)
+            {
+                tagNames << tag->name();
+            }
 
+            if (tagNames.size() == 1)
+            {
+                tagsAgent->deleteTag(tagsAgent->lookupTag(tagNames.first()));
+            }
+            else if (tagNames.size() >= 1)
+            {
+                QString tag = QInputDialog::getItem(this, tr("Remove tag"), tr("Please select tag to remove"), tagNames);
+                tagsAgent->deleteTag(tagsAgent->lookupTag(tag));
+            }
         }
         else if (selectedItem->iconText().contains(tr("Save Patch")))
         {
