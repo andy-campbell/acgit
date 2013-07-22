@@ -88,7 +88,7 @@ void MainWindowRevView::addWorkingDirectoryCommit(int row)
 void MainWindowRevView::addCommit (AcGit::Commit *commit, int row)
 {
     addColumnData (row, REV_INDEX, "");
-    qDebug() << "shortLog: " << commit->shortLog();
+
     addColumnData (row, SHORT_LOG_INDEX, commit->shortLog());
 
     addColumnData (row, AUTHOR_INDEX, commit->author());
