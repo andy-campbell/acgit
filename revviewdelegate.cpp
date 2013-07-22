@@ -266,11 +266,14 @@ void revViewDelegate::paintShort(QPainter* p, QStyleOptionViewItem opt,
                                 const QModelIndex& index) const
 {
 
-    int row = index.row();
-    AcGit::Commit *commit = repo->CommitsAgent()->getAllCommits()->at(row);
+    int row = index.row() - 1 ;
+    AcGit::Commit *commit = nullptr;
+    if (row >= 0)
+        commit = repo->CommitsAgent()->getAllCommits()->at(row);
 
     if (!commit)
     {
+        QItemDelegate::paint(p, opt, index);
         return;
     }
 
@@ -307,6 +310,7 @@ QPixmap* revViewDelegate::getRefsPixmap(AcGit::Commit *commit, QStyleOptionViewI
     QList<AcGit::Tag *> tags = tagAgent->lookupTag(commit);
     foreach (AcGit::Tag *tag, tags)
     {
+
         opt.palette.setColor(QPalette::Window, QColor(Qt::red));
 
         addTextPixmap(&pm, tag->name(), opt);
