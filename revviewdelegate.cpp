@@ -266,7 +266,14 @@ void revViewDelegate::paintShort(QPainter* p, QStyleOptionViewItem opt,
                                 const QModelIndex& index) const
 {
 
-    int row = index.row() - 1 ;
+    int row = index.row();
+
+    if (repo->HasWorkingTreeChanges())
+    {
+        // to allow for off commit array starting at 0
+        row -= 1;
+    }
+
     AcGit::Commit *commit = nullptr;
     if (row >= 0)
         commit = repo->CommitsAgent()->getAllCommits()->at(row);

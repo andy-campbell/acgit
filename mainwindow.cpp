@@ -351,8 +351,16 @@ void MainWindow::on_revList_customContextMenuRequested(const QPoint &pos)
     QAction* selectedItem = menu.exec(globalPos);
     if (selectedItem)
     {
+        int row = index.row();
+
+        if (repo->HasWorkingTreeChanges())
+        {
+            // to allow for commit array to start from 0
+            row -= 1;
+        }
+
         AcGit::ICommits *commitsAgent = repo->CommitsAgent();
-        AcGit::Commit *commit = commitsAgent->getAllCommits()->at(index.row() - 1);
+        AcGit::Commit *commit = commitsAgent->getAllCommits()->at(row);
         if (selectedItem->iconText().contains(tr("Add Tag")))
         {
             // Prompt user for tag name
