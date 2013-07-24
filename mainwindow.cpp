@@ -227,28 +227,31 @@ void MainWindow::gitTreeSelectedRow(const QModelIndex& index)
         return;
     }
 
-//    while (parent.isValid())
-//    {
-//        path = parent.data().toString() + "/" + path;
-//        parent = parent.parent();
-//    }
+    while (parent.isValid())
+    {
+        path = parent.data().toString() + "/" + path;
+        parent = parent.parent();
+    }
 
-    // get commit we are working with
-//    AcGit::Commit *commit = repo->getAllCommits().at(ui->revList->currentIndex().row());
+     //get commit we are working with
+    int row = index.row();
 
-//    // check if the commit is the dummy commit for working dir
-//    if (commit->getCurrentRowState()->at(0) != Commit::NO_COMMIT_WORKING_DIR)
-//    {
-//        AcGit::Tree tree = commit->tree();
-//        AcGit::QGitTreeEntry entry = tree.entryByName(path);
-//        AcGit::QGitObject object = entry.toObject(repo->getRepo());
+    if (repo->HasWorkingTreeChanges())
+    {
+        // to allow for commit array to start from 0
+        row -= 1;
+    }
 
-//        AcGit::QGitBlob blob = object.toBlob();
+    AcGit::ICommits *commitsAgent = repo->CommitsAgent();
+    AcGit::Commit *commit = commitsAgent->getAllCommits()->at(row);
 
-//        // clear output and then append file text
-//        ui->fileText->clear();
-//        ui->fileText->append(QString((char*)blob.rawContent()));
-//    }
+    AcGit::Tree *tree = commit->tree();
+    AcGit::TreeEntry *entry = tree->getEntry(path);
+    AcGit::Blob blob = entry->fileBlob();
+
+    // clear output and then append file text
+    ui->fileText->clear();
+    ui->fileText->append(blob.contents());
 
 }
 
