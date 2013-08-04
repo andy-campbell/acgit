@@ -78,11 +78,11 @@ void MainWindowRevView::addColumnData (int row, int column, QString columnConten
     model->setItem(row, column, entry);
 }
 
-void MainWindowRevView::addWorkingDirectoryCommit(int row)
+void MainWindowRevView::addWorkingDirectoryCommit()
 {
-    addColumnData (row, REV_INDEX, "");
+    addColumnData (working_dir_row, REV_INDEX, "");
 
-    addColumnData (row, SHORT_LOG_INDEX, "Working Directory");
+    addColumnData (working_dir_row, SHORT_LOG_INDEX, "Working Directory");
 }
 
 void MainWindowRevView::addCommit (AcGit::Commit *commit, int row)
@@ -98,19 +98,13 @@ void MainWindowRevView::addCommit (AcGit::Commit *commit, int row)
 
 void MainWindowRevView::addCommitsToView(AcGit::Repository *repo)
 {
-    int row = 0;
+    int row = 1;
+    addWorkingDirectoryCommit();
+
     AcGit::ICommits *commitsAgent = repo->CommitsAgent();
     foreach (AcGit::Commit* commit, *commitsAgent->getAllCommits())
     {
-        if (row == 0)
-        {
-            addWorkingDirectoryCommit(row);
-        }
-        else
-        {
-            addCommit(commit, row);
-        }
-
+        addCommit(commit, row);
         row++;
     }
 }

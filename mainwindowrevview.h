@@ -39,12 +39,12 @@ private:
     void setRevViewModel();
     void setColumnWidth();
     void addCommit(AcGit::Commit *commit, int row);
-    void addWorkingDirectoryCommit(int row);
+    void addWorkingDirectoryCommit();
     void setupRevViewHeaders();
 
     int columnSize = 550;
     int columnCount = 4;
-
+    const int working_dir_row = 0;
     MainWindow *mainWindow;
     QTreeView *revView;
     QStandardItemModel *model;
