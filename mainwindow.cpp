@@ -234,7 +234,7 @@ void MainWindow::gitTreeSelectedRow(const QModelIndex& index)
     }
 
      //get commit we are working with
-    int row = index.row();
+    int row = ui->revList->currentIndex().row();
 
     if (repo->HasWorkingTreeChanges())
     {
@@ -244,9 +244,18 @@ void MainWindow::gitTreeSelectedRow(const QModelIndex& index)
 
     AcGit::ICommits *commitsAgent = repo->CommitsAgent();
     AcGit::Commit *commit = commitsAgent->getAllCommits()->at(row);
+    qDebug() << commit->shortLog();
+    qDebug() << row;
 
     AcGit::Tree *tree = commit->tree();
+    qDebug() << "path mainwindow = " << path;
     AcGit::TreeEntry *entry = tree->getEntry(path);
+    qDebug() << "path entry = " << entry->fullPath();
+
+    if (entry == nullptr)
+    {
+        qDebug() << "entry is null";
+    }
     AcGit::Blob blob = entry->fileBlob();
 
     // clear output and then append file text
