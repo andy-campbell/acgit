@@ -482,16 +482,38 @@ void MainWindow::on_actionQuit_triggered()
 
 void MainWindow::on_branchesCombo_activated(const QString &arg1)
 {
-//    AcGit::IBranches *branchesAgent = repo->BranchAgent();
+    int index = -1;
+    AcGit::IBranches *branchesAgent = repo->BranchAgent();
+    AcGit::ICommits *commitAgent = repo->CommitsAgent();
 
-//    int lookupIndex = repo->lookupBranch(arg1);
+    QString branchName = "refs/heads/" + arg1;
+    AcGit::Branch *branch = branchesAgent->lookupBranch(branchName);
+    if (branch == nullptr)
+    {
+        // no branch found
+        return;
+    }
+    qDebug() << branch->getRefName();
 
-//    // if value is -1 then an error has occured in lookup so don't change index
-//    if (lookupIndex != -1)
-//    {
-//        QModelIndex modIndex = ui->revList->model()->index(lookupIndex, 0);
-//        ui->revList->setCurrentIndex(modIndex);
-//    }
+    AcGit::Commit *commit = commitAgent->lookupCommit(branch);
+    if (commt == nullptr)
+    {
+        // no commit found
+        return;
+    }
+
+    index = commitAgent->getAllCommits()->indexOf(commit);
+    if (index != -1)
+    {
+        if (repo->HasWorkingTreeChanges())
+        {
+            // Add 1 for the working directory
+            index += 1;
+        }
+
+        QModelIndex modIndex = ui->revList->model()->index(index + 1 , 0);
+        ui->revList->setCurrentIndex(modIndex);
+    }
 
 }
 
