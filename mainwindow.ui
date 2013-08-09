@@ -83,6 +83,20 @@
         </property>
        </spacer>
       </item>
+      <item>
+       <widget class="QLabel" name="currentBranchLabel">
+        <property name="text">
+         <string>Current Branch: </string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QLabel" name="branchLabel">
+        <property name="text">
+         <string>Unknown</string>
+        </property>
+       </widget>
+      </item>
      </layout>
     </item>
     <item>

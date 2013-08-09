@@ -182,6 +182,9 @@ void MainWindow::updateBranches()
 
     AcGit::IBranches *branchAgent = repo->BranchAgent();
     ui->branchesCombo->insertItems(0, branchAgent->branchNamesList());
+
+    ui->branchLabel->setText(branchAgent->currentBranch());
+
 }
 
 void MainWindow::on_actionOpen_triggered()
