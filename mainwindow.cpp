@@ -59,8 +59,8 @@ MainWindow::MainWindow(QWidget *parent) :
     // try open a git repo in the current directory
     try
     {
-        repo = new AcGit::Repository(QDir::currentPath() + "/.git");
 
+        repo = new AcGit::Repository(QDir::currentPath());
         revView->addCommitsToView(repo);
         revView->setupDelegate(repo);
         updateTags();
@@ -248,10 +248,8 @@ void MainWindow::gitTreeSelectedRow(const QModelIndex& index)
     qDebug() << row;
 
     AcGit::Tree *tree = commit->tree();
-    qDebug() << "path mainwindow = " << path;
-    AcGit::TreeEntry *entry = tree->getEntry(path);
-    qDebug() << "path entry = " << entry->fullPath();
 
+    AcGit::TreeEntry *entry = tree->getEntry(path);
     if (entry == nullptr)
     {
         qDebug() << "entry is null";
