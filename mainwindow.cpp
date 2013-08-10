@@ -497,7 +497,7 @@ void MainWindow::on_branchesCombo_activated(const QString &arg1)
     qDebug() << branch->getRefName();
 
     AcGit::Commit *commit = commitAgent->lookupCommit(branch);
-    if (commt == nullptr)
+    if (commit == nullptr)
     {
         // no commit found
         return;
