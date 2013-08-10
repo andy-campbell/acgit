@@ -183,7 +183,10 @@ void MainWindow::updateBranches()
     AcGit::IBranches *branchAgent = repo->BranchAgent();
     ui->branchesCombo->insertItems(0, branchAgent->branchNamesList());
 
-    ui->branchLabel->setText(branchAgent->currentBranch());
+    QString currentBranch = branchAgent->currentBranch();
+    // -1 to remove the '/'
+    currentBranch = currentBranch.right(currentBranch.length() - currentBranch.lastIndexOf('/') - 1);
+    ui->branchLabel->setText(currentBranch);
 
 }
 
