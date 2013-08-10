@@ -19,14 +19,12 @@ LIBS += -llibAcGit -L../libAcGit/
 QMAKE_RPATHDIR += $$PWD/../libAcGit/
 # Input
 HEADERS += mainwindow.h  \
-           acrepo.h \
            commit.h \
     currentdiff.h
 
 FORMS += mainwindow.ui
 SOURCES += mainwindow.cpp \
            main.cpp \
-           acrepo.cpp \
            commit.cpp \
     currentdiff.cpp
 
