@@ -29,7 +29,6 @@
 #include <QModelIndex>
 
 #include "AcGitGlobal.h"
-#include "acrepo.h"
 #include "commit.h"
 
 class revViewDelegate : public QItemDelegate

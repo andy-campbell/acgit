@@ -23,7 +23,6 @@
 #include <QTreeView>
 #include <QAbstractItemView>
 
-#include "acrepo.h"
 #include "currentdiff.h"
 #include "mainwindowrevview.h"
 #include "fileschangesview.h"

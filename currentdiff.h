@@ -24,7 +24,6 @@
 #include <QStringList>
 #include "../libAcGit/AcGitGlobal.h"
 #include "commit.h"
-#include "acrepo.h"
 
 class currentDiff
 {

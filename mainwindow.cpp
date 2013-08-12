@@ -35,7 +35,6 @@
 #include "ui_mainwindow.h"
 #include "mainwindow.h"
 
-#include "acrepo.h"
 #include "currentdiff.h"
 #include "commit.h"
 #include "revviewdelegate.h"
