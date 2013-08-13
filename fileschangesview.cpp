@@ -58,7 +58,14 @@ void filesChangesView::update(currentDiff *shownCommit)
     QStringList changedFileList = shownCommit->getFileList();
     updateChangedFiles(changedFileList);
 
-    updateFileDiff(shownCommit, changedFileList.first());
+    if (changedFileList.isEmpty())
+    {
+        selectedCommitDiff->clear();
+    }
+    else
+    {
+        updateFileDiff(shownCommit, changedFileList.first());
+    }
 }
 
 void filesChangesView::setupHeader()
