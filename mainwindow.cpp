@@ -110,9 +110,31 @@ void MainWindow::removeOldShownCommit()
     }
 }
 
+bool MainWindow::isValidIndex(int index)
+{
+    AcGit::ICommits *commitsAgent = repo->CommitsAgent();
+
+    if(index < 0)
+    {
+        return false;
+    }
+
+    if(index >= commitsAgent->getAllCommits()->length())
+    {
+        return false;
+    }
+    return true;
+}
+
 void MainWindow::setShownCommit(int index)
 {
+    if(isValidIndex(index) == false)
+    {
+        return;
+    }
+
     removeOldShownCommit();
+
     if (index == 0)
     {
         // assumtion that commit at index 1 is the same as HEAD

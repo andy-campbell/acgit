@@ -287,7 +287,7 @@ void revViewDelegate::paintShort(QPainter* p, QStyleOptionViewItem opt,
     }
 
     AcGit::Commit *commit = nullptr;
-    if (row >= 0)
+    if (row >= 0 && row < repo->CommitsAgent()->getAllCommits()->length() )
         commit = repo->CommitsAgent()->getAllCommits()->at(row);
 
     if (!commit)

@@ -78,6 +78,7 @@ private:
     filesChangesView *commitChangesView;
 
     void buildTreeForCommit(AcGit::Commit *commit);
+    bool isValidIndex(int index);
 };
 
 #endif // MAINWINDOW_H
