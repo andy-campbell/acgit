@@ -30,12 +30,13 @@
 
 #include "AcGitGlobal.h"
 #include "commit.h"
+#include "mainwindowrevview.h"
 
 class revViewDelegate : public QItemDelegate
 {
     Q_OBJECT
 public:
-    explicit revViewDelegate(AcGit::Repository *repo, QObject *parent = 0);
+    explicit revViewDelegate(AcGit::Repository *repo, MainWindowRevView *revView, QObject *parent = 0);
 
     virtual void paint(QPainter* p, const QStyleOptionViewItem &o, const QModelIndex &i) const;
     virtual QSize sizeHint(const QStyleOptionViewItem& o, const QModelIndex &i) const;
@@ -53,6 +54,8 @@ private:
     void paintGraphLane(QPainter *p, int type, int x1, int x2, const QColor &col, const QColor &activeCol, const QBrush &back, bool firstCommit) const;
 
     AcGit::Repository *repo;
+    MainWindowRevView *revView;
+    const bool hasWorkingDirectoryChanges() const;
 };
 
 #endif // REVVIEWDELEGATE_H

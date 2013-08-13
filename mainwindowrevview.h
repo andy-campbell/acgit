@@ -21,6 +21,8 @@ public:
     void clearCommits();
 
     void setupDelegate(AcGit::Repository *repo);
+    void checkForWorkingDirectoryChanges(AcGit::Repository *repo);
+    const bool hasWorkingDirectoryChanges() const;
 private slots:
     void revViewSelectionChanged(QItemSelection selected,QItemSelection deSelected);
 private:
@@ -48,6 +50,7 @@ private:
     MainWindow *mainWindow;
     QTreeView *revView;
     QStandardItemModel *model;
+    bool hasWorkingChanges;
 
 };
 

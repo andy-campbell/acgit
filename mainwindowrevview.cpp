@@ -26,6 +26,16 @@ MainWindowRevView::~MainWindowRevView()
 
 }
 
+void MainWindowRevView::checkForWorkingDirectoryChanges(AcGit::Repository *repo)
+{
+    hasWorkingChanges = repo->HasWorkingTreeChanges();
+}
+
+const bool MainWindowRevView::hasWorkingDirectoryChanges() const
+{
+    return hasWorkingChanges;
+}
+
 void MainWindowRevView::setupSelectionChangedCallBack()
 {
     connect(revView->selectionModel(), SIGNAL(selectionChanged(QItemSelection,QItemSelection)),
@@ -34,7 +44,7 @@ void MainWindowRevView::setupSelectionChangedCallBack()
 
 void MainWindowRevView::setupDelegate(AcGit::Repository *repo)
 {
-    revViewDelegate *delegate = new revViewDelegate(repo, this);
+    revViewDelegate *delegate = new revViewDelegate(repo, this, this);
     revView->setItemDelegate (delegate);
 }
 

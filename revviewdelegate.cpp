@@ -16,15 +16,16 @@
  */
 
 #include "revviewdelegate.h"
-
+#include "mainwindowrevview.h"
 
 #include <QDebug>
 
-revViewDelegate::revViewDelegate( AcGit::Repository* repo,
+revViewDelegate::revViewDelegate( AcGit::Repository* repo, MainWindowRevView *revView,
 QObject *parent) :
     QItemDelegate(parent)
 {
     this->repo = repo;
+    this->revView = revView;
 }
 
 
@@ -206,6 +207,11 @@ void revViewDelegate::paintGraphLane(QPainter* p, int type, int x1, int x2,
     #undef R_CENTER
 }
 
+const bool revViewDelegate::hasWorkingDirectoryChanges() const
+{
+    return revView->hasWorkingDirectoryChanges();
+}
+
 void revViewDelegate::paintGraph(QPainter* p, const QStyleOptionViewItem& opt,
                                   const QModelIndex& i) const {
 
@@ -273,7 +279,8 @@ void revViewDelegate::paintShort(QPainter* p, QStyleOptionViewItem opt,
 
     int row = index.row();
 
-    if (repo->HasWorkingTreeChanges())
+    
+    if (hasWorkingDirectoryChanges() == true)
     {
         // to allow for off commit array starting at 0
         row -= 1;
