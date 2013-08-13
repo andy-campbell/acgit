@@ -28,9 +28,9 @@
 class currentDiff
 {
 public:
-    currentDiff(const AcGit::Commit *from, const AcGit::Commit *to);
+    currentDiff(AcGit::Commit *from, AcGit::Commit *to);
 
-    currentDiff(const AcGit::Commit *headCommit);
+    currentDiff(AcGit::Commit *headCommit);
 
     virtual ~currentDiff();
 
@@ -55,7 +55,7 @@ public:
      * @brief getCurrentSelectedCommit this function returns the "to" commit
      * @return return the "to" commit which is the current selected commit
      */
-    const AcGit::Commit *getCurrentSelectedCommit() const;
+    AcGit::Commit *getCurrentSelectedCommit();
 
     /**
      * @brief savePatch writes the current commits patch to a file.
@@ -71,7 +71,7 @@ public:
     QString getPatchStats();
 
 private:
-    const AcGit::Commit *selectedCommit;
+    AcGit::Commit *selectedCommit;
     AcGit::Diff *diff;
 };
 

@@ -267,7 +267,7 @@ void MainWindow::gitTreeSelectedRow(const QModelIndex& index)
 
 }
 
-void MainWindow::buildTreeForCommit(const AcGit::Commit *commit)
+void MainWindow::buildTreeForCommit(AcGit::Commit *commit)
 {
     // Handle Tree
     QList<AcGit::TreeEntry*> entries = commit->tree()->getEntriesList();

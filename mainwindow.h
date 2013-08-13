@@ -77,7 +77,7 @@ private:
     MainWindowRevView *revView;
     filesChangesView *commitChangesView;
 
-    void buildTreeForCommit(const AcGit::Commit *commit);
+    void buildTreeForCommit(AcGit::Commit *commit);
 };
 
 #endif // MAINWINDOW_H

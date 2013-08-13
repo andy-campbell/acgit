@@ -26,7 +26,7 @@
 /**
  *  Call for diff of all commits except working directory
  */
-currentDiff::currentDiff(const AcGit::Commit *from, const AcGit::Commit *selectedCommit)
+currentDiff::currentDiff(AcGit::Commit *from, AcGit::Commit *selectedCommit)
 {
     this->selectedCommit = selectedCommit;
 
@@ -43,7 +43,7 @@ currentDiff::currentDiff(const AcGit::Commit *from, const AcGit::Commit *selecte
 /**
  * Call for diff of working directory
  */
-currentDiff::currentDiff(const AcGit::Commit *headCommit)
+currentDiff::currentDiff(AcGit::Commit *headCommit)
 {
     diff = new AcGit::WorkingDirDiff(headCommit->tree());
 }
@@ -74,7 +74,7 @@ QString currentDiff::getDetaForFile(QString &filename)
     return delta;
 }
 
-const AcGit::Commit *currentDiff::getCurrentSelectedCommit() const
+AcGit::Commit *currentDiff::getCurrentSelectedCommit()
 {
     return selectedCommit;
 }
