@@ -260,23 +260,24 @@ void revViewDelegate::paintGraph(QPainter* p, const QStyleOptionViewItem& opt,
     QBrush back = opt.palette.base();
     uint activeLane = graph->activeRowNumber();
 
-    int x1 = 0, x2 = 0;
+    int laneColStart = 0, laneColEnd = 0;
+    int lanewidth = 10;
 
-    int lw = 10;
     QColor activeColor = colors[activeLane % 8];
+
     if (opt.state & QStyle::State_Selected)
         activeColor = blend(activeColor, opt.palette.highlightedText().color(), 208);
 
 
-    for (int i = 0; i < graph->rowState()->size(); i++)
+    for (int graphColIndex = 0; graphColIndex < graph->rowState()->size(); graphColIndex++)
     {
-        x1 = lw * (i);
-        x2 = lw * (i + 1);
-        bool active = graph->activeRowNumber() == i;
+        laneColStart = lanewidth * (graphColIndex);
+        laneColEnd = lanewidth * (graphColIndex + 1);
+        bool active = graph->activeRowNumber() == graphColIndex;
 
-        QColor color = active ? activeColor : colors[i % 8];
+        QColor color = active ? activeColor : colors[graphColIndex % 8];
 
-        paintGraphLane(p, graph->rowState()->at(i), x1, x2, color, activeColor, back, firstCommit);
+        paintGraphLane(p, graph->rowState()->at(graphColIndex), laneColStart, laneColEnd, color, activeColor, back, firstCommit);
     }
     p->restore();
 }
