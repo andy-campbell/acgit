@@ -213,30 +213,45 @@ const bool revViewDelegate::hasWorkingDirectoryChanges() const
 }
 
 void revViewDelegate::paintGraph(QPainter* p, const QStyleOptionViewItem& opt,
-                                  const QModelIndex& i) const {
+                                  const QModelIndex& index) const {
 
-    static const QColor colors[8] = { Qt::black, Qt::red, DARK_GREEN,
-                                               Qt::blue, Qt::darkGray, BROWN,
-                                               Qt::magenta, ORANGE };
-    if (opt.state & QStyle::State_Selected)
-        p->fillRect(opt.rect, opt.palette.highlight());
-    else if (i.row() & 1)
-        p->fillRect(opt.rect, opt.palette.alternateBase());
-    else
-        p->fillRect(opt.rect, opt.palette.base());
+    int row = index.row();
 
-    // TODO
+    if (row == 0 && hasWorkingDirectoryChanges())
+    {
+        return;
+    }
+
+    bool firstCommit = index.row() == 0;
+    if (row == 1 && hasWorkingDirectoryChanges())
+    {
+        firstCommit = true;
+        row--;
+    }
+
     AcGit::Commit *commit = nullptr;
-    if (i.row() - 1 >= 0)
-        commit = repo->CommitsAgent()->getAllCommits()->at(i.row() - 1);
+    if (row >= 0 && row < repo->CommitsAgent()->getAllCommits()->length())
+    {
+        commit = repo->CommitsAgent()->getAllCommits()->at(row);
+    }
 
     if (!commit || commit->getGraph() == nullptr)
     {
         return;
     }
 
-
     AcGit::Graph *graph = commit->getGraph();
+
+
+    static const QColor colors[8] = { Qt::black, Qt::red, DARK_GREEN,
+                                               Qt::blue, Qt::darkGray, BROWN,
+                                               Qt::magenta, ORANGE };
+    if (opt.state & QStyle::State_Selected)
+        p->fillRect(opt.rect, opt.palette.highlight());
+    else if (index.row() & 1)
+        p->fillRect(opt.rect, opt.palette.alternateBase());
+    else
+        p->fillRect(opt.rect, opt.palette.base());
 
     p->save();
     p->setClipRect(opt.rect, Qt::IntersectClip);
@@ -252,12 +267,6 @@ void revViewDelegate::paintGraph(QPainter* p, const QStyleOptionViewItem& opt,
     if (opt.state & QStyle::State_Selected)
         activeColor = blend(activeColor, opt.palette.highlightedText().color(), 208);
 
-    bool firstCommit = i.row() == 0;
-
-    if (i.row() == 1/* && graph->typeOfRow() == AcGit::Graph::NO_COMMIT_WORKING_DIR*/)
-    {
-        firstCommit = true;
-    }
 
     for (int i = 0; i < graph->rowState()->size(); i++)
     {

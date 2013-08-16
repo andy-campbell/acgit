@@ -135,9 +135,8 @@ void MainWindow::setShownCommit(int index)
 
     removeOldShownCommit();
 
-    if (index == 0)
+    if (revView->hasWorkingDirectoryChanges() && index == 0)
     {
-        // assumtion that commit at index 1 is the same as HEAD
         shownCommit = new currentDiff (repo->HeadCommit());
     }
     else
@@ -153,7 +152,7 @@ void MainWindow::setShownCommit(int index)
         {
             from = commitsAgent->getAllCommits()->at(index + 1);
         }
-
+        qDebug() << to->shortLog();
         shownCommit = new currentDiff (from, to);
     }
 
@@ -161,7 +160,7 @@ void MainWindow::setShownCommit(int index)
 
     // Handle Long message
     ui->fullLogText->clear();
-    if (index == 0)
+    if (revView->hasWorkingDirectoryChanges() && index == 0)
     {
         if (shownCommit->getFileList().size() == 0)
         {
@@ -236,7 +235,7 @@ void MainWindow::on_actionOpen_triggered()
         return;
     }
 
-
+    revView->checkForWorkingDirectoryChanges(repo);
     revView->addCommitsToView(repo);
     revView->setupDelegate(repo);
     updateTags();

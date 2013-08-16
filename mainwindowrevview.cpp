@@ -108,8 +108,13 @@ void MainWindowRevView::addCommit (AcGit::Commit *commit, int row)
 
 void MainWindowRevView::addCommitsToView(AcGit::Repository *repo)
 {
-    int row = 1;
-    addWorkingDirectoryCommit();
+    int row = 0;
+
+    if (hasWorkingDirectoryChanges())
+    {
+        addWorkingDirectoryCommit();
+        row++;
+    }
 
     AcGit::ICommits *commitsAgent = repo->CommitsAgent();
     QList<AcGit::Commit *> *commitsList = commitsAgent->getAllCommits();

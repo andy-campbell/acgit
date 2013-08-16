@@ -50,7 +50,7 @@ private:
     void addTextPixmap(QPixmap **pp, QString data, const QStyleOptionViewItem &opt) const;
     QPixmap *getRefsPixmap(AcGit::Commit *commit, QStyleOptionViewItem &opt) const;
     void paintShort(QPainter *p, QStyleOptionViewItem opt, const QModelIndex &index) const;
-    void paintGraph(QPainter *p, const QStyleOptionViewItem &opt, const QModelIndex &i) const;
+    void paintGraph(QPainter *p, const QStyleOptionViewItem &opt, const QModelIndex &index) const;
     void paintGraphLane(QPainter *p, int type, int x1, int x2, const QColor &col, const QColor &activeCol, const QBrush &back, bool firstCommit) const;
 
     AcGit::Repository *repo;
