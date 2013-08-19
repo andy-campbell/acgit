@@ -22,7 +22,10 @@ public:
 
     void setupDelegate(AcGit::Repository *repo);
     void checkForWorkingDirectoryChanges(AcGit::Repository *repo);
+    void checkForStagingDirectoryChanges(AcGit::Repository *repo);
     const bool hasWorkingDirectoryChanges() const;
+    const bool hasStagingDirectoryChanges() const;
+
 private slots:
     void revViewSelectionChanged(QItemSelection selected,QItemSelection deSelected);
 private:
@@ -42,6 +45,7 @@ private:
     void setColumnWidth();
     void addCommit(AcGit::Commit *commit, int row);
     void addWorkingDirectoryCommit();
+    void addStagingDirectoryCommit();
     void setupRevViewHeaders();
 
     int columnSize = 550;
@@ -51,6 +55,7 @@ private:
     QTreeView *revView;
     QStandardItemModel *model;
     bool hasWorkingChanges;
+    bool hasStagingChanges;
 
 };
 

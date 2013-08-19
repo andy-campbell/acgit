@@ -212,27 +212,44 @@ const bool revViewDelegate::hasWorkingDirectoryChanges() const
     return revView->hasWorkingDirectoryChanges();
 }
 
+const bool revViewDelegate::hasStagingDirectoryChanges() const
+{
+    return revView->hasStagingDirectoryChanges();
+}
+
+int revViewDelegate::findCommitIndex(int modelIndex) const
+{
+    int commitIndex = modelIndex;
+
+    if (hasWorkingDirectoryChanges())
+    {
+        commitIndex--;
+    }
+
+    if (hasStagingDirectoryChanges())
+    {
+        commitIndex--;
+    }
+
+    return commitIndex;
+
+}
+
 void revViewDelegate::paintGraph(QPainter* p, const QStyleOptionViewItem& opt,
                                   const QModelIndex& index) const {
 
-    int row = index.row();
+    int commitIndex = findCommitIndex(index.row());
+    bool firstCommit = commitIndex == 0;
 
-    if (row == 0 && hasWorkingDirectoryChanges())
+    if (commitIndex < 0)
     {
         return;
     }
 
-    bool firstCommit = index.row() == 0;
-    if (row == 1 && hasWorkingDirectoryChanges())
-    {
-        firstCommit = true;
-        row--;
-    }
-
     AcGit::Commit *commit = nullptr;
-    if (row >= 0 && row < repo->CommitsAgent()->getAllCommits()->length())
+    if (commitIndex >= 0 && commitIndex < repo->CommitsAgent()->getAllCommits()->length())
     {
-        commit = repo->CommitsAgent()->getAllCommits()->at(row);
+        commit = repo->CommitsAgent()->getAllCommits()->at(commitIndex);
     }
 
     if (!commit || commit->getGraph() == nullptr)

@@ -236,6 +236,7 @@ void MainWindow::on_actionOpen_triggered()
     }
 
     revView->checkForWorkingDirectoryChanges(repo);
+    revView->checkForStagingDirectoryChanges(repo);
     revView->addCommitsToView(repo);
     revView->setupDelegate(repo);
     updateTags();

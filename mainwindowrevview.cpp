@@ -7,6 +7,9 @@
 MainWindowRevView::MainWindowRevView(MainWindow *_mainWindow, QTreeView *_revView)
     : mainWindow(_mainWindow), revView(_revView)
 {
+    hasStagingChanges = false;
+    hasWorkingChanges = false;
+
     model = new QStandardItemModel(this);
     model->setColumnCount(columnCount);
 
@@ -19,11 +22,17 @@ MainWindowRevView::MainWindowRevView(MainWindow *_mainWindow, QTreeView *_revVie
     setupSelectionChangedCallBack();
 
     revView->show();
+
 }
 
 MainWindowRevView::~MainWindowRevView()
 {
 
+}
+
+void MainWindowRevView::checkForStagingDirectoryChanges(AcGit::Repository *repo)
+{
+    hasStagingChanges = repo->HasStagingDirChanges();
 }
 
 void MainWindowRevView::checkForWorkingDirectoryChanges(AcGit::Repository *repo)
@@ -35,6 +44,12 @@ const bool MainWindowRevView::hasWorkingDirectoryChanges() const
 {
     return hasWorkingChanges;
 }
+
+const bool MainWindowRevView::hasStagingDirectoryChanges() const
+{
+    return hasStagingChanges;
+}
+
 
 void MainWindowRevView::setupSelectionChangedCallBack()
 {
@@ -95,6 +110,14 @@ void MainWindowRevView::addWorkingDirectoryCommit()
     addColumnData (working_dir_row, SHORT_LOG_INDEX, "Working Directory");
 }
 
+void MainWindowRevView::addStagingDirectoryCommit()
+{
+    addColumnData (working_dir_row, REV_INDEX, "");
+
+    addColumnData (working_dir_row, SHORT_LOG_INDEX, "Staging Directory");
+}
+
+
 void MainWindowRevView::addCommit (AcGit::Commit *commit, int row)
 {
     addColumnData (row, REV_INDEX, "");
@@ -113,6 +136,12 @@ void MainWindowRevView::addCommitsToView(AcGit::Repository *repo)
     if (hasWorkingDirectoryChanges())
     {
         addWorkingDirectoryCommit();
+        row++;
+    }
+
+    if(hasStagingDirectoryChanges())
+    {
+        addStagingDirectoryCommit();
         row++;
     }
 
