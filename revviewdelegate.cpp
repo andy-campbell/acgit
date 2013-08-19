@@ -235,17 +235,84 @@ int revViewDelegate::findCommitIndex(int modelIndex) const
 
 }
 
-void revViewDelegate::paintGraph(QPainter* p, const QStyleOptionViewItem& opt,
-                                  const QModelIndex& index) const {
+enum revViewDelegate::RowType revViewDelegate::getRowType(int index) const
+{
+    enum RowType type = COMMIT;
 
-    int commitIndex = findCommitIndex(index.row());
-    bool firstCommit = commitIndex == 0;
-
-    if (commitIndex < 0)
+    if (index == 0 && hasWorkingDirectoryChanges())
     {
+        qDebug() << " working dir got to here" << index;
+        type = WORKINGDIR;
+    }
+
+    else if (index == 0 && hasStagingDirectoryChanges() && !hasWorkingDirectoryChanges())
+    {
+        type = STAGINGDIR;
+    }
+
+
+    else if (index == 1  && hasStagingDirectoryChanges() && hasWorkingDirectoryChanges())
+    {
+        qDebug() << " got to here index " << index;
+        type = STAGINGDIR;
+    }
+
+    return type;
+}
+
+void revViewDelegate::paintNonCommitGraph(QPainter* p, const QStyleOptionViewItem& opt,
+                                  RowType type) const
+{
+    //p->save();
+    QColor color;
+    if (type == WORKINGDIR)
+    {
+        qDebug() << "working dir picked red";
+        color = Qt::red;
+    }
+
+    else if (type == STAGINGDIR)
+    {
+        color = Qt::blue;
+    }
+
+    //QBrush back = opt.palette.base();
+    static QPen myPen(Qt::black, 2); // fast path here
+
+    int height = 26 / 2;
+    int mid = 15 / 2;
+    int radius = 10 / 3;
+    int diameter =  2 * radius;
+
+
+    p->save();
+    p->setClipRect(opt.rect, Qt::IntersectClip);
+    p->translate(opt.rect.topLeft());
+
+    myPen.setColor(color);
+    p->setPen(myPen);
+    QBrush back = opt.palette.base();
+    p->drawEllipse(mid - radius, height - radius, diameter, diameter);
+
+    p->restore();
+}
+
+
+void revViewDelegate::paintGraph(QPainter* p, const QStyleOptionViewItem& opt,
+                                  const QModelIndex& index) const
+{
+
+    enum RowType type = getRowType(index.row());
+
+    if(type == WORKINGDIR || type == STAGINGDIR)
+    {
+        qDebug() << "index == " << index.row() << " type " << type;
+        paintNonCommitGraph(p, opt, type);
         return;
     }
 
+    int commitIndex = findCommitIndex(index.row());
+    bool firstCommit = commitIndex == 0;
     AcGit::Commit *commit = nullptr;
     if (commitIndex >= 0 && commitIndex < repo->CommitsAgent()->getAllCommits()->length())
     {
@@ -303,19 +370,10 @@ void revViewDelegate::paintGraph(QPainter* p, const QStyleOptionViewItem& opt,
 void revViewDelegate::paintShort(QPainter* p, QStyleOptionViewItem opt,
                                 const QModelIndex& index) const
 {
-
-    int row = index.row();
-
-    
-    if (hasWorkingDirectoryChanges() == true)
-    {
-        // to allow for off commit array starting at 0
-        row -= 1;
-    }
-
+    int commitIndex = findCommitIndex(index.row());
     AcGit::Commit *commit = nullptr;
-    if (row >= 0 && row < repo->CommitsAgent()->getAllCommits()->length() )
-        commit = repo->CommitsAgent()->getAllCommits()->at(row);
+    if (commitIndex >= 0 && commitIndex < repo->CommitsAgent()->getAllCommits()->length() )
+        commit = repo->CommitsAgent()->getAllCommits()->at(commitIndex);
 
     if (!commit)
     {

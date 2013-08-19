@@ -47,17 +47,25 @@ signals:
 public slots:
     
 private:
+     enum RowType {
+        COMMIT,
+        STAGINGDIR,
+        WORKINGDIR
+    };
+
     void addTextPixmap(QPixmap **pp, QString data, const QStyleOptionViewItem &opt) const;
     QPixmap *getRefsPixmap(AcGit::Commit *commit, QStyleOptionViewItem &opt) const;
     void paintShort(QPainter *p, QStyleOptionViewItem opt, const QModelIndex &index) const;
     void paintGraph(QPainter *p, const QStyleOptionViewItem &opt, const QModelIndex &index) const;
     void paintGraphLane(QPainter *p, int type, int x1, int x2, const QColor &col, const QColor &activeCol, const QBrush &back, bool firstCommit) const;
+    void paintNonCommitGraph(QPainter *p, const QStyleOptionViewItem &opt, RowType type) const;
 
     AcGit::Repository *repo;
     MainWindowRevView *revView;
     const bool hasWorkingDirectoryChanges() const;
     const bool hasStagingDirectoryChanges() const;
     int findCommitIndex(int modelIndex) const;
+    enum RowType getRowType(int index) const;
 };
 
 #endif // REVVIEWDELEGATE_H

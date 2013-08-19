@@ -112,21 +112,27 @@ void MainWindowRevView::addWorkingDirectoryCommit()
 
 void MainWindowRevView::addStagingDirectoryCommit()
 {
-    addColumnData (working_dir_row, REV_INDEX, "");
+    int rowIndex = 0;
+    if(hasWorkingDirectoryChanges())
+    {
+        rowIndex++;
+    }
 
-    addColumnData (working_dir_row, SHORT_LOG_INDEX, "Staging Directory");
+    addColumnData (rowIndex, REV_INDEX, "");
+
+    addColumnData (rowIndex, SHORT_LOG_INDEX, "Staging Directory");
 }
 
 
-void MainWindowRevView::addCommit (AcGit::Commit *commit, int row)
+void MainWindowRevView::addCommit (AcGit::Commit *commit, int rowIndex)
 {
-    addColumnData (row, REV_INDEX, "");
+    addColumnData (rowIndex, REV_INDEX, "");
 
-    addColumnData (row, SHORT_LOG_INDEX, commit->shortLog());
+    addColumnData (rowIndex, SHORT_LOG_INDEX, commit->shortLog());
 
-    addColumnData (row, AUTHOR_INDEX, commit->author());
+    addColumnData (rowIndex, AUTHOR_INDEX, commit->author());
 
-    addColumnData (row, DATE_INDEX, commit->dateCreated().toString());
+    addColumnData (rowIndex, DATE_INDEX, commit->dateCreated().toString());
 }
 
 void MainWindowRevView::addCommitsToView(AcGit::Repository *repo)

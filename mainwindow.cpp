@@ -60,6 +60,7 @@ MainWindow::MainWindow(QWidget *parent) :
     {
 
         repo = new AcGit::Repository(QDir::currentPath());
+        revView->checkForStagingDirectoryChanges(repo);
         revView->checkForWorkingDirectoryChanges(repo);
         revView->addCommitsToView(repo);
         revView->setupDelegate(repo);

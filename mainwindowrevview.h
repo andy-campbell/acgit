@@ -36,14 +36,14 @@ private:
         SHORT_LOG_INDEX,
         AUTHOR_INDEX,
         DATE_INDEX
-    } rowIndex;
+    } columnIndex;
 
     void addColumnData(int row, int column, QString columnContents);
     void setHeaderName(QString name, int index);
     void setupSelectionChangedCallBack();
     void setRevViewModel();
     void setColumnWidth();
-    void addCommit(AcGit::Commit *commit, int row);
+    void addCommit(AcGit::Commit *commit, int rowIndex);
     void addWorkingDirectoryCommit();
     void addStagingDirectoryCommit();
     void setupRevViewHeaders();
