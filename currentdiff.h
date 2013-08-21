@@ -23,7 +23,6 @@
 
 #include <QStringList>
 #include "../libAcGit/AcGitGlobal.h"
-#include "commit.h"
 
 class currentDiff
 {

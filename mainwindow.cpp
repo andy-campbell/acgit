@@ -36,7 +36,6 @@
 #include "mainwindow.h"
 
 #include "currentdiff.h"
-#include "commit.h"
 #include "revviewdelegate.h"
 #include "AcGitGlobal.h"
 
