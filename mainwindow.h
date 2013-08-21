@@ -69,6 +69,7 @@ private:
     void setup();
     void updateTags();
     void updateBranches();
+    void populateNewRepo();
     // TODO remove from here
     //acRepo *repo;
     AcGit::Repository *repo;
@@ -79,6 +80,7 @@ private:
 
     void buildTreeForCommit(AcGit::Commit *commit);
     bool isValidIndex(int index);
+    bool openRepository(QString path);
 };
 
 #endif // MAINWINDOW_H

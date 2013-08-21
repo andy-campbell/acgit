@@ -56,21 +56,9 @@ MainWindow::MainWindow(QWidget *parent) :
     setup();
 
     // try open a git repo in the current directory
-    try
+    if (openRepository(QDir::currentPath()))
     {
-
-        repo = new AcGit::Repository(QDir::currentPath());
-        revView->checkForStagingDirectoryChanges(repo);
-        revView->checkForWorkingDirectoryChanges(repo);
-        revView->addCommitsToView(repo);
-        revView->setupDelegate(repo);
-        updateTags();
-        updateBranches();
-    }
-    catch (AcGit::GitException e)
-    {
-        // there is no repo in this directory or sub directories
-        // which can be handled gracefully by ignoring this issue.
+        populateNewRepo();
     }
 
 }
@@ -212,10 +200,9 @@ void MainWindow::updateBranches()
 
 }
 
-void MainWindow::on_actionOpen_triggered()
+bool MainWindow::openRepository(QString path)
 {
-    QString folderName = QFileDialog::getExistingDirectory(this, tr("Open Directory"),
-                                                     QDir::home().path());
+    bool openedSuccessfully = false;
     try
     {
         if (repo)
@@ -225,7 +212,8 @@ void MainWindow::on_actionOpen_triggered()
             delete repo;
         }
 
-        repo = new AcGit::Repository(folderName + "/.git");
+        repo = new AcGit::Repository(path);
+        openedSuccessfully = true;
     }
     catch (AcGit::GitException e)
     {
@@ -233,15 +221,30 @@ void MainWindow::on_actionOpen_triggered()
         QMessageBox::information(this, "Cannot open repository",
                                  "There are no git repositories in this directory"
                                  "or any subdirectory.",QMessageBox::Ok);
-        return;
     }
+    return openedSuccessfully;
 
+}
+
+void MainWindow::populateNewRepo()
+{
     revView->checkForWorkingDirectoryChanges(repo);
     revView->checkForStagingDirectoryChanges(repo);
     revView->addCommitsToView(repo);
     revView->setupDelegate(repo);
     updateTags();
     updateBranches();
+}
+
+void MainWindow::on_actionOpen_triggered()
+{
+    QString folderName = QFileDialog::getExistingDirectory(this, tr("Open Directory"),
+                                                     QDir::home().path());
+
+    if (openRepository(folderName))
+    {
+        populateNewRepo();
+    }
 
 }
 
