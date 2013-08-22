@@ -267,7 +267,7 @@ void revViewDelegate::paintNonCommitGraph(QPainter* p, const QStyleOptionViewIte
     static QPen myPen(Qt::black, 2); // fast path here
 
     int height = 26 / 2;
-    int mid = 15 / 2;
+    int mid = 10 / 2;
     int radius = 10 / 3;
     int diameter =  2 * radius;
 
