@@ -70,8 +70,7 @@ private:
     void updateTags();
     void updateBranches();
     void populateNewRepo();
-    // TODO remove from here
-    //acRepo *repo;
+
     AcGit::Repository *repo;
     currentDiff *shownCommit;
 
