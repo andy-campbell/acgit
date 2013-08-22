@@ -80,6 +80,12 @@ private:
     void buildTreeForCommit(AcGit::Commit *commit);
     bool isValidIndex(int index);
     bool openRepository(QString path);
+    void addOffClickMenuItems(QMenu &menu);
+    void deleteTagFromCommit(AcGit::Commit *commit);
+    void addTagToCommit(AcGit::Commit *commit);
+    void savePatch(AcGit::Commit *commit);
+    void createBranchOnCommit(AcGit::Commit *commit);
+    void deleteBranchOnCommit(AcGit::Commit *commit);
 };
 
 #endif // MAINWINDOW_H

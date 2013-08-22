@@ -374,12 +374,8 @@ QStringList MainWindow::populateBranchList(QList<AcGit::Branch *> branches)
     return branchStringList;
 }
 
-void MainWindow::on_revList_customContextMenuRequested(const QPoint &pos)
+void MainWindow::addOffClickMenuItems(QMenu &menu)
 {
-    QModelIndex index = ui->revList->indexAt(pos);
-    QPoint globalPos = ui->revList->mapToGlobal(pos);
-
-    QMenu menu(this);
     menu.addAction(tr("Save Patch"));
     menu.addAction(tr("Add Tag"));
     menu.addAction(tr("Delete Tag"));
@@ -388,118 +384,147 @@ void MainWindow::on_revList_customContextMenuRequested(const QPoint &pos)
     menu.addAction(tr("Delete Branch"));
     menu.addAction(tr("Checkout branch"));
 
+}
+
+void MainWindow::deleteTagFromCommit(AcGit::Commit *commit)
+{
+    AcGit::ITags *tagsAgent = repo->TagsAgent();
+    QList<AcGit::Tag *> tags = tagsAgent->lookupTag(commit);
+
+    QStringList tagNames;
+    foreach (AcGit::Tag *tag, tags)
+    {
+        tagNames << tag->name();
+    }
+
+    if (tagNames.size() == 1)
+    {
+        tagsAgent->deleteTag(tagsAgent->lookupTag(tagNames.first()));
+    }
+    else if (tagNames.size() >= 1)
+    {
+        QString tag = QInputDialog::getItem(this, tr("Remove tag"), tr("Please select tag to remove"), tagNames);
+        tagsAgent->deleteTag(tagsAgent->lookupTag(tag));
+    }
+
+}
+
+
+void MainWindow::addTagToCommit(AcGit::Commit *commit)
+{
+    // Prompt user for tag name
+    QString tagName = QInputDialog::getText (this, tr("Please enter tag name"), tr("Tag name"));
+
+    // Add Tag
+    if (!tagName.isEmpty())
+    {
+        AcGit::Configuration *config = repo->ConfigurationAgent();
+        QString name = config->userName();
+        QString email = config->userEmail();
+        AcGit::Tagger *tagger = new AcGit::Tagger(name, email);
+        QString message;
+
+        int ret = QMessageBox::question(this, tr("Tag message"), tr("Would you like to add a message?"),
+                               QMessageBox::Yes|QMessageBox::Default, QMessageBox::No|QMessageBox::Escape);
+
+        if(ret == QMessageBox::Yes)
+        {
+            message = QInputDialog::getText (this, tr("Please enter messsage"), tr("Tag message"));
+        }
+
+
+        repo->TagsAgent()->createTag(tagName, commit, tagger, message);
+    }
+}
+
+void MainWindow::savePatch(AcGit::Commit *commit)
+{
+    QString exampleName = QDir::currentPath() + "/" + commit->shortLog().replace(" ", "_")
+               + ".patch";
+    QString patchName = QFileDialog::getSaveFileName (this, tr("Save Patch"),
+                                                         exampleName ,tr("Patches (*.patch)") );
+
+    shownCommit->savePatch(patchName);
+}
+
+void MainWindow::createBranchOnCommit(AcGit::Commit *commit)
+{
+    QString branchName = QInputDialog::getText (this, tr("Please enter branch name"), tr("Branch name"));
+
+    if (!branchName.isNull())
+    {
+        AcGit::IBranches *branchAgent = repo->BranchAgent();
+        branchAgent->createNewBranch(branchName, commit);
+    }
+}
+
+void MainWindow::deleteBranchOnCommit(AcGit::Commit *commit)
+{
+    AcGit::IBranches *branchAgent = repo->BranchAgent();
+    QList<AcGit::Branch *> branchList = branchAgent->lookupBranch(commit);
+
+    if (branchList.size() == 1)
+    {
+        AcGit::Branch *branch = branchList.at(0);
+        int proceed = QMessageBox::question(this, tr("Are you sure"), tr("Are you sure you wish to delete %1").arg(branch->getBranchName()),
+                                             QMessageBox::Yes, QMessageBox::No);
+
+        if (proceed)
+        {
+            branchAgent->deleteBranch(branch);
+        }
+    }
+    else if (branchList.size() > 1)
+    {
+        QStringList branchStringList;
+        branchStringList = populateBranchList(branchList);
+        QString branchName = QInputDialog::getItem(this, tr("Remove branch"), tr("Please select branch to remove"), branchStringList);
+
+        int proceed = QMessageBox::question(this, tr("Are you sure"), tr("Are you sure you wish to delete %1").arg(branchName),
+                                             QMessageBox::Yes, QMessageBox::No);
+
+        if (proceed)
+        {
+            AcGit::Branch *branch = branchAgent->lookupBranch(branchName);
+            branchAgent->deleteBranch(branch);
+        }
+    }
+}
+
+void MainWindow::on_revList_customContextMenuRequested(const QPoint &pos)
+{
+    QModelIndex index = ui->revList->indexAt(pos);
+    QPoint globalPos = ui->revList->mapToGlobal(pos);
+
+    QMenu menu(this);
+    addOffClickMenuItems(menu);
 
     QAction* selectedItem = menu.exec(globalPos);
     if (selectedItem)
     {
-        int row = index.row();
-
-        if (repo->HasWorkingTreeChanges())
-        {
-            // to allow for commit array to start from 0
-            row -= 1;
-        }
+        int commitIndex = revView->findCommitIndex(index.row());
 
         AcGit::ICommits *commitsAgent = repo->CommitsAgent();
-        AcGit::Commit *commit = commitsAgent->getAllCommits()->at(row);
+        AcGit::Commit *commit = commitsAgent->getAllCommits()->at(commitIndex);
         if (selectedItem->iconText().contains(tr("Add Tag")))
         {
-            // Prompt user for tag name
-            QString tagName = QInputDialog::getText (this, tr("Please enter tag name"), tr("Tag name"));
-
-            // Add Tag
-            if (!tagName.isEmpty())
-            {
-                AcGit::Configuration *config = repo->ConfigurationAgent();
-                QString name = config->userName();
-                QString email = config->userEmail();
-                AcGit::Tagger *tagger = new AcGit::Tagger(name, email);
-                QString message;
-
-                int ret = QMessageBox::question(this, tr("Tag message"), tr("Would you like to add a message?"),
-                                       QMessageBox::Yes|QMessageBox::Default, QMessageBox::No|QMessageBox::Escape);
-
-                if(ret == QMessageBox::Yes)
-                {
-                    message = QInputDialog::getText (this, tr("Please enter messsage"), tr("Tag message"));
-                }
-
-
-                repo->TagsAgent()->createTag(tagName, commit, tagger, message);
-            }
+            addTagToCommit(commit);
         }
         else if (selectedItem->iconText().contains(tr("Delete Tag")))
         {
-            AcGit::ITags *tagsAgent = repo->TagsAgent();
-            QList<AcGit::Tag *> tags = tagsAgent->lookupTag(commit);
-
-            QStringList tagNames;
-            foreach (AcGit::Tag *tag, tags)
-            {
-                tagNames << tag->name();
-            }
-
-            if (tagNames.size() == 1)
-            {
-                tagsAgent->deleteTag(tagsAgent->lookupTag(tagNames.first()));
-            }
-            else if (tagNames.size() >= 1)
-            {
-                QString tag = QInputDialog::getItem(this, tr("Remove tag"), tr("Please select tag to remove"), tagNames);
-                tagsAgent->deleteTag(tagsAgent->lookupTag(tag));
-            }
+            deleteTagFromCommit(commit);
         }
         else if (selectedItem->iconText().contains(tr("Save Patch")))
         {
-            QString exampleName = QDir::currentPath() + "/" + commit->shortLog().replace(" ", "_")
-                       + ".patch";
-            QString patchName = QFileDialog::getSaveFileName (this, tr("Save Patch"),
-                                                                 exampleName ,tr("Patches (*.patch)") );
-
-            shownCommit->savePatch(patchName);
+            savePatch(commit);
         }
         else if (selectedItem->iconText().contains(tr("Create Branch")))
         {
-            // Prompt user for branch name
-            QString branchName = QInputDialog::getText (this, tr("Please enter branch name"), tr("Branch name"));
-
-            if (!branchName.isNull())
-            {
-                AcGit::IBranches *branchAgent = repo->BranchAgent();
-                branchAgent->createNewBranch(branchName, commit);
-            }
+            createBranchOnCommit(commit);
         }
         else if (selectedItem->iconText().contains(tr("Delete Branch")))
         {
-            AcGit::IBranches *branchAgent = repo->BranchAgent();
-            QList<AcGit::Branch *> branchList = branchAgent->lookupBranch(commit);
-
-            if (branchList.size() == 1)
-            {
-                AcGit::Branch *branch = branchList.at(0);
-                int proceed = QMessageBox::question(this, tr("Are you sure"), tr("Are you sure you wish to delete %1").arg(branch->getBranchName()),
-                                                     QMessageBox::Yes, QMessageBox::No);
-
-                if (proceed)
-                {
-                    branchAgent->deleteBranch(branch);
-                }
-            }
-            else if (branchList.size() > 1)
-            {
-                QStringList branchStringList;
-                branchStringList = populateBranchList(branchList);
-                QString branchName = QInputDialog::getItem(this, tr("Remove branch"), tr("Please select branch to remove"), branchStringList);
-
-                int proceed = QMessageBox::question(this, tr("Are you sure"), tr("Are you sure you wish to delete %1").arg(branchName),
-                                                     QMessageBox::Yes, QMessageBox::No);
-
-                if (proceed)
-                {
-                    AcGit::Branch *branch = branchAgent->lookupBranch(branchName);
-                    branchAgent->deleteBranch(branch);
-                }
-            }
+            deleteBranchOnCommit(commit);
         }
     }
 }
