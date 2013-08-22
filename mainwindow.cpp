@@ -140,7 +140,6 @@ void MainWindow::setShownCommit(int index)
         {
             from = commitsAgent->getAllCommits()->at(index + 1);
         }
-        qDebug() << to->shortLog();
         shownCommit = new currentDiff (from, to);
     }
 
@@ -275,8 +274,6 @@ void MainWindow::gitTreeSelectedRow(const QModelIndex& index)
 
     AcGit::ICommits *commitsAgent = repo->CommitsAgent();
     AcGit::Commit *commit = commitsAgent->getAllCommits()->at(row);
-    qDebug() << commit->shortLog();
-    qDebug() << row;
 
     AcGit::Tree *tree = commit->tree();
 
@@ -284,6 +281,7 @@ void MainWindow::gitTreeSelectedRow(const QModelIndex& index)
     if (entry == nullptr)
     {
         qDebug() << "entry is null";
+        return;
     }
     AcGit::Blob blob = entry->fileBlob();
 
@@ -584,7 +582,6 @@ void MainWindow::on_tagsCombo_activated(const QString &arg1)
     AcGit::Tag *tag = tagAgent->lookupTag(arg1);
     if (tag == nullptr)
     {
-        qDebug() << "exit early A";
         // no tag found
         return;
     }
@@ -592,7 +589,6 @@ void MainWindow::on_tagsCombo_activated(const QString &arg1)
     AcGit::Commit *commit = commitAgent->lookupCommit(tag->tagTarget());
     if (commit == nullptr)
     {
-        qDebug() << "exit early B";
         // no commit found
         return;
     }
