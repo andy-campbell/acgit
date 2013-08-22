@@ -254,7 +254,6 @@ void revViewDelegate::paintNonCommitGraph(QPainter* p, const QStyleOptionViewIte
     QColor color;
     if (type == WORKINGDIR)
     {
-        qDebug() << "working dir picked red";
         color = Qt::red;
     }
 
