@@ -540,6 +540,11 @@ void MainWindow::on_branchesCombo_activated(const QString &arg1)
             index += 1;
         }
 
+        if (revView->hasWorkingDirectoryChanges())
+        {
+            index++;
+        }
+
         QModelIndex modIndex = ui->revList->model()->index(index + 1 , 0);
         ui->revList->setCurrentIndex(modIndex);
     }
@@ -548,12 +553,41 @@ void MainWindow::on_branchesCombo_activated(const QString &arg1)
 
 void MainWindow::on_tagsCombo_activated(const QString &arg1)
 {
-//    int lookupIndex = repo->lookupTag(arg1);
+    int commitIndex = -1;
+    AcGit::ITags *tagAgent = repo->TagsAgent();
+    AcGit::ICommits *commitAgent = repo->CommitsAgent();
 
-//    // if value is -1 then an error has occured in lookup so don't change index
-//    if (lookupIndex != -1)
-//    {
-//        QModelIndex modIndex = ui->revList->model()->index(lookupIndex, 0);
-//        ui->revList->setCurrentIndex(modIndex);
-//    }
+    AcGit::Tag *tag = tagAgent->lookupTag(arg1);
+    if (tag == nullptr)
+    {
+        qDebug() << "exit early A";
+        // no tag found
+        return;
+    }
+
+    AcGit::Commit *commit = commitAgent->lookupCommit(tag->tagTarget());
+    if (commit == nullptr)
+    {
+        qDebug() << "exit early B";
+        // no commit found
+        return;
+    }
+
+    commitIndex = commitAgent->getAllCommits()->indexOf(commit);
+    if (commitIndex != -1)
+    {
+        if (revView->hasStagingDirectoryChanges())
+        {
+            commitIndex ++;
+        }
+
+        if (revView->hasWorkingDirectoryChanges())
+        {
+            commitIndex++;
+        }
+
+
+        QModelIndex modIndex = ui->revList->model()->index(commitIndex , 0);
+        ui->revList->setCurrentIndex(modIndex);
+    }
 }
