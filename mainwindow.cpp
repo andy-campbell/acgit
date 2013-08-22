@@ -611,3 +611,35 @@ void MainWindow::on_tagsCombo_activated(const QString &arg1)
         ui->revList->setCurrentIndex(modIndex);
     }
 }
+
+void MainWindow::on_actionSave_Path_triggered()
+{
+    int commitIndex = revView->findCommitIndex(ui->revList->currentIndex().row());
+
+    AcGit::ICommits *commitsAgent = repo->CommitsAgent();
+    AcGit::Commit *commit = commitsAgent->getAllCommits()->at(commitIndex);
+
+    savePatch(commit);
+}
+
+void MainWindow::on_actionCreate_Tag_triggered()
+{
+    int commitIndex = revView->findCommitIndex(ui->revList->currentIndex().row());
+
+    AcGit::ICommits *commitsAgent = repo->CommitsAgent();
+    AcGit::Commit *commit = commitsAgent->getAllCommits()->at(commitIndex);
+
+    addTagToCommit(commit);
+}
+
+void MainWindow::on_actionDelete_Tag_triggered()
+{
+    int commitIndex = revView->findCommitIndex(ui->revList->currentIndex().row());
+
+    AcGit::ICommits *commitsAgent = repo->CommitsAgent();
+    AcGit::Commit *commit = commitsAgent->getAllCommits()->at(commitIndex);
+
+    deleteTagFromCommit(commit);
+}
+
+

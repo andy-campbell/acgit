@@ -376,7 +376,17 @@ QHeaderView {
     <addaction name="separator"/>
     <addaction name="actionQuit"/>
    </widget>
+   <widget class="QMenu" name="menuCommit">
+    <property name="title">
+     <string>Commit</string>
+    </property>
+    <addaction name="actionSave_Path"/>
+    <addaction name="separator"/>
+    <addaction name="actionCreate_Tag"/>
+    <addaction name="actionDelete_Tag"/>
+   </widget>
    <addaction name="menuFile"/>
+   <addaction name="menuCommit"/>
   </widget>
   <action name="actionOpen">
    <property name="text">
@@ -392,6 +402,21 @@ QHeaderView {
    </property>
    <property name="shortcut">
     <string>Ctrl+Q</string>
+   </property>
+  </action>
+  <action name="actionSave_Path">
+   <property name="text">
+    <string>Save Patch</string>
+   </property>
+  </action>
+  <action name="actionCreate_Tag">
+   <property name="text">
+    <string>Add Tag</string>
+   </property>
+  </action>
+  <action name="actionDelete_Tag">
+   <property name="text">
+    <string>Delete Tag</string>
    </property>
   </action>
  </widget>

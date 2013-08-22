@@ -60,6 +60,12 @@ private slots:
 
     void on_tagsCombo_activated(const QString &arg1);
 
+    void on_actionSave_Path_triggered();
+
+    void on_actionCreate_Tag_triggered();
+
+    void on_actionDelete_Tag_triggered();
+
 private:
 
     Ui::MainWindow *ui;
