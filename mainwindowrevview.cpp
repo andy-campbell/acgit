@@ -166,3 +166,22 @@ void MainWindowRevView::revViewSelectionChanged(QItemSelection selected,QItemSel
     QModelIndex index = revView->currentIndex();
     mainWindow->setShownCommit(index.row());
 }
+
+
+int MainWindowRevView::findCommitIndex(int modelIndex) const
+{
+    int commitIndex = modelIndex;
+
+    if (hasWorkingDirectoryChanges())
+    {
+        commitIndex--;
+    }
+
+    if (hasStagingDirectoryChanges())
+    {
+        commitIndex--;
+    }
+
+    return commitIndex;
+
+}

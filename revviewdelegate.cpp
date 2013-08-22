@@ -219,20 +219,7 @@ const bool revViewDelegate::hasStagingDirectoryChanges() const
 
 int revViewDelegate::findCommitIndex(int modelIndex) const
 {
-    int commitIndex = modelIndex;
-
-    if (hasWorkingDirectoryChanges())
-    {
-        commitIndex--;
-    }
-
-    if (hasStagingDirectoryChanges())
-    {
-        commitIndex--;
-    }
-
-    return commitIndex;
-
+    return revView->findCommitIndex(modelIndex);
 }
 
 enum revViewDelegate::RowType revViewDelegate::getRowType(int index) const

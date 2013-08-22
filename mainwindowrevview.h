@@ -26,6 +26,7 @@ public:
     const bool hasWorkingDirectoryChanges() const;
     const bool hasStagingDirectoryChanges() const;
 
+    int findCommitIndex(int modelIndex) const;
 private slots:
     void revViewSelectionChanged(QItemSelection selected,QItemSelection deSelected);
 private:
