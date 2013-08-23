@@ -61,8 +61,8 @@ private:
 
     AcGit::Repository *repo;
     MainWindowRevView *revView;
-    const bool hasWorkingDirectoryChanges() const;
-    const bool hasStagingDirectoryChanges() const;
+    bool hasWorkingDirectoryChanges() const;
+    bool hasStagingDirectoryChanges() const;
     int findCommitIndex(int modelIndex) const;
     enum RowType getRowType(int index) const;
 };

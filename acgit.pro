@@ -49,9 +49,6 @@ OTHER_FILES += \
 RESOURCES += \
     acGitResource.qrc
 
-HEADERS += \
-    mainwindowrevview.h
-
 SOURCES += \
     mainwindowrevview.cpp
 

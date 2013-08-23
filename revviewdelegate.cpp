@@ -207,12 +207,12 @@ void revViewDelegate::paintGraphLane(QPainter* p, int type, int x1, int x2,
     #undef R_CENTER
 }
 
-const bool revViewDelegate::hasWorkingDirectoryChanges() const
+bool revViewDelegate::hasWorkingDirectoryChanges() const
 {
     return revView->hasWorkingDirectoryChanges();
 }
 
-const bool revViewDelegate::hasStagingDirectoryChanges() const
+bool revViewDelegate::hasStagingDirectoryChanges() const
 {
     return revView->hasStagingDirectoryChanges();
 }

@@ -27,8 +27,8 @@ private:
 
     QStandardItemModel *model;
     MainWindow *mainWindow;
-    QTreeView *filesChanged;
     diffTextEdit *selectedCommitDiff;
+    QTreeView *filesChanged;
 };
 
 #endif // FILESCHANGESVIEW_H

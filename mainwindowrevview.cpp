@@ -40,12 +40,12 @@ void MainWindowRevView::checkForWorkingDirectoryChanges(AcGit::Repository *repo)
     hasWorkingChanges = repo->HasWorkingTreeChanges();
 }
 
-const bool MainWindowRevView::hasWorkingDirectoryChanges() const
+bool MainWindowRevView::hasWorkingDirectoryChanges() const
 {
     return hasWorkingChanges;
 }
 
-const bool MainWindowRevView::hasStagingDirectoryChanges() const
+bool MainWindowRevView::hasStagingDirectoryChanges() const
 {
     return hasStagingChanges;
 }
@@ -163,6 +163,9 @@ void MainWindowRevView::addCommitsToView(AcGit::Repository *repo)
 
 void MainWindowRevView::revViewSelectionChanged(QItemSelection selected,QItemSelection deSelected)
 {
+    Q_UNUSED(selected);
+    Q_UNUSED(deSelected);
+
     QModelIndex index = revView->currentIndex();
     mainWindow->setShownCommit(index.row());
 }

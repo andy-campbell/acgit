@@ -23,8 +23,8 @@ public:
     void setupDelegate(AcGit::Repository *repo);
     void checkForWorkingDirectoryChanges(AcGit::Repository *repo);
     void checkForStagingDirectoryChanges(AcGit::Repository *repo);
-    const bool hasWorkingDirectoryChanges() const;
-    const bool hasStagingDirectoryChanges() const;
+    bool hasWorkingDirectoryChanges() const;
+    bool hasStagingDirectoryChanges() const;
 
     int findCommitIndex(int modelIndex) const;
 private slots:
