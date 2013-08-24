@@ -228,7 +228,6 @@ enum revViewDelegate::RowType revViewDelegate::getRowType(int index) const
 
     if (index == 0 && hasWorkingDirectoryChanges())
     {
-        qDebug() << " working dir got to here" << index;
         type = WORKINGDIR;
     }
 
@@ -240,7 +239,6 @@ enum revViewDelegate::RowType revViewDelegate::getRowType(int index) const
 
     else if (index == 1  && hasStagingDirectoryChanges() && hasWorkingDirectoryChanges())
     {
-        qDebug() << " got to here index " << index;
         type = STAGINGDIR;
     }
 
@@ -292,7 +290,6 @@ void revViewDelegate::paintGraph(QPainter* p, const QStyleOptionViewItem& opt,
 
     if(type == WORKINGDIR || type == STAGINGDIR)
     {
-        qDebug() << "index == " << index.row() << " type " << type;
         paintNonCommitGraph(p, opt, type);
         return;
     }
