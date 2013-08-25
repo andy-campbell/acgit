@@ -107,11 +107,63 @@ bool MainWindow::isValidIndex(int index)
         return false;
     }
 
-    if(index >= commitsAgent->getAllCommits()->length())
+    int commitIndex = revView->findCommitIndex(index);
+    if(commitIndex >= commitsAgent->getAllCommits()->length())
     {
         return false;
     }
+
     return true;
+}
+
+void MainWindow::updatefullLogText()
+{
+    // Handle Long message
+    ui->fullLogText->clear();
+
+    ui->fullLogText->insertHtml("<!DOCTYPE html>");
+    ui->fullLogText->insertHtml("<html>");
+    if (shownCommit->getType() == WORKINGDIR)
+    {
+        if (shownCommit->getFileList().size() == 0)
+        {
+            ui->fullLogText->append ("No current in working directory");
+        }
+        else
+        {
+            ui->fullLogText->append ("Changes in working directory");
+        }
+    }
+    else if (shownCommit->getType() == WORKINGDIR)
+    {
+        if (shownCommit->getFileList().size() == 0)
+        {
+            ui->fullLogText->append ("No current in staging directory");
+        }
+        else
+        {
+            ui->fullLogText->append ("Changes in staging directory");
+        }
+
+    }
+    else if (shownCommit->getType() == COMMIT)
+    {
+        AcGit::Commit *commit = shownCommit->getCurrentSelectedCommit();
+        ui->fullLogText->insertHtml(QString("<h3>%1</h3><br>").arg(commit->shortLog()));
+
+        for (int parentIndex = 0; parentIndex < commit->parentCount(); parentIndex++)
+        {
+            AcGit::Sha *parentSha = commit->parentSha(parentIndex);
+            QString shaString = parentSha->toString();
+            ui->fullLogText->insertHtml(QString("<p><b>Parent:</b> <a href=%1>%2</a></p><br>").arg(shaString).arg(shaString));
+        }
+
+        ui->fullLogText->insertHtml("<hr><br />");
+        const QString message = shownCommit->getCurrentSelectedCommit()->log();
+        ui->fullLogText->insertHtml(QString("<p>%1</p>").arg(message));
+
+    }
+    ui->fullLogText->insertHtml("</html>");
 }
 
 void MainWindow::setShownCommit(int index)
@@ -123,50 +175,46 @@ void MainWindow::setShownCommit(int index)
 
     removeOldShownCommit();
 
-    if (revView->hasWorkingDirectoryChanges() && index == 0)
+    int commitIndex = revView->findCommitIndex(index);
+
+    if(commitIndex < 0)
     {
-        shownCommit = new currentDiff (repo->HeadCommit());
+        if(revView->hasWorkingDirectoryChanges() && index == 0)
+        {
+            shownCommit = new currentDiff(repo->HeadCommit(), true);
+        }
+
+        if(revView->hasStagingDirectoryChanges() && index == 1)
+        {
+            shownCommit = new currentDiff(repo->HeadCommit(), false);
+        }
+
+        if(revView->hasStagingDirectoryChanges() && !revView->hasWorkingDirectoryChanges() && index == 0)
+        {
+            shownCommit = new currentDiff(repo->HeadCommit(), false);
+        }
     }
     else
     {
         AcGit::ICommits *commitsAgent = repo->CommitsAgent();
-        AcGit::Commit *to = commitsAgent->getAllCommits()->at(index);
+        AcGit::Commit *to = commitsAgent->getAllCommits()->at(commitIndex);
         AcGit::Commit *from;
-        if (index + 1 == commitsAgent->getAllCommits()->count())
+        int nextIndex = index + 1;
+
+        if (nextIndex == commitsAgent->getAllCommits()->count())
         {
-            from = nullptr;
+            from = nullptr;;
         }
         else
         {
-            from = commitsAgent->getAllCommits()->at(index + 1);
+            from = commitsAgent->getAllCommits()->at(nextIndex);
         }
         shownCommit = new currentDiff (from, to);
     }
 
     commitChangesView->update(shownCommit);
 
-    // Handle Long message
-    ui->fullLogText->clear();
-    if (revView->hasWorkingDirectoryChanges() && index == 0)
-    {
-        if (shownCommit->getFileList().size() == 0)
-        {
-            ui->fullLogText->append ("No current in working directory");
-        }
-        else
-        {
-            ui->fullLogText->append ("Changes in working directory");
-        }
-    }
-    else
-    {
-        const QString message = shownCommit->getCurrentSelectedCommit()->log();
-        ui->fullLogText->append(message);
-        ui->fullLogText->append("\n\n\n");
-        ui->fullLogText->append(shownCommit->getPatchStats());
-        buildTreeForCommit(shownCommit->getCurrentSelectedCommit());
-    }
-
+    updatefullLogText();
 }
 
 currentDiff *MainWindow::getShownCommit()
@@ -643,3 +691,15 @@ void MainWindow::on_actionDelete_Tag_triggered()
 }
 
 
+
+void MainWindow::on_fullLogText_anchorClicked(const QUrl &arg1)
+{
+    AcGit::Sha *sha = new AcGit::Sha(arg1.toString());
+
+    AcGit::ICommits *commitAgent = repo->CommitsAgent();
+    AcGit::Commit *commit = commitAgent->lookupCommit(sha);
+
+    int index = commitAgent->getAllCommits()->indexOf(commit);
+    revView->setActiveCommit(index);
+
+}

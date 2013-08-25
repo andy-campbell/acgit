@@ -9,6 +9,8 @@
 #include "difftextedit.h"
 
 class MainWindow;
+class currentDiff;
+
 
 class filesChangesView : public QObject
 {

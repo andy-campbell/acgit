@@ -16,7 +16,6 @@
  */
 
 #include "revviewdelegate.h"
-#include "mainwindowrevview.h"
 
 #include <QDebug>
 
@@ -222,9 +221,9 @@ int revViewDelegate::findCommitIndex(int modelIndex) const
     return revView->findCommitIndex(modelIndex);
 }
 
-enum revViewDelegate::RowType revViewDelegate::getRowType(int index) const
+RowType revViewDelegate::getRowType(int index) const
 {
-    enum RowType type = COMMIT;
+    RowType type = COMMIT;
 
     if (index == 0 && hasWorkingDirectoryChanges())
     {
@@ -286,7 +285,7 @@ void revViewDelegate::paintGraph(QPainter* p, const QStyleOptionViewItem& opt,
                                   const QModelIndex& index) const
 {
 
-    enum RowType type = getRowType(index.row());
+    RowType type = getRowType(index.row());
 
     if(type == WORKINGDIR || type == STAGINGDIR)
     {

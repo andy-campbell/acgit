@@ -23,13 +23,16 @@
 
 #include <QStringList>
 #include "../libAcGit/AcGitGlobal.h"
+#include "types.h"
+
+class MainWindowRevView;
 
 class currentDiff
 {
 public:
     currentDiff(AcGit::Commit *from, AcGit::Commit *to);
 
-    currentDiff(AcGit::Commit *headCommit);
+    currentDiff(AcGit::Commit *headCommit, bool isWorkingDirectory);
 
     virtual ~currentDiff();
 
@@ -69,9 +72,12 @@ public:
      */
     QString getPatchStats();
 
+    RowType getType();
+
 private:
     AcGit::Commit *selectedCommit;
     AcGit::Diff *diff;
+    RowType type;
 };
 
 #endif // currentDiff_H

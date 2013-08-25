@@ -1,5 +1,5 @@
-#include "mainwindow.h"
 #include "mainwindowrevview.h"
+#include "mainwindow.h"
 #include "revviewdelegate.h"
 
 #include <QDebug>
@@ -186,5 +186,23 @@ int MainWindowRevView::findCommitIndex(int modelIndex) const
     }
 
     return commitIndex;
+
+}
+
+
+void MainWindowRevView::setActiveCommit(int indexOfCommit)
+{
+    int newRevViewIndex = indexOfCommit;
+    if (hasWorkingDirectoryChanges())
+    {
+        newRevViewIndex++;
+    }
+
+    if (hasStagingDirectoryChanges())
+    {
+        newRevViewIndex++;
+    }
+
+    revView->setCurrentIndex(revView->model()->index(newRevViewIndex, 0));
 
 }

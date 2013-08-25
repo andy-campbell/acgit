@@ -19,7 +19,8 @@ LIBS += -llibAcGit -L../libAcGit/
 QMAKE_RPATHDIR += $$PWD/../libAcGit/
 # Input
 HEADERS += mainwindow.h  \
-    currentdiff.h
+    currentdiff.h \
+    types.h
 
 FORMS += mainwindow.ui
 SOURCES += mainwindow.cpp \

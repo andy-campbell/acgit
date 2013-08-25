@@ -33,6 +33,7 @@ class MainWindow;
 
 class MainWindowRevView;
 class filesChangesView;
+class currentDiff;
 
 class MainWindow : public QMainWindow
 {
@@ -66,6 +67,8 @@ private slots:
 
     void on_actionDelete_Tag_triggered();
 
+    void on_fullLogText_anchorClicked(const QUrl &arg1);
+
 private:
 
     Ui::MainWindow *ui;
@@ -92,6 +95,7 @@ private:
     void savePatch(AcGit::Commit *commit);
     void createBranchOnCommit(AcGit::Commit *commit);
     void deleteBranchOnCommit(AcGit::Commit *commit);
+    void updatefullLogText();
 };
 
 #endif // MAINWINDOW_H

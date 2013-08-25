@@ -250,9 +250,15 @@ QHeaderView {
               <item>
                <layout class="QHBoxLayout" name="horizontalLayout">
                 <item>
-                 <widget class="QTextEdit" name="fullLogText">
+                 <widget class="QTextBrowser" name="fullLogText">
+                  <property name="autoFormatting">
+                   <set>QTextEdit::AutoNone</set>
+                  </property>
                   <property name="lineWrapMode">
-                   <enum>QTextEdit::NoWrap</enum>
+                   <enum>QTextEdit::WidgetWidth</enum>
+                  </property>
+                  <property name="openLinks">
+                   <bool>false</bool>
                   </property>
                  </widget>
                 </item>

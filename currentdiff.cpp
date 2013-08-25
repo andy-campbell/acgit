@@ -38,14 +38,24 @@ currentDiff::currentDiff(AcGit::Commit *from, AcGit::Commit *selectedCommit)
     {
         diff = new AcGit::TreeDiff(from->tree(), selectedCommit->tree());
     }
+    type = COMMIT;
 }
 
 /**
  * Call for diff of working directory
  */
-currentDiff::currentDiff(AcGit::Commit *headCommit)
+currentDiff::currentDiff(AcGit::Commit *headCommit, bool isWorkingDirectory)
 {
-    diff = new AcGit::WorkingDirDiff(headCommit->tree());
+    if(isWorkingDirectory)
+    {
+        diff = new AcGit::WorkingDirDiff(headCommit->tree());
+        type = WORKINGDIR;
+    }
+    else
+    {
+        diff = new AcGit::StagingDirDiff(headCommit->tree());
+        type = STAGINGDIR;
+    }
 }
 
 
@@ -93,4 +103,9 @@ void currentDiff::savePatch(const QString path)
 QString currentDiff::getPatchStats()
 {
     return diff->diffStats();
+}
+
+RowType currentDiff::getType()
+{
+    return type;
 }

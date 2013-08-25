@@ -30,6 +30,9 @@
 
 #include "AcGitGlobal.h"
 #include "mainwindowrevview.h"
+#include "types.h"
+
+class MainWindowRevView;
 
 class revViewDelegate : public QItemDelegate
 {
@@ -46,11 +49,6 @@ signals:
 public slots:
     
 private:
-     enum RowType {
-        COMMIT,
-        STAGINGDIR,
-        WORKINGDIR
-    };
 
     void addTextPixmap(QPixmap **pp, QString data, const QStyleOptionViewItem &opt) const;
     QPixmap *getRefsPixmap(AcGit::Commit *commit, QStyleOptionViewItem &opt) const;
@@ -64,7 +62,7 @@ private:
     bool hasWorkingDirectoryChanges() const;
     bool hasStagingDirectoryChanges() const;
     int findCommitIndex(int modelIndex) const;
-    enum RowType getRowType(int index) const;
+    RowType getRowType(int index) const;
 };
 
 #endif // REVVIEWDELEGATE_H

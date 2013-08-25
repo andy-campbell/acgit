@@ -13,6 +13,7 @@ class MainWindowRevView : public QObject
 {
     Q_OBJECT
 public:
+
     MainWindowRevView(MainWindow *_mainWindow, QTreeView *_revView);
     virtual ~MainWindowRevView();
 
@@ -27,6 +28,7 @@ public:
     bool hasStagingDirectoryChanges() const;
 
     int findCommitIndex(int modelIndex) const;
+    void setActiveCommit(int indexOfCommit);
 private slots:
     void revViewSelectionChanged(QItemSelection selected,QItemSelection deSelected);
 private:
