@@ -257,6 +257,7 @@ bool MainWindow::openRepository(QString path)
             // already have a repo so do some tidy up
             revView->setupDelegate(nullptr);
             delete repo;
+            repo = nullptr;
         }
 
         repo = new AcGit::Repository(path);
