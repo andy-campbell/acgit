@@ -20,8 +20,8 @@ Short term:
 - Ability to create commits
 - Add git blame in tree mode
 - Address TODOS in the code
+- Add reset
 
 Long term:
-- Ability to clone from git servers
 - Build in a review tool
 

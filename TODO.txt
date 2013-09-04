@@ -1,6 +1,3 @@
-- Bug around indexing of branches. The pixmap should be on row 1 not row 0 also remove -1 from on_revList_customContextMenuRequested in mainwindow.cpp and use
-  some sane logic and not magic numbers. Rudementary work has been done on this.
+- Refactor clonedialog to look nicer.
 
-- Refactor on_revList_customContextMenuRequested because it's huge!
-
-- Get Blobs working with new api
+- Add the ability to reset to commit
