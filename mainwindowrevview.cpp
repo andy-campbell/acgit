@@ -59,8 +59,15 @@ void MainWindowRevView::setupSelectionChangedCallBack()
 
 void MainWindowRevView::setupDelegate(AcGit::Repository *repo)
 {
-    revViewDelegate *delegate = new revViewDelegate(repo, this, this);
-    revView->setItemDelegate (delegate);
+    if (repo == nullptr)
+    {
+        revView->setItemDelegate(nullptr);
+    }
+    else
+    {
+        revViewDelegate *delegate = new revViewDelegate(repo, this, this);
+        revView->setItemDelegate (delegate);
+    }
 }
 
 void MainWindowRevView::setRevViewModel ()

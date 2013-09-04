@@ -26,6 +26,7 @@
 #include "currentdiff.h"
 #include "mainwindowrevview.h"
 #include "fileschangesview.h"
+#include "clonedialog.h"
 
 namespace Ui {
 class MainWindow;
@@ -69,6 +70,9 @@ private slots:
 
     void on_fullLogText_anchorClicked(const QUrl &arg1);
 
+    void on_actionClone_triggered();
+
+    void cloneCompleted();
 private:
 
     Ui::MainWindow *ui;
@@ -85,6 +89,8 @@ private:
 
     MainWindowRevView *revView;
     filesChangesView *commitChangesView;
+
+    CloneDialog *openCloneDialog;
 
     void buildTreeForCommit(AcGit::Commit *commit);
     bool isValidIndex(int index);

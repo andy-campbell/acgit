@@ -376,9 +376,10 @@ QHeaderView {
    </property>
    <widget class="QMenu" name="menuFile">
     <property name="title">
-     <string>File</string>
+     <string>Repository</string>
     </property>
     <addaction name="actionOpen"/>
+    <addaction name="actionClone"/>
     <addaction name="separator"/>
     <addaction name="actionQuit"/>
    </widget>
@@ -423,6 +424,11 @@ QHeaderView {
   <action name="actionDelete_Tag">
    <property name="text">
     <string>Delete Tag</string>
+   </property>
+  </action>
+  <action name="actionClone">
+   <property name="text">
+    <string>Clone</string>
    </property>
   </action>
  </widget>

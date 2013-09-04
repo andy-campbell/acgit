@@ -20,12 +20,19 @@ QMAKE_RPATHDIR += $$PWD/../libAcGit/
 # Input
 HEADERS += mainwindow.h  \
     currentdiff.h \
-    types.h
+    types.h \
+    clonedialog.h \
+    cloneprogress.h
 
-FORMS += mainwindow.ui
+FORMS += mainwindow.ui \
+    clonedialog.ui \
+    cloneprogress.ui
+
 SOURCES += mainwindow.cpp \
            main.cpp \
-    currentdiff.cpp
+    currentdiff.cpp \
+    clonedialog.cpp \
+    cloneprogress.cpp
 
 HEADERS += \
     revviewdelegate.h

@@ -50,6 +50,7 @@ MainWindow::MainWindow(QWidget *parent) :
     // null variables
     repo = nullptr;
     shownCommit = nullptr;
+    openCloneDialog = nullptr;
 
     // extra ui setup
     setup();
@@ -286,6 +287,11 @@ void MainWindow::on_actionOpen_triggered()
 {
     QString folderName = QFileDialog::getExistingDirectory(this, tr("Open Directory"),
                                                      QDir::home().path());
+
+    if(folderName.length() == 0)
+    {
+        return;
+    }
 
     if (openRepository(folderName))
     {
@@ -702,4 +708,28 @@ void MainWindow::on_fullLogText_anchorClicked(const QUrl &arg1)
     int index = commitAgent->getAllCommits()->indexOf(commit);
     revView->setActiveCommit(index);
 
+}
+
+void MainWindow::on_actionClone_triggered()
+{
+    if (repo)
+    {
+        // already have a repo so do some tidy up
+        revView->setupDelegate(nullptr);
+        delete repo;
+    }
+
+    openCloneDialog = new CloneDialog(this);
+    connect(openCloneDialog,SIGNAL(cloneCompleted()),
+            this,SLOT(cloneCompleted()) );
+
+    openCloneDialog->show();
+}
+
+void MainWindow::cloneCompleted()
+{
+    repo = openCloneDialog->getClonedRepo();
+    delete openCloneDialog;
+    openCloneDialog = nullptr;
+    populateNewRepo();
 }
