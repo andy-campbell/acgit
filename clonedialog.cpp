@@ -118,16 +118,14 @@ void CloneDialog::clonedRepo(AcGit::Repository *repo)
     emit cloneCompleted();
 }
 
-void CloneDialog::startClone()
+void CloneDialog::showProgress()
 {
-    QString url = ui->urlLineEdit->text();
-    QString path = ui->saveToLineEdit->text();
+    this->hide();
+    progress->show();
+}
 
-    progress = new CloneProgress(this);
-
-    QThread *thread = new QThread();
-    CloneRepo *clone = new CloneRepo(url ,path);
-    clone->moveToThread(thread);
+void CloneDialog::populateSignalSlots(QThread *thread, CloneRepo* clone)
+{
     connect(clone, SIGNAL(error(QString)), this, SLOT(displayError(QString)));
     connect(thread, SIGNAL(started()), clone, SLOT(process()));
     connect(clone, SIGNAL(finished()), thread, SLOT(quit()));
@@ -138,10 +136,22 @@ void CloneDialog::startClone()
     connect(clone, SIGNAL(credentialsRequest()), this, SLOT(getCredentials()));
     connect(clone, SIGNAL(newRepo(AcGit::Repository*)), this, SLOT(clonedRepo(AcGit::Repository*)));
     connect(progress, SIGNAL(cancel()), clone, SLOT(cancelClone()));
+}
+
+void CloneDialog::startClone()
+{
+    QString url = ui->urlLineEdit->text();
+    QString path = ui->saveToLineEdit->text();
+
+    progress = new CloneProgress(this);
+
+    QThread *thread = new QThread();
+    CloneRepo *clone = new CloneRepo(url ,path);
+    clone->moveToThread(thread);
+    populateSignalSlots(thread, clone);
     thread->start();
 
-    this->hide();
-    progress->show();
+    showProgress();
 }
 
 

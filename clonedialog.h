@@ -15,6 +15,38 @@ namespace Ui {
 class CloneDialog;
 }
 
+class CloneRepo : public QObject
+{
+    Q_OBJECT
+
+public:
+    CloneRepo(QString url, QString path);
+    ~CloneRepo();
+
+    bool handleCloneDialogUpdate(AcGit::Clone *clone);
+    AcGit::Credintials handleCredintialRequest();
+
+    void updateCheckoutProgress(AcGit::Clone *clone);
+public slots:
+    void process();
+    void cancelClone();
+
+signals:
+    void finished();
+    void error(QString error);
+    void fetchIndexProgress(int indexPercentage, int networkPercentage);
+    void checkoutProgress(int checkoutPercentage);
+    void newRepo(AcGit::Repository *repo);
+    void credentialsRequest();
+private:
+    AcGit::Clone *cloneRepo;
+    QString url;
+    QString path;
+    bool cancel;
+
+    void loadCredentials();
+};
+
 class CloneDialog : public QDialog
 {
     Q_OBJECT
@@ -49,39 +81,10 @@ private:
 
 
     void saveCredentials(QString sharedName, QString data);
+    void populateSignalSlots(QThread *thread, CloneRepo *clone);
+    void showProgress();
 };
 
 
-class CloneRepo : public QObject
-{
-    Q_OBJECT
-
-public:
-    CloneRepo(QString url, QString path);
-    ~CloneRepo();
-
-    bool handleCloneDialogUpdate(AcGit::Clone *clone);
-    AcGit::Credintials handleCredintialRequest();
-
-    void updateCheckoutProgress(AcGit::Clone *clone);
-public slots:
-    void process();
-    void cancelClone();
-
-signals:
-    void finished();
-    void error(QString error);
-    void fetchIndexProgress(int indexPercentage, int networkPercentage);
-    void checkoutProgress(int checkoutPercentage);
-    void newRepo(AcGit::Repository *repo);
-    void credentialsRequest();
-private:
-    AcGit::Clone *cloneRepo;
-    QString url;
-    QString path;
-    bool cancel;
-
-    void loadCredentials();
-};
 
 #endif // CLONEDIALOG_H
