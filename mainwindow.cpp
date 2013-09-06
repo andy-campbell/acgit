@@ -435,7 +435,11 @@ void MainWindow::addOffClickMenuItems(QMenu &menu)
     menu.addSeparator();
     menu.addAction(tr("Create Branch"));
     menu.addAction(tr("Delete Branch"));
-    menu.addAction(tr("Checkout branch"));
+    menu.addAction(tr("Checkout Branch"));
+    menu.addSeparator();
+    menu.addAction(tr("Reset Soft"));
+    menu.addAction(tr("Reset Mixed"));
+    menu.addAction(tr("Reset Hard"));
 
 }
 
@@ -559,25 +563,29 @@ void MainWindow::on_revList_customContextMenuRequested(const QPoint &pos)
 
         AcGit::ICommits *commitsAgent = repo->CommitsAgent();
         AcGit::Commit *commit = commitsAgent->getAllCommits()->at(commitIndex);
-        if (selectedItem->iconText().contains(tr("Add Tag")))
+        if(selectedItem->iconText().contains(tr("Add Tag")))
         {
             addTagToCommit(commit);
         }
-        else if (selectedItem->iconText().contains(tr("Delete Tag")))
+        else if(selectedItem->iconText().contains(tr("Delete Tag")))
         {
             deleteTagFromCommit(commit);
         }
-        else if (selectedItem->iconText().contains(tr("Save Patch")))
+        else if(selectedItem->iconText().contains(tr("Save Patch")))
         {
             savePatch(commit);
         }
-        else if (selectedItem->iconText().contains(tr("Create Branch")))
+        else if(selectedItem->iconText().contains(tr("Create Branch")))
         {
             createBranchOnCommit(commit);
         }
-        else if (selectedItem->iconText().contains(tr("Delete Branch")))
+        else if(selectedItem->iconText().contains(tr("Delete Branch")))
         {
             deleteBranchOnCommit(commit);
+        }
+        else if(selectedItem->iconText().contains(tr("Reset Soft")))
+        {
+            //resetAction();
         }
     }
 }
@@ -733,4 +741,28 @@ void MainWindow::cloneCompleted()
     delete openCloneDialog;
     openCloneDialog = nullptr;
     populateNewRepo();
+}
+
+void MainWindow::resetAction(AcGit::IReset::resetType type)
+{
+    AcGit::IReset *resetAgent = repo->ResetAgent();
+    AcGit::Commit *targetToResetTo = shownCommit->getCurrentSelectedCommit();
+
+    resetAgent->resetToTarget(targetToResetTo, type);
+
+}
+
+void MainWindow::on_actionSoft_triggered()
+{
+    resetAction(AcGit::IReset::SOFT);
+}
+
+void MainWindow::on_actionMixed_triggered()
+{
+    resetAction(AcGit::IReset::MIXED);
+}
+
+void MainWindow::on_actionHard_triggered()
+{
+    resetAction(AcGit::IReset::HARD);
 }

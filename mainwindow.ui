@@ -387,10 +387,20 @@ QHeaderView {
     <property name="title">
      <string>Commit</string>
     </property>
+    <widget class="QMenu" name="menuReset">
+     <property name="title">
+      <string>Reset</string>
+     </property>
+     <addaction name="actionSoft"/>
+     <addaction name="actionMixed"/>
+     <addaction name="actionHard"/>
+    </widget>
     <addaction name="actionSave_Path"/>
     <addaction name="separator"/>
     <addaction name="actionCreate_Tag"/>
     <addaction name="actionDelete_Tag"/>
+    <addaction name="separator"/>
+    <addaction name="menuReset"/>
    </widget>
    <addaction name="menuFile"/>
    <addaction name="menuCommit"/>
@@ -429,6 +439,21 @@ QHeaderView {
   <action name="actionClone">
    <property name="text">
     <string>Clone</string>
+   </property>
+  </action>
+  <action name="actionSoft">
+   <property name="text">
+    <string>Soft</string>
+   </property>
+  </action>
+  <action name="actionMixed">
+   <property name="text">
+    <string>Mixed</string>
+   </property>
+  </action>
+  <action name="actionHard">
+   <property name="text">
+    <string>Hard</string>
    </property>
   </action>
  </widget>

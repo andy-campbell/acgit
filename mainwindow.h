@@ -73,6 +73,12 @@ private slots:
     void on_actionClone_triggered();
 
     void cloneCompleted();
+    void on_actionSoft_triggered();
+
+    void on_actionMixed_triggered();
+
+    void on_actionHard_triggered();
+
 private:
 
     Ui::MainWindow *ui;
@@ -102,6 +108,7 @@ private:
     void createBranchOnCommit(AcGit::Commit *commit);
     void deleteBranchOnCommit(AcGit::Commit *commit);
     void updatefullLogText();
+    void resetAction(AcGit::IReset::resetType type);
 };
 
 #endif // MAINWINDOW_H
