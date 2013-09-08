@@ -585,7 +585,15 @@ void MainWindow::on_revList_customContextMenuRequested(const QPoint &pos)
         }
         else if(selectedItem->iconText().contains(tr("Reset Soft")))
         {
-            //resetAction();
+            resetAction(AcGit::IReset::SOFT);
+        }
+        else if(selectedItem->iconText().contains(tr("Reset Mixed")))
+        {
+            resetAction(AcGit::IReset::MIXED);
+        }
+        else if(selectedItem->iconText().contains(tr("Reset Hard")))
+        {
+            resetAction(AcGit::IReset::HARD);
         }
     }
 }
@@ -743,6 +751,12 @@ void MainWindow::cloneCompleted()
     populateNewRepo();
 }
 
+void MainWindow::checkForChanges()
+{
+    revView->checkForStagingDirectoryChanges(repo);
+    revView->checkForWorkingDirectoryChanges(repo);
+}
+
 void MainWindow::resetAction(AcGit::IReset::resetType type)
 {
     AcGit::IReset *resetAgent = repo->ResetAgent();
@@ -750,6 +764,7 @@ void MainWindow::resetAction(AcGit::IReset::resetType type)
 
     resetAgent->resetToTarget(targetToResetTo, type);
 
+    checkForChanges();
 }
 
 void MainWindow::on_actionSoft_triggered()

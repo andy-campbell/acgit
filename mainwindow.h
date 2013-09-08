@@ -109,6 +109,7 @@ private:
     void deleteBranchOnCommit(AcGit::Commit *commit);
     void updatefullLogText();
     void resetAction(AcGit::IReset::resetType type);
+    void checkForChanges();
 };
 
 #endif // MAINWINDOW_H
