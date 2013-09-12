@@ -764,7 +764,6 @@ void MainWindow::resetAction(AcGit::IReset::resetType type)
 
     resetAgent->resetToTarget(targetToResetTo, type);
 
-    repo->Update();
     populateNewRepo();
 
 }
