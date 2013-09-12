@@ -154,6 +154,10 @@ void CloneDialog::startClone()
     showProgress();
 }
 
+void CloneDialog::on_pushButton_clicked()
+{
+    this->close();
+}
 
 CloneRepo::CloneRepo(QString url, QString path)
 {
@@ -236,3 +240,4 @@ void CloneRepo::cancelClone()
 {
     cancel = true;
 }
+

@@ -73,6 +73,8 @@ private slots:
     void checkoutProgress(int checkoutPercentage);
     void clonedRepo(AcGit::Repository *repo);
     void getCredentials();
+    void on_pushButton_clicked();
+
 private:
     Ui::CloneDialog *ui;
     void startClone();
