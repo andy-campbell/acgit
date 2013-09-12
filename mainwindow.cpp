@@ -729,12 +729,6 @@ void MainWindow::on_fullLogText_anchorClicked(const QUrl &arg1)
 
 void MainWindow::on_actionClone_triggered()
 {
-    if (repo)
-    {
-        // already have a repo so do some tidy up
-        revView->setupDelegate(nullptr);
-        delete repo;
-    }
 
     openCloneDialog = new CloneDialog(this);
     connect(openCloneDialog,SIGNAL(cloneCompleted()),
@@ -745,6 +739,14 @@ void MainWindow::on_actionClone_triggered()
 
 void MainWindow::cloneCompleted()
 {
+    if (repo)
+    {
+        // already have a repo so do some tidy up
+        revView->setupDelegate(nullptr);
+        delete repo;
+        repo = nullptr;
+    }
+
     repo = openCloneDialog->getClonedRepo();
     delete openCloneDialog;
     openCloneDialog = nullptr;
