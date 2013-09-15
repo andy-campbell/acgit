@@ -108,7 +108,7 @@ private:
     QString diffExecutable;
     ExternalDiff *externalDiff;
 
-    void buildTreeForCommit(AcGit::Commit *commit);
+    void buildTreeForCommit();
     bool isValidIndex(int index);
     bool openRepository(QString path);
     void addOffClickMenuItems(QMenu &menu);

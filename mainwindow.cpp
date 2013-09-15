@@ -217,6 +217,8 @@ void MainWindow::setShownCommit(int index)
     commitChangesView->update(shownCommit);
 
     updatefullLogText();
+
+    buildTreeForCommit();
 }
 
 currentDiff *MainWindow::getShownCommit()
@@ -347,8 +349,10 @@ void MainWindow::gitTreeSelectedRow(const QModelIndex& index)
 
 }
 
-void MainWindow::buildTreeForCommit(AcGit::Commit *commit)
+void MainWindow::buildTreeForCommit()
 {
+    AcGit::Commit *commit = shownCommit->getCurrentSelectedCommit();
+
     // Handle Tree
     QList<AcGit::TreeEntry*> entries = commit->tree()->getEntriesList();
     QStandardItemModel *model = new QStandardItemModel(this);
