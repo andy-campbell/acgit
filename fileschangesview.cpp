@@ -26,6 +26,7 @@ void filesChangesView::addNewChangedFileList(QStringList changedFileList)
         //create items and then add it to the model
         QStandardItem *index = new QStandardItem();
         index->setData(file, Qt::DisplayRole);
+        index->setEditable(false);
         model->setItem(row, 0, index);
 
         row++;
