@@ -27,6 +27,8 @@
 #include "mainwindowrevview.h"
 #include "fileschangesview.h"
 #include "clonedialog.h"
+#include "options.h"
+#include "externaldiff.h"
 
 namespace Ui {
 class MainWindow;
@@ -79,6 +81,12 @@ private slots:
 
     void on_actionHard_triggered();
 
+    void on_actionPreferences_triggered();
+
+    void updateExternalDiffTool(QString executableLocation);
+    void optionsDialogClosed();
+    void on_fileChangesView_customContextMenuRequested(const QPoint &pos);
+
 private:
 
     Ui::MainWindow *ui;
@@ -95,8 +103,10 @@ private:
 
     MainWindowRevView *revView;
     filesChangesView *commitChangesView;
-
+    Options *optionsDialog;
     CloneDialog *openCloneDialog;
+    QString diffExecutable;
+    ExternalDiff *externalDiff;
 
     void buildTreeForCommit(AcGit::Commit *commit);
     bool isValidIndex(int index);
@@ -110,6 +120,8 @@ private:
     void updatefullLogText();
     void resetAction(AcGit::IReset::resetType type);
     void checkForChanges();
+    void addFileViewOffClickMenu(QMenu &menu);
 };
 
 #endif // MAINWINDOW_H
+

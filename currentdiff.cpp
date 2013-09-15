@@ -29,6 +29,7 @@
 currentDiff::currentDiff(AcGit::Commit *from, AcGit::Commit *selectedCommit)
 {
     this->selectedCommit = selectedCommit;
+    this->diffFromCommit = from;
 
     if (from == nullptr)
     {
@@ -87,6 +88,11 @@ QString currentDiff::getDetaForFile(QString &filename)
 AcGit::Commit *currentDiff::getCurrentSelectedCommit()
 {
     return selectedCommit;
+}
+
+AcGit::Commit *currentDiff::getCommitDiffedFrom()
+{
+    return diffFromCommit;
 }
 
 void currentDiff::savePatch(const QString path)

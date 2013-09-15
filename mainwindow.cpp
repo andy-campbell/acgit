@@ -51,6 +51,7 @@ MainWindow::MainWindow(QWidget *parent) :
     repo = nullptr;
     shownCommit = nullptr;
     openCloneDialog = nullptr;
+    optionsDialog = nullptr;
 
     // extra ui setup
     setup();
@@ -338,11 +339,11 @@ void MainWindow::gitTreeSelectedRow(const QModelIndex& index)
         qDebug() << "entry is null";
         return;
     }
-    AcGit::Blob blob = entry->fileBlob();
+    AcGit::Blob* blob = entry->fileBlob();
 
     // clear output and then append file text
     ui->fileText->clear();
-    ui->fileText->append(blob.contents());
+    ui->fileText->append(blob->contents());
 
 }
 
@@ -547,6 +548,38 @@ void MainWindow::deleteBranchOnCommit(AcGit::Commit *commit)
         }
     }
 }
+
+void MainWindow::addFileViewOffClickMenu(QMenu &menu)
+{
+    menu.addAction(tr("External Diff"));
+}
+
+void MainWindow::on_fileChangesView_customContextMenuRequested(const QPoint &pos)
+{
+    QModelIndex index = ui->fileChangesView->indexAt(pos);
+    QPoint globalPos = ui->fileChangesView->mapToGlobal(pos);
+    qDebug() << "got to here";
+    QMenu menu(this);
+    addFileViewOffClickMenu(menu);
+
+    QAction* selectedItem = menu.exec(globalPos);
+    if (selectedItem)
+    {
+        if(selectedItem->iconText().contains(tr("External Diff")))
+        {
+
+            if(diffExecutable.isEmpty())
+            {
+                QMessageBox::warning(this, tr("Warning"), tr("No external diff executable set"), QMessageBox::Ok);
+                return;
+            }
+            externalDiff = new ExternalDiff(shownCommit, diffExecutable, index.data().toString());
+        }
+
+    }
+
+}
+
 
 void MainWindow::on_revList_customContextMenuRequested(const QPoint &pos)
 {
@@ -783,4 +816,26 @@ void MainWindow::on_actionMixed_triggered()
 void MainWindow::on_actionHard_triggered()
 {
     resetAction(AcGit::IReset::HARD);
+}
+
+void MainWindow::updateExternalDiffTool(QString executableLocation)
+{
+    diffExecutable = executableLocation;
+}
+
+void MainWindow::optionsDialogClosed()
+{
+    if(optionsDialog == nullptr)
+        return;
+
+    optionsDialog = nullptr;
+}
+
+void MainWindow::on_actionPreferences_triggered()
+{
+    optionsDialog = new Options(this);
+
+    connect (optionsDialog, SIGNAL(updatedExternalDiffTool(QString)), this, SLOT(updateExternalDiffTool(QString)));
+    connect (optionsDialog, SIGNAL(destroyed()), this, SLOT(optionsDialogClosed()));
+    optionsDialog->show();
 }

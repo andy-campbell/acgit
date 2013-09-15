@@ -59,6 +59,13 @@ public:
      */
     AcGit::Commit *getCurrentSelectedCommit();
 
+
+    /**
+     * @brief getCommitDiffedFrom this function returns the "from" commit
+     * @return return the "from" commit which is the current selected commit
+     */
+    AcGit::Commit *getCommitDiffedFrom();
+
     /**
      * @brief savePatch writes the current commits patch to a file.
      * @param path the location that the file should be saved to.
@@ -76,6 +83,7 @@ public:
 
 private:
     AcGit::Commit *selectedCommit;
+    AcGit::Commit *diffFromCommit;
     AcGit::Diff *diff;
     RowType type;
 };

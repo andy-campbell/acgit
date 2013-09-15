@@ -22,17 +22,22 @@ HEADERS += mainwindow.h  \
     currentdiff.h \
     types.h \
     clonedialog.h \
-    cloneprogress.h
+    cloneprogress.h \
+    options.h \
+    externaldiff.h
 
 FORMS += mainwindow.ui \
     clonedialog.ui \
-    cloneprogress.ui
+    cloneprogress.ui \
+    options.ui
 
 SOURCES += mainwindow.cpp \
            main.cpp \
     currentdiff.cpp \
     clonedialog.cpp \
-    cloneprogress.cpp
+    cloneprogress.cpp \
+    options.cpp \
+    externaldiff.cpp
 
 HEADERS += \
     revviewdelegate.h
