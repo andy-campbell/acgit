@@ -3,12 +3,15 @@
 #include "options.h"
 #include "ui_options.h"
 
-Options::Options(QWidget *parent) :
+Options::Options(MainWindow *mainWindow, QWidget *parent) :
     QDialog(parent),
     ui(new Ui::Options)
 {
+    this->mainWindow = mainWindow;
     ui->setupUi(this);
     this->setAttribute(Qt::WA_DeleteOnClose);
+
+    ui->diffToolLineEdit->setText(mainWindow->getdiffExecutable());
 }
 
 Options::~Options()

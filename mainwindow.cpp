@@ -53,6 +53,8 @@ MainWindow::MainWindow(QWidget *parent) :
     openCloneDialog = nullptr;
     optionsDialog = nullptr;
 
+    loadSettings();
+
     // extra ui setup
     setup();
 
@@ -67,6 +69,14 @@ MainWindow::MainWindow(QWidget *parent) :
 MainWindow::~MainWindow()
 {
     delete ui;
+    delete settings;
+}
+
+void MainWindow::loadSettings()
+{
+    settings = new QSettings("AcGit", "AcGit");
+
+    diffExecutable = settings->value("options/externalEditor").toString();
 }
 
 void MainWindow::setup()
@@ -584,6 +594,11 @@ void MainWindow::on_fileChangesView_customContextMenuRequested(const QPoint &pos
 
 }
 
+QString MainWindow::getdiffExecutable()
+{
+    return diffExecutable;
+}
+
 
 void MainWindow::on_revList_customContextMenuRequested(const QPoint &pos)
 {
@@ -825,6 +840,9 @@ void MainWindow::on_actionHard_triggered()
 void MainWindow::updateExternalDiffTool(QString executableLocation)
 {
     diffExecutable = executableLocation;
+
+    settings->setValue("options/externalEditor", diffExecutable);
+
 }
 
 void MainWindow::optionsDialogClosed()
@@ -837,7 +855,7 @@ void MainWindow::optionsDialogClosed()
 
 void MainWindow::on_actionPreferences_triggered()
 {
-    optionsDialog = new Options(this);
+    optionsDialog = new Options(this, this);
 
     connect (optionsDialog, SIGNAL(updatedExternalDiffTool(QString)), this, SLOT(updateExternalDiffTool(QString)));
     connect (optionsDialog, SIGNAL(destroyed()), this, SLOT(optionsDialogClosed()));

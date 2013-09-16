@@ -22,6 +22,7 @@
 #include <QMainWindow>
 #include <QTreeView>
 #include <QAbstractItemView>
+#include <QSettings>
 
 #include "currentdiff.h"
 #include "mainwindowrevview.h"
@@ -37,6 +38,7 @@ class MainWindow;
 class MainWindowRevView;
 class filesChangesView;
 class currentDiff;
+class Options;
 
 class MainWindow : public QMainWindow
 {
@@ -48,6 +50,7 @@ public:
     
     void setShownCommit(int index);
     currentDiff *getShownCommit();
+    QString getdiffExecutable();
 
 private slots:
     void on_actionOpen_triggered();
@@ -87,6 +90,7 @@ private slots:
     void optionsDialogClosed();
     void on_fileChangesView_customContextMenuRequested(const QPoint &pos);
 
+
 private:
 
     Ui::MainWindow *ui;
@@ -107,6 +111,7 @@ private:
     CloneDialog *openCloneDialog;
     QString diffExecutable;
     ExternalDiff *externalDiff;
+    QSettings *settings;
 
     void buildTreeForCommit();
     bool isValidIndex(int index);
@@ -121,6 +126,7 @@ private:
     void resetAction(AcGit::IReset::resetType type);
     void checkForChanges();
     void addFileViewOffClickMenu(QMenu &menu);
+    void loadSettings();
 };
 
 #endif // MAINWINDOW_H
