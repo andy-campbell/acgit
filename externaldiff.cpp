@@ -36,7 +36,6 @@ void ExternalDiff::writeFileBlobs(currentDiff *shownCommit, QString pathToFile)
     }
     AcGit::Blob *blob = entry->fileBlob();
     QString pathToCommit = QDir::tempPath() + "/" + pathToFile + "." + commit->toString();
-    qDebug() << pathToCommit;
     commitTmp = new QTemporaryFile(pathToCommit);
     commitTmp->open();
 
@@ -69,12 +68,8 @@ void ExternalDiff::runExternalDiff()
     connect(externalProcess, SIGNAL(error(QProcess::ProcessError)),
                           this, SLOT(processError(QProcess::ProcessError)));
 
-    //pass the name of executable that you want to launch. i have installed helloworld so passed helloworld.
-//    externalProcess.arguments()
     QStringList arguments;
     arguments << preComitTmp->fileName() << commitTmp->fileName();
-    qDebug() << arguments;
-//    externalProcess->
     externalProcess->start(diffExecutable, arguments);
 }
 
