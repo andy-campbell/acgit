@@ -211,7 +211,7 @@ void MainWindow::setShownCommit(int index)
         AcGit::ICommits *commitsAgent = repo->CommitsAgent();
         AcGit::Commit *to = commitsAgent->getAllCommits()->at(commitIndex);
         AcGit::Commit *from;
-        int nextIndex = index + 1;
+        int nextIndex = commitIndex + 1;
 
         if (nextIndex == commitsAgent->getAllCommits()->count())
         {
