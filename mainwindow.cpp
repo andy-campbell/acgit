@@ -481,32 +481,45 @@ void MainWindow::deleteTagFromCommit(AcGit::Commit *commit)
 
 }
 
+bool MainWindow::isValidTagOrBranchName(QString tagName)
+{
+    QRegularExpression expression("^[A-Za-z0-9-+=]");
+    QRegularExpressionMatch match = expression.match(tagName, 0, QRegularExpression::PartialPreferCompleteMatch);
+
+    return match.hasMatch();
+}
 
 void MainWindow::addTagToCommit(AcGit::Commit *commit)
 {
     // Prompt user for tag name
     QString tagName = QInputDialog::getText (this, tr("Please enter tag name"), tr("Tag name"));
 
-    // Add Tag
-    if (!tagName.isEmpty())
+    if(tagName.isEmpty() || isValidTagOrBranchName(tagName) == false)
     {
-        AcGit::Configuration *config = repo->ConfigurationAgent();
-        QString name = config->userName();
-        QString email = config->userEmail();
-        AcGit::Tagger *tagger = new AcGit::Tagger(name, email);
-        QString message;
-
-        int ret = QMessageBox::question(this, tr("Tag message"), tr("Would you like to add a message?"),
-                               QMessageBox::Yes|QMessageBox::Default, QMessageBox::No|QMessageBox::Escape);
-
-        if(ret == QMessageBox::Yes)
-        {
-            message = QInputDialog::getText (this, tr("Please enter messsage"), tr("Tag message"));
-        }
-
-
-        repo->TagsAgent()->createTag(tagName, commit, tagger, message);
+        QMessageBox::warning(this, tr("Invalid input"), tr("Invalid input found"),
+                               QMessageBox::Ok,QMessageBox::Escape);
+        return;
     }
+
+    // Add Tag
+    AcGit::Configuration *config = repo->ConfigurationAgent();
+    QString name = config->userName();
+    QString email = config->userEmail();
+    AcGit::Tagger *tagger = new AcGit::Tagger(name, email);
+    QString message;
+
+    int ret = QMessageBox::question(this, tr("Tag message"), tr("Would you like to add a message?"),
+                           QMessageBox::Yes|QMessageBox::Default, QMessageBox::No|QMessageBox::Escape);
+
+    if(ret == QMessageBox::Yes)
+    {
+        message = QInputDialog::getText (this, tr("Please enter messsage"), tr("Tag message"));
+    }
+
+
+    repo->TagsAgent()->createTag(tagName, commit, tagger, message);
+
+
 }
 
 void MainWindow::savePatch(AcGit::Commit *commit)
@@ -523,11 +536,15 @@ void MainWindow::createBranchOnCommit(AcGit::Commit *commit)
 {
     QString branchName = QInputDialog::getText (this, tr("Please enter branch name"), tr("Branch name"));
 
-    if (!branchName.isNull())
+    if(branchName.isEmpty() || isValidTagOrBranchName(branchName) == false)
     {
-        AcGit::IBranches *branchAgent = repo->BranchAgent();
-        branchAgent->createNewBranch(branchName, commit);
+        QMessageBox::warning(this, tr("Invalid input"), tr("Invalid input found"),
+                               QMessageBox::Ok,QMessageBox::Escape);
+        return;
     }
+
+    AcGit::IBranches *branchAgent = repo->BranchAgent();
+    branchAgent->createNewBranch(branchName, commit);
 }
 
 void MainWindow::deleteBranchOnCommit(AcGit::Commit *commit)
@@ -572,7 +589,6 @@ void MainWindow::on_fileChangesView_customContextMenuRequested(const QPoint &pos
 {
     QModelIndex index = ui->fileChangesView->indexAt(pos);
     QPoint globalPos = ui->fileChangesView->mapToGlobal(pos);
-    qDebug() << "got to here";
     QMenu menu(this);
     addFileViewOffClickMenu(menu);
 

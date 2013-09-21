@@ -127,6 +127,7 @@ private:
     void checkForChanges();
     void addFileViewOffClickMenu(QMenu &menu);
     void loadSettings();
+    bool isValidTagOrBranchName(QString tagName);
 };
 
 #endif // MAINWINDOW_H
