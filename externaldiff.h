@@ -8,11 +8,13 @@
 #include "currentdiff.h"
 #include "libacgit_global.h"
 
+#define MAX_DIFFABLE 3
+
 class ExternalDiff : public QObject
 {
     Q_OBJECT
 public:
-    ExternalDiff(currentDiff *showCommit, QString diffExecutable, QString pathToFile);
+    ExternalDiff(currentDiff *showCommit, QString diffExecutable, QString pathToFile, AcGit::Repository *repo);
 
     ~ExternalDiff();
 private slots:
@@ -21,9 +23,9 @@ private slots:
 private:
     QProcess *externalProcess;
     QString diffExecutable;
-    QTemporaryFile *preComitTmp;
-    QTemporaryFile *commitTmp;
+    QTemporaryFile *commitTmp[MAX_DIFFABLE];
     AcGit::Repository *repo;
+    int tmpFilesCreated;
 
     void cleanupFileBlobs();
     void runExternalDiff();

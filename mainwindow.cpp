@@ -603,7 +603,7 @@ void MainWindow::on_fileChangesView_customContextMenuRequested(const QPoint &pos
                 QMessageBox::warning(this, tr("Warning"), tr("No external diff executable set"), QMessageBox::Ok);
                 return;
             }
-            externalDiff = new ExternalDiff(shownCommit, diffExecutable, index.data().toString());
+            externalDiff = new ExternalDiff(shownCommit, diffExecutable, index.data().toString(), repo);
         }
 
     }

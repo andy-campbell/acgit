@@ -4,10 +4,11 @@
 
 #include "externaldiff.h"
 
-ExternalDiff::ExternalDiff(currentDiff *shownCommit, QString diffExecutable, QString pathToFile)
+ExternalDiff::ExternalDiff(currentDiff *shownCommit, QString diffExecutable, QString pathToFile, AcGit::Repository *repo)
 {
     this->diffExecutable = diffExecutable;
     this->repo = repo;
+    tmpFilesCreated = 0;
 
     writeFileBlobs(shownCommit, pathToFile);
 
@@ -19,14 +20,22 @@ ExternalDiff::ExternalDiff(currentDiff *shownCommit, QString diffExecutable, QSt
 
 ExternalDiff::~ExternalDiff()
 {
-    delete commitTmp;
-    delete preComitTmp;
+    for(int index = 0; index < tmpFilesCreated; index++)
+    {
+        delete commitTmp[index];
+    }
 }
 
 void ExternalDiff::writeFileBlobs(currentDiff *shownCommit, QString pathToFile)
 {
     AcGit::Commit *commit = shownCommit->getCurrentSelectedCommit();
     AcGit::Tree *tree = commit->tree();
+    int parentCount = commit->parentCount();
+    if(parentCount > MAX_DIFFABLE)
+    {
+        return;
+        // throw error message to user.
+    }
 
     AcGit::TreeEntry *entry = tree->getEntry(pathToFile);
     if (entry == nullptr)
@@ -34,32 +43,45 @@ void ExternalDiff::writeFileBlobs(currentDiff *shownCommit, QString pathToFile)
         qDebug() << "entry is null";
         return;
     }
+    qDebug() << entry->fullPath();
     AcGit::Blob *blob = entry->fileBlob();
-    QString pathToCommit = QDir::tempPath() + "/" + pathToFile + "." + commit->toString();
-    commitTmp = new QTemporaryFile(pathToCommit);
-    commitTmp->open();
+    QString pathToCommit = QDir::tempPath() + "/" + entry->fileName() + "." + commit->toString();
+    commitTmp[0] = new QTemporaryFile(pathToCommit);
+    commitTmp[0]->open();
 
-    commitTmp->write(blob->contents().toUtf8());
-    commitTmp->close();
+    commitTmp[0]->write(blob->contents().toUtf8());
+    commitTmp[0]->close();
+    tmpFilesCreated++;
     delete blob;
-    commit = shownCommit->getCommitDiffedFrom();
-    tree = commit->tree();
 
-    entry = tree->getEntry(pathToFile);
-    if (entry == nullptr)
+    qDebug() << parentCount;
+    for(int index = 0; index < parentCount; index++)
     {
-        qDebug() << "entry is null";
-        return;
+        AcGit::ICommits *commitAgent = repo->CommitsAgent();
+
+        AcGit::Commit *parentCommit = commitAgent->lookupCommit(commit->parentSha(index));
+        tree = parentCommit->tree();
+
+        entry = tree->getEntry(pathToFile);
+        if (entry == nullptr)
+        {
+            qDebug() << "entry is null";
+            return;
+        }
+        blob = entry->fileBlob();
+        QString pathFromCommit = QDir::tempPath() + "/" + entry->fileName() + "." + parentCommit->toString();
+
+        commitTmp[index + 1] = new QTemporaryFile(pathFromCommit);
+        commitTmp[index + 1]->open();
+        commitTmp[index + 1]->open();
+
+        commitTmp[index + 1]->write(blob->contents().toUtf8());
+        commitTmp[index + 1]->close();
+        tmpFilesCreated++;
+        delete blob;
+
+
     }
-    blob = entry->fileBlob();
-    QString pathFromCommit = QDir::tempPath() + "/" + pathToFile + "." + commit->toString();
-    preComitTmp = new QTemporaryFile(pathFromCommit);
-    preComitTmp->open();
-
-    preComitTmp->write(blob->contents().toUtf8());
-    preComitTmp->close();
-    delete blob;
-
 }
 
 void ExternalDiff::runExternalDiff()
@@ -69,7 +91,10 @@ void ExternalDiff::runExternalDiff()
                           this, SLOT(processError(QProcess::ProcessError)));
 
     QStringList arguments;
-    arguments << preComitTmp->fileName() << commitTmp->fileName();
+    for(int index = 0; index < tmpFilesCreated; index++)
+    {
+        arguments << commitTmp[index]->fileName();
+    }
     externalProcess->start(diffExecutable, arguments);
 }
 
