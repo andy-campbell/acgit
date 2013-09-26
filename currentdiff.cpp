@@ -57,6 +57,7 @@ currentDiff::currentDiff(AcGit::Commit *headCommit, bool isWorkingDirectory)
         diff = new AcGit::StagingDirDiff(headCommit->tree());
         type = STAGINGDIR;
     }
+    this->selectedCommit = headCommit;
 }
 
 
