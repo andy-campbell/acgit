@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with Foobar.  If not, see <http://www.gnu.org/licenses/>.
+ * along with AcGit.  If not, see <http://www.gnu.org/licenses/>.
  */
 
 
@@ -23,14 +23,13 @@
 #include <QDebug>
 #include <QTreeWidgetItem>
 #include <QHeaderView>
-
-#include <QHeaderView>
 #include <QItemSelectionModel>
 #include <QStandardItemModel>
 #include <QTableView>
 #include <QList>
 #include <QInputDialog>
 #include <QMessageBox>
+#include <QRegularExpression>
 
 #include "ui_mainwindow.h"
 #include "mainwindow.h"
