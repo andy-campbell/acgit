@@ -171,7 +171,9 @@ void MainWindow::updatefullLogText()
 
         ui->fullLogText->insertHtml("<hr><br />");
         const QString message = shownCommit->getCurrentSelectedCommit()->log();
-        ui->fullLogText->insertHtml(QString("<p>%1</p>").arg(message));
+        QString convertedMessage = QString(message);
+        convertedMessage = convertedMessage.replace("\n", "<br />", Qt::CaseSensitive);
+        ui->fullLogText->insertHtml(QString("<p>%1</p>").arg(convertedMessage));
 
     }
     ui->fullLogText->insertHtml("</html>");
