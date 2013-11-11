@@ -255,8 +255,9 @@ void MainWindow::updateBranches()
     ui->branchesCombo->insertItems(0, branchAgent->branchNamesList());
 
     QString currentBranch = branchAgent->currentBranch();
-    // -1 to remove the '/'
-    currentBranch = currentBranch.right(currentBranch.length() - currentBranch.lastIndexOf('/') - 1);
+    if (!currentBranch.contains("No active branch"))
+        currentBranch = currentBranch.right(currentBranch.length() - currentBranch.lastIndexOf('/') - 1);
+
     ui->branchLabel->setText(currentBranch);
 
 }
@@ -332,18 +333,12 @@ void MainWindow::gitTreeSelectedRow(const QModelIndex& index)
         parent = parent.parent();
     }
 
-     //get commit we are working with
-    int row = ui->revList->currentIndex().row();
-
-    if (repo->HasWorkingTreeChanges())
+    AcGit::Commit *commit = shownCommit->getCurrentSelectedCommit();
+    if(commit == nullptr)
     {
-        // to allow for commit array to start from 0
-        row -= 1;
+	// we have not selected a commit yet
+	return;
     }
-
-    AcGit::ICommits *commitsAgent = repo->CommitsAgent();
-    AcGit::Commit *commit = commitsAgent->getAllCommits()->at(row);
-
     AcGit::Tree *tree = commit->tree();
 
     AcGit::TreeEntry *entry = tree->getEntry(path);
